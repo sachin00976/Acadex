@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import validator from "validator";
 
 const adminSchema = new mongoose.Schema(
   {
@@ -21,11 +22,14 @@ const adminSchema = new mongoose.Schema(
       required: true,
     },
     email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-    },
+            type: String,
+            unique: true,
+            required: [true, "Email is needed"],
+            validate: {
+                validator: (value) => validator.isEmail(value),
+                message: "Please provide a valid email",
+            },
+        },
     phoneNumber: {
       type: String, 
       required: true,
