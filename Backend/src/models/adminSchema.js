@@ -53,6 +53,9 @@ const adminSchema = new mongoose.Schema(
         minLength: [8, "Password must contain at least 8 characters"],
         maxLength: [50, "Password cannot exceed 50 characters"],
     },
+    refreshToken: {
+      type: String,
+  },
   },
   { timestamps: true }
 );
