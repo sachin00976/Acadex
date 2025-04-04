@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 import app from "./app.js";
 import {v2 as cloudinary} from 'cloudinary'
+import { dbConnect } from './src/database/index.js';
 dotenv.config({
     path:'./.env'
 })
@@ -12,3 +13,5 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
+
+  dbConnect();
