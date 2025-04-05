@@ -89,8 +89,39 @@ const adminRegister = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .json(new ApiResponse(201, createdAdmin, "Admin registered successfully"));
 });
+const adminLogin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new ApiError(404, "Please enter all fields to login");
+    }
+
+    const admin = await Admin.findOne({ email }).select("-createdAt -updatedAt -__v");
+
+    if (!admin) {
+        throw new ApiError(404, "Invalid email. Please try again!");
+    }
+
+    const isPasswordValid = await admin.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+        throw new ApiError(404, "Invalid password. Please try again!");
+    }
+
+    const adminData = admin.toObject();
+    delete adminData.password;
+    delete adminData.refreshToken;
+
+    const { refreshToken, accessToken } = await genrateAccessTokenAndRefreshToken(admin._id);
+
+    return res.status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(new ApiResponse(200, adminData, "Admin logged in successfully"));
+});
 
 export {
     adminRegister,
+    adminLogin,
 
 }
