@@ -95,9 +95,42 @@ const facultyRegister = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .json(new ApiResponse(201, createdFaculty, "Faculty registered successfully"));
 });
+const facultyLogin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new ApiError(404, "Please enter all fields to login");
+    }
+
+    const faculty = await Faculty.findOne({ email }).select("-createdAt -updatedAt -__v");
+
+    if (!faculty) {
+        throw new ApiError(404, "Invalid email. Please try again!");
+    }
+
+    const isPasswordValid = await faculty.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+        throw new ApiError(404, "Invalid password. Please try again!");
+    }
+
+    const facultyData = faculty.toObject();
+    delete facultyData.password;
+    delete facultyData.refreshToken;
+
+    const { refreshToken, accessToken } = await generateAccessTokenAndRefreshToken(faculty._id);
+
+    return res.status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(new ApiResponse(200, facultyData, "Faculty logged in successfully"));
+});
+
 
 export {
-    facultyRegister
+    facultyRegister,
+    facultyLogin,
+    
 }
 
 
