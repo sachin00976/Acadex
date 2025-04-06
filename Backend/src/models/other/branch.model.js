@@ -8,4 +8,4 @@ const branchSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export const Branch = mongoose.model("Branch", adminSchema);
+export const Branch = mongoose.model("Branch", branchSchema);
