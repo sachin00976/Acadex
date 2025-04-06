@@ -12,7 +12,7 @@ const storage=multer.diskStorage(
             {
                 if(req.body?.post) // faculty
                 {
-
+                    filename = `Faculty_Profile_${req.body.employeeId}`;
                 }
                 else if(req.body?.enrollmentNo) // student
                 {
@@ -20,7 +20,7 @@ const storage=multer.diskStorage(
                 }
                 else // admin
                 {
-                    filename=`Admin_Profile_${req.body.employeeId}.png`
+                    filename=`Admin_Profile_${req.body.employeeId}`;
                 }
             }
             cb(null,`${filename}`)
