@@ -119,9 +119,32 @@ const adminLogin = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .json(new ApiResponse(200, adminData, "Admin logged in successfully"));
 });
+const adminLogout = asyncHandler(async (req, res) => {
+    
+    if (!req.admin || !req.admin.id) {
+        throw new ApiError(401, "Unauthorized: No user data found in request");
+    }
+
+    const adminId = req.admin.id;
+    const admin = await Admin.findById(adminId);
+
+    if (!admin) {
+        throw new ApiError(401, "User not found. Please log in again.");
+    }
+
+    admin.refreshToken = null;
+    await admin.save({ validateBeforeSave: false });
+
+    return res.status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
 
 export {
+
     adminRegister,
     adminLogin,
+    adminLogout
 
 }
