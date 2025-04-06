@@ -125,11 +125,33 @@ const facultyLogin = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .json(new ApiResponse(200, facultyData, "Faculty logged in successfully"));
 });
+const facultyLogout = asyncHandler(async (req, res) => {
+    
+    if (!req.faculty || !req.faculty.id) {
+        throw new ApiError(401, "Unauthorized: No user data found in request");
+    }
+
+    const facultyId = req.faculty.id;
+    const faculty = await Faculty.findById(facultyId);
+
+    if (!faculty) {
+        throw new ApiError(401, "User not found. Please log in again.");
+    }
+
+    faculty.refreshToken = null;
+    await faculty.save({ validateBeforeSave: false });
+
+    return res.status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
 
 
 export {
     facultyRegister,
     facultyLogin,
+    facultyLogout
     
 }
 
