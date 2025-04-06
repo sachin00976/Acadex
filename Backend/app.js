@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { router as adminRoutes } from './src/routes/admin.routes.js';
+import {router as facultyRoutes} from './src/routes/faculty.routes.js';
 const app = express();
 // Configure CORS
 app.use(cors({
@@ -15,4 +16,5 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 app.use('/api/v1/admin',adminRoutes)
+app.use('/api/v1/faculty',facultyRoutes)
 export default app;
