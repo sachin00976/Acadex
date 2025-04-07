@@ -15,6 +15,24 @@ const getBranch = asyncHandler(async (req, res) => {
     )
 });
 
+
+const addBranch = asyncHandler(async (req, res) => {
+    let { name } = req.body;
+    let branch = await Branch.findOne({ name });
+    if (branch) {
+        throw new ApiError(400,"Branch already exist!");
+    }
+    await Branch.create({
+        name
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200,"Branch Added successfully!")
+    )
+
+});
+
 export {
     getBranch,
+    addBranch,
 }
