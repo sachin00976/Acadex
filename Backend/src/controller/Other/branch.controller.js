@@ -32,7 +32,31 @@ const addBranch = asyncHandler(async (req, res) => {
 
 });
 
+const deleteBranch = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        throw new ApiError(400, "Branch ID is required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Branch ID format!");
+    }
+
+    const branch = await Branch.findByIdAndDelete(id);
+
+    if (!branch) {
+        throw new ApiError(404, "No Branch Data Exists!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, "Branch Deleted!")
+    );
+});
+
 export {
     getBranch,
     addBranch,
+    deleteBranch,
+    
 }
