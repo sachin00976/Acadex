@@ -146,12 +146,27 @@ const facultyLogout = asyncHandler(async (req, res) => {
         .clearCookie("refreshToken", options)
         .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
+const deleteFaculty = asyncHandler(async (req, res) => {
+    const { facultyId } = req.params;
+
+    const faculty = await Faculty.findById(facultyId);
+    if (!faculty) {
+        throw new ApiError(404, "No Faculty Found");
+    }
+
+    await faculty.deleteOne();
+
+    return res.status(200).json(
+        new ApiResponse(200, "Faculty deleted successfully")
+    );
+});
 
 
 export {
     facultyRegister,
     facultyLogin,
-    facultyLogout
+    facultyLogout,
+    deleteFaculty
     
 }
 

@@ -4,13 +4,15 @@ import { upload } from "../middleware/multer.middleware.js";
 import { 
     facultyRegister,
     facultyLogin,
-    facultyLogout
+    facultyLogout,
+    deleteFaculty
  } from "../controller/faculty.controller.js";
 
 const router=express.Router()
 
 router.route("/register").post(upload.single("facultyProfile"),facultyRegister);
 router.route("/login").post(facultyLogin);
-router.route("/logout").post(verifyJWT,facultyLogout)
+router.route("/logout").post(verifyJWT,facultyLogout);
+router.route("/deleteFaculty/:facultyId").delete(verifyJWT,deleteFaculty);
 
 export {router}
