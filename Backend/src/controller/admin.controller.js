@@ -140,11 +140,25 @@ const adminLogout = asyncHandler(async (req, res) => {
         .clearCookie("refreshToken", options)
         .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
+const deleteAdmin=asyncHandler(async(req,res)=>{
+    const {adminId}=req.params;
+    const admin=await Admin.findById(adminId);
+    if(!admin)
+    {
+        throw new ApiError(404,"No Admin Found");
+    }
+    await admin.deleteOne();
 
+    return res.status(200).json(
+        new ApiResponse(200,"Admin deleted successfully")
+    )
+    
+})
 export {
 
     adminRegister,
     adminLogin,
-    adminLogout
+    adminLogout,
+    deleteAdmin,
 
 }
