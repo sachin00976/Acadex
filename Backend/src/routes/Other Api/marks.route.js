@@ -5,6 +5,6 @@ const router=express.Router();
 
 router.route("/getMarks").post(getMarks);
 router.route("/addMarks").post(addMarks);
-router.route("/deleteMarks/:id").delete(deleteMarksMarks);
+router.route("/deleteMarks/:id").delete(deleteMarks);
 
 export {router}
