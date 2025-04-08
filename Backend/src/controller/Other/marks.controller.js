@@ -53,10 +53,32 @@ const addMarks = asyncHandler(async (req, res) => {
     );
 });
 
+const deleteMarks = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        throw new ApiError(400, "Marks ID is required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Marks ID format!");
+    }
+
+    const mark = await Marks.findByIdAndDelete(id);
+
+    if (!mark) {
+        throw new ApiError(404, "No Marks Data Exists!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, "Marks Deleted!")
+    );
+});
 
 
 
 export {
     getMarks,
     addMarks,
+    deleteMarks
 }
