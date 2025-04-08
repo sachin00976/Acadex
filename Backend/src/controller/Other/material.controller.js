@@ -2,6 +2,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import {Material} from "../../models/other/material.model.js"
 import { asyncHandler } from "../../utils/AsyncHandler.js";
+import mongoose from "mongoose";
 
 const getMaterial = asyncHandler(async (req, res) => {
     const material = await Material.find(req.body);
@@ -36,8 +37,33 @@ const addMaterial = asyncHandler(async (req, res) => {
 });
 
 
+const deleteMaterial = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        throw new ApiError(400, "Material ID is required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Material ID format!");
+    }
+
+    const material = await Material.findByIdAndDelete(id);
+
+    if (!material) {
+        throw new ApiError(404, "No Material Available!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, material,"Material Deleted!")
+    );
+});
+
+
+
 export {
     getMaterial,
     addMaterial,
+    deleteMaterial,
 }
 
