@@ -3,7 +3,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { router as adminRoutes } from './src/routes/admin.routes.js';
 import { router as facultyRoutes } from './src/routes/faculty.routes.js';
-import { otherbranch } from './src/routes/Other Api/branch.route.js';
+import { router as otherbranch } from './src/routes/Other Api/branch.route.js';
+import { router as othermarks } from './src/routes/Other Api/marks.route.js';
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/faculty', facultyRoutes);
 app.use('/api/v1/branch', otherbranch);
+app.use('/api/v1/marks', othermarks);
 
 export default app;
