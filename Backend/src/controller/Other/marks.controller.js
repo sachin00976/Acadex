@@ -11,11 +11,52 @@ const getMarks = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json(
-        new ApiResponse(200, "All Marks Loaded!", marks)
+        new ApiResponse(200, marks,"All Marks Loaded!")
     );
 });
 
+const addMarks = asyncHandler(async (req, res) => {
+    const { enrollmentNo, internal, external } = req.body;
+
+    if (!enrollmentNo) {
+        throw new ApiError(400, "Enrollment number is required!");
+    }
+
+    let existingMarks = await Marks.findOne({ enrollmentNo });
+
+    if (existingMarks) {
+        if (internal) {
+            existingMarks.internal = {
+                ...existingMarks.internal,
+                ...internal
+            };
+        }
+
+        if (external) {
+            existingMarks.external = {
+                ...existingMarks.external,
+                ...external
+            };
+        }
+
+        await existingMarks.save();
+
+        return res.status(200).json(
+            new ApiResponse(200, "Marks Updated!")
+        );
+    }
+
+    await Marks.create(req.body);
+
+    return res.status(201).json(
+        new ApiResponse(201, "Marks Added!")
+    );
+});
+
+
+
+
 export {
     getMarks,
-    
+    addMarks,
 }
