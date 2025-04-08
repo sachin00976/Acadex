@@ -11,11 +11,33 @@ const getMaterial = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json(
-        new ApiResponse(200, "Material Found!", material)
+        new ApiResponse(200,material, "Material Found!")
     );
 });
 
+const addMaterial = asyncHandler(async (req, res) => {
+    const { faculty, subject, title } = req.body;
+    const link = req?.file?.filename;
+
+    if (!faculty || !subject || !title || !link) {
+        throw new ApiError(400, "All fields (faculty, subject, title, file) are required!");
+    }
+
+    await Material.create({
+        faculty,
+        subject,
+        title,
+        link,
+    });
+
+    return res.status(201).json(
+        new ApiResponse(201, "Material Added!")
+    );
+});
+
+
 export {
-    getMaterial
+    getMaterial,
+    addMaterial,
 }
 
