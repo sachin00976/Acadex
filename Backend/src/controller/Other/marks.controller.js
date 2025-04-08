@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Marks } from "../../models/other/marks.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";

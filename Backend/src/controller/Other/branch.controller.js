@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Branch } from "../../models/other/branch.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
