@@ -81,7 +81,7 @@ const updateMaterial = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json(
-        new ApiResponse(200, "Material Updated!", material)
+        new ApiResponse(200,material ,"Material Updated!")
     );
 });
 
