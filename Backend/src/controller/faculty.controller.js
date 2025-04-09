@@ -163,13 +163,30 @@ const deleteFaculty = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Faculty deleted successfully")
     );
 });
+const getDetail = asyncHandler(async (req, res) => {
+    
+    const { employeeId } = req.body;
+
+    if (!employeeId) {
+        throw new ApiError(400, "Employee ID is required.");
+    }
+
+    const employee = await Faculty.findOne({ employeeId }).select("-password -createdAt -updatedAt -__v");
+
+    if (!employee) {
+        return res.status(200).json(new ApiResponse(200, [], "No employee found with the given ID."));
+    }
+
+    return res.status(200).json(new ApiResponse(200, employee, "Employee found successfully."));
+});
 
 
 export {
     facultyRegister,
     facultyLogin,
     facultyLogout,
-    deleteFaculty
+    deleteFaculty,
+    getDetail
     
 }
 
