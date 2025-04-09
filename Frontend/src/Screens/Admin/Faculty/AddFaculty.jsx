@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { useForm } from "react-hook-form";
 import { FiUpload } from "react-icons/fi";
+import { useForm } from "react-hook-form";
 
 const AddFaculty = () => {
   const [file, setFile] = useState();
-  const [branch, setBranch] = useState([]);
+  const [branch, setBranch] = useState();
   const [previewImage, setPreviewImage] = useState("");
 
   const {
@@ -16,21 +16,25 @@ const AddFaculty = () => {
     formState: { errors },
   } = useForm();
 
-  useEffect(() => {
-    const getBranchData = () => {
-      axios
-        .get("/api/v1/branch/getBranch")
-        .then((response) => {
-          if (response.data.data) {
-            setBranch(response.data.data);
-          } else {
-            toast.error(response.data.message);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+  const getBranchData = () => {
+    const headers = {
+      "Content-Type": "application/json",
     };
+    axios
+      .get("/api/v1/branch/getBranch", { headers })
+      .then((response) => {
+        if (response.data.data) {
+          setBranch(response.data.data);
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
     getBranchData();
   }, []);
 
@@ -41,29 +45,30 @@ const AddFaculty = () => {
     setPreviewImage(imageUrl);
   };
 
-  const addFacultyProfile = (formData) => {
+  const addFacultyProfile = (formDataInput) => {
     if (!file) {
-      toast.error("Profile picture is required");
+      toast.error("Please upload a profile picture");
       return;
     }
 
     toast.loading("Adding Faculty...");
 
+    const formData = new FormData();
+    Object.entries(formDataInput).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    formData.append("type", "profile");
+    formData.append("profile", file);
+
     const headers = {
       "Content-Type": "multipart/form-data",
     };
 
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
-    data.append("type", "profile");
-    data.append("profile", file);
-
     axios
-      .post("/api/v1/faculty/register", data, { headers })
+      .post("/api/v1/faculty/register", formData, { headers })
       .then((response) => {
         toast.dismiss();
+
         if (response.data.success) {
           toast.success(response.data.message || "Faculty added successfully");
           setFile(null);
@@ -85,89 +90,115 @@ const AddFaculty = () => {
       className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
     >
       <div className="w-[40%]">
-        <label>Enter First Name</label>
-        <input
-          {...register("firstName", { required: "First name is required" })}
-          className="input-style"
-        />
-        {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label>Enter Middle Name</label>
-        <input {...register("middleName")} className="input-style" />
-      </div>
-
-      <div className="w-[40%]">
-        <label>Enter Last Name</label>
-        <input
-          {...register("lastName", { required: "Last name is required" })}
-          className="input-style"
-        />
-        {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label>Enter Employee Id</label>
-        <input
-          {...register("employeeId", { required: "Employee ID is required" })}
-          className="input-style"
-        />
-        {errors.employeeId && <p className="text-red-500 text-sm">{errors.employeeId.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label>Enter Email Address</label>
-        <input
-          type="email"
-          {...register("email", { required: "Email is required" })}
-          className="input-style"
-        />
-        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label>Enter Phone Number</label>
+        <label htmlFor="firstName" className="leading-7 text-sm">
+          Enter First Name
+        </label>
         <input
           type="text"
-          maxLength={10}
-          {...register("phoneNumber", {
-            required: "Phone number is required",
-            pattern: {
-              value: /^[0-9]{10}$/,
-              message: "Enter a valid 10-digit number",
-            },
-          })}
-          className="input-style"
+          id="firstName"
+          {...register("firstName", { required: true })}
+          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
         />
-        {errors.phoneNumber && (
-          <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
-        )}
+        {errors.firstName && <span className="text-red-500 text-xs">First name is required</span>}
       </div>
 
       <div className="w-[40%]">
-        <label>Select Department</label>
+        <label htmlFor="middleName" className="leading-7 text-sm">
+          Enter Middle Name
+        </label>
+        <input
+          type="text"
+          id="middleName"
+          {...register("middleName")}
+          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+        />
+      </div>
+
+      <div className="w-[40%]">
+        <label htmlFor="lastName" className="leading-7 text-sm">
+          Enter Last Name
+        </label>
+        <input
+          type="text"
+          id="lastName"
+          {...register("lastName", { required: true })}
+          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+        />
+        {errors.lastName && <span className="text-red-500 text-xs">Last name is required</span>}
+      </div>
+
+      <div className="w-[40%]">
+        <label htmlFor="employeeId" className="leading-7 text-sm">
+          Enter Employee Id
+        </label>
+        <input
+          type="text"
+          id="employeeId"
+          {...register("employeeId", { required: true })}
+          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+        />
+        {errors.employeeId && <span className="text-red-500 text-xs">Employee ID is required</span>}
+      </div>
+
+      <div className="w-[40%]">
+        <label htmlFor="email" className="leading-7 text-sm">
+          Enter Email Address
+        </label>
+        <input
+          type="email"
+          id="email"
+          {...register("email", { required: true })}
+          placeholder="e.g. example@domain.com"
+          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+        />
+        {errors.email && <span className="text-red-500 text-xs">Email is required</span>}
+      </div>
+
+      <div className="w-[40%]">
+        <label htmlFor="phoneNumber" className="leading-7 text-sm">
+          Enter Phone Number
+        </label>
+        <input
+          type="text"
+          id="phoneNumber"
+          {...register("phoneNumber", {
+            required: true,
+            pattern: /^\d{10}$/,
+          })}
+          maxLength={10}
+          placeholder="e.g. 9876543210"
+          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+        />
+        {errors.phoneNumber && <span className="text-red-500 text-xs">Enter a valid 10-digit phone number</span>}
+      </div>
+
+      <div className="w-[40%]">
+        <label htmlFor="department" className="leading-7 text-sm">
+          Select Department
+        </label>
         <select
-          {...register("department", { required: "Department is required" })}
-          className="select-style"
+          id="department"
+          {...register("department", { required: true })}
+          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
         >
           <option value="">-- Select --</option>
-          {branch?.map((b) => (
-            <option key={b.name} value={b.name}>
-              {b.name}
+          {branch?.map((branch) => (
+            <option value={branch.name} key={branch.name}>
+              {branch.name}
             </option>
           ))}
         </select>
-        {errors.department && (
-          <p className="text-red-500 text-sm">{errors.department.message}</p>
-        )}
+        {errors.department && <span className="text-red-500 text-xs">Department is required</span>}
       </div>
 
       <div className="w-[40%]">
-        <label>Select Post</label>
+        <label htmlFor="post" className="leading-7 text-sm">
+          Select Post
+        </label>
         <select
-          {...register("post", { required: "Post is required" })}
-          className="select-style"
+          id="post"
+          {...register("post", { required: true })}
+          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
         >
           <option value="">-- Select --</option>
           <option value="Professor">Professor</option>
@@ -179,41 +210,53 @@ const AddFaculty = () => {
           <option value="Lab Assistant">Lab Assistant</option>
           <option value="Technical Assistant">Technical Assistant</option>
         </select>
-        {errors.post && <p className="text-red-500 text-sm">{errors.post.message}</p>}
+        {errors.post && <span className="text-red-500 text-xs">Post is required</span>}
       </div>
 
       <div className="w-[95%] flex justify-evenly items-center">
         <div className="w-[25%]">
-          <label>Select Gender</label>
+          <label htmlFor="gender" className="leading-7 text-sm">
+            Select Gender
+          </label>
           <select
-            {...register("gender", { required: "Gender is required" })}
-            className="select-style"
+            id="gender"
+            {...register("gender", { required: true })}
+            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
           >
             <option value="">-- Select --</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
-          {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
+          {errors.gender && <span className="text-red-500 text-xs">Gender is required</span>}
         </div>
 
         <div className="w-[25%]">
-          <label>Enter Experience</label>
+          <label htmlFor="experience" className="leading-7 text-sm">
+            Enter Experience
+          </label>
           <input
             type="number"
-            min="0"
-            {...register("experience", { required: "Experience is required" })}
-            className="input-style"
+            id="experience"
+            min={0}
+            {...register("experience", { required: true })}
+            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
           />
-          {errors.experience && (
-            <p className="text-red-500 text-sm">{errors.experience.message}</p>
-          )}
+          {errors.experience && <span className="text-red-500 text-xs">Experience is required</span>}
         </div>
 
         <div className="w-[25%]">
-          <label>Select Profile</label>
-          <label htmlFor="file" className="select-style flex justify-center items-center cursor-pointer">
-            Upload <span className="ml-2"><FiUpload /></span>
+          <label htmlFor="file" className="leading-7 text-sm">
+            Select Profile
+          </label>
+          <label
+            htmlFor="file"
+            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
+          >
+            Upload
+            <span className="ml-2">
+              <FiUpload />
+            </span>
           </label>
           <input
             hidden
@@ -231,7 +274,10 @@ const AddFaculty = () => {
         </div>
       )}
 
-      <button type="submit" className="bg-blue-500 px-6 py-3 rounded-sm my-6 text-white">
+      <button
+        type="submit"
+        className="bg-blue-500 px-6 py-3 rounded-sm my-6 text-white"
+      >
         Add New Faculty
       </button>
     </form>
