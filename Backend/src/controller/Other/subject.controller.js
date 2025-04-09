@@ -15,7 +15,28 @@ const getSubject = asyncHandler(async (req, res) => {
     );
 });
 
+const addSubject = asyncHandler(async (req, res) => {
+    const { name, code } = req.body;
+
+    if (!name || !code) {
+        throw new ApiError(400, "Both name and code are required!");
+    }
+
+    const existingSubject = await Subject.findOne({ code });
+
+    if (existingSubject) {
+        throw new ApiError(400, "Subject Already Exists");
+    }
+
+    await Subject.create({ name, code });
+
+    return res.status(201).json(
+        new ApiResponse(201, "Subject Added!")
+    );
+});
+
+
 export{
     getSubject,
-    
+    addSubject
 }
