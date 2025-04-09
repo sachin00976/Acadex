@@ -41,8 +41,11 @@ const facultyRegister = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid file type. Please provide a profile in PNG, JPG, or WebP format.");
     }
 
-    const { employeeId, firstName, middleName, lastName, email, phoneNumber, gender, password,department,experience,post } = req.body;
-
+    let { employeeId, firstName, middleName, lastName, email, phoneNumber, gender, password,department,experience,post } = req.body;
+    if(!password)
+    {
+        password=`${firstName}.${employeeId}`;
+    }
     if (!employeeId || !firstName || !lastName || !email || !phoneNumber || !gender || !password || !department || !experience || !post) {
         throw new ApiError(400, "All fields are required!");
     }
