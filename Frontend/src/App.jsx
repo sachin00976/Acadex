@@ -1,15 +1,13 @@
 import "./App.css";
-import {Route,Routes} from "react-router-dom"
-import Login from "./components/Login";
+import Router from "./Router.jsx";
+import { RouterProvider } from "react-router-dom";
 
 function App() {
   return (
-    <div>
-      <Routes>
-         <Route path='/' element={<Login/>}/>
-      </Routes>
+    
       
-    </div>
+      <RouterProvider  router={Router}/>
+    
   );
 }
 

@@ -24,7 +24,7 @@ const AddStudent = () => {
             "Content-Type":"application/json",
         };
 
-        axios.get(`$`,{headers}).then((response)=>{
+        axios.get(``,{headers}).then((response)=>{
             if(response.data.success){
                 setBranch(response.data.branches);
             }
