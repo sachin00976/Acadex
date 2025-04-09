@@ -15,8 +15,29 @@ const getNotice = asyncHandler(async (req, res) => {
     );
 });
 
+const addNotice = asyncHandler(async (req, res) => {
+    const { link, description, title, type } = req.body;
+
+    if (!link || !description || !title || !type) {
+        throw new ApiError(400, "All fields (link, description, title, type) are required!");
+    }
+
+    const existingNotice = await Notice.findOne({ link, description, title, type });
+
+    if (existingNotice) {
+        throw new ApiError(400, "Notice Already Exists!");
+    }
+
+    await Notice.create({ link, description, title, type });
+
+    return res.status(201).json(
+        new ApiResponse(201, "Notice Added Successfully")
+    );
+});
+
+
 
 export {
     getNotice,
-    
+    addNotice,
 }
