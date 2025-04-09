@@ -2,8 +2,8 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { setUserData } from "../../redux/actions";
-import { baseApiURL } from "../../baseUrl";
+//import { setUserData } from "../../redux/actions";
+
 import toast from "react-hot-toast";
 const Profile = () => {
   const [showPass, setShowPass] = useState(false);
@@ -20,7 +20,7 @@ const Profile = () => {
     };
     axios
       .post(
-        `${baseApiURL()}/${router.state.type}/details/getDetails`,
+        ``,
         { employeeId: router.state.loginid },
         {
           headers: headers,
@@ -53,7 +53,7 @@ const Profile = () => {
     };
     axios
       .post(
-        `${baseApiURL()}/admin/auth/login`,
+        ``,
         { loginid: router.state.loginid, password: password.current },
         {
           headers: headers,
@@ -78,7 +78,7 @@ const Profile = () => {
     };
     axios
       .put(
-        `${baseApiURL()}/admin/auth/update/${id}`,
+        ``,
         { loginid: router.state.loginid, password: password.new },
         {
           headers: headers,
@@ -97,7 +97,7 @@ const Profile = () => {
         console.error(error);
       });
   };
-}
+
 return (
   <div className="w-full mx-auto my-8 flex justify-between items-start">
     {data && (
@@ -159,13 +159,15 @@ return (
           )}
         </div>
         <img
-          src={process.env.REACT_APP_MEDIA_LINK + "/" + data.profile}
+          src={""}
           alt="student profile"
           className="h-[200px] w-[200px] object-cover rounded-lg shadow-md"
         />
       </>
     )}
   </div>
-);
+)};
 
 export default Profile;
+
+

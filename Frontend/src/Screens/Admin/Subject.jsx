@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Heading from "../../components/Heading";
 import { MdOutlineDelete } from "react-icons/md";
-import { baseApiURL } from "../../baseUrl";
+
 const Subjects = () => {
   const [data, setData] = useState({
     name: "",
@@ -17,7 +17,7 @@ const Subjects = () => {
 
   const getSubjectHandler = () => {
     axios
-      .get(`${baseApiURL()}/subject/getSubject`)
+      .get(``)
       .then((response) => {
         if (response.data.success) {
           setSubject(response.data.subject);
@@ -36,7 +36,7 @@ const Subjects = () => {
       "Content-Type": "application/json",
     };
     axios
-      .post(`${baseApiURL()}/subject/addSubject`, data, {
+      .post(``, data, {
         headers: headers,
       })
       .then((response) => {
@@ -61,7 +61,7 @@ const Subjects = () => {
       "Content-Type": "application/json",
     };
     axios
-      .delete(`${baseApiURL()}/subject/deleteSubject/${id}`, {
+      .delete(``, {
         headers: headers,
       })
       .then((response) => {
