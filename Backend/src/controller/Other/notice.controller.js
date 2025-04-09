@@ -19,7 +19,7 @@ const getNotice = asyncHandler(async (req, res) => {
 const addNotice = asyncHandler(async (req, res) => {
     const { link, description, title, type } = req.body;
 
-    if (!link || !description || !title || !type) {
+    if (!description || !title) {
         throw new ApiError(400, "All fields (link, description, title, type) are required!");
     }
 
@@ -61,11 +61,31 @@ const updateNotice = asyncHandler(async (req, res) => {
     );
 });
 
+const deleteNotice = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
+    if (!id) {
+        throw new ApiError(400, "Notice ID is required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Notice ID format!");
+    }
+
+    const notice = await Notice.findByIdAndDelete(id);
+
+    if (!notice) {
+        throw new ApiError(404, "No Notice Available!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, "Notice Deleted Successfully")
+    );
+});
 
 export {
     getNotice,
     addNotice,
     updateNotice,
-    
+    deleteNotice
 }
