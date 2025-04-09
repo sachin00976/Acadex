@@ -1,280 +1,219 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 import { FiUpload } from "react-icons/fi";
 
-
 const AddFaculty = () => {
-    const [file,setFile] = useState();
-    const [branch,setBranch] = useState();
-    const [previewImage, setPreviewImage] = useState("");
-    const [data,setData] = useState({
-        employeeId: "",
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: "",
-        department: "",
-        gender: "",
-        experience: "",
-        post: "",
-    });
-    
+  const [file, setFile] = useState();
+  const [branch, setBranch] = useState([]);
+  const [previewImage, setPreviewImage] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  useEffect(() => {
     const getBranchData = () => {
-        const headers = {
-          "Content-Type": "application/json",
-        };
-        axios
-          .get(``, { headers })
-          .then((response) => {
-            if (response.data.success) {
-              setBranch(response.data.branches);
-            } else {
-              toast.error(response.data.message);
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+      axios
+        .get("/api/v1/branch/getBranch")
+        .then((response) => {
+          if (response.data.data) {
+            setBranch(response.data.data);
+          } else {
+            toast.error(response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    };
+    getBranchData();
+  }, []);
 
-          
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    const imageUrl = URL.createObjectURL(selectedFile);
+    setPreviewImage(imageUrl);
+  };
 
-      };
+  const addFacultyProfile = (formData) => {
+    if (!file) {
+      toast.error("Profile picture is required");
+      return;
+    }
 
-      useEffect(() => {
-        getBranchData();
-      }, []);
+    toast.loading("Adding Faculty...");
 
-      const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-        const imageUrl = URL.createObjectURL(selectedFile);
-        setPreviewImage(imageUrl);
-      };
+    const headers = {
+      "Content-Type": "multipart/form-data",
+    };
 
-      const addFacultyProfile = (e)=>{
-        e.preventDefault();
-        toast.loading("Adding Faculty");
-        const headers = {
-            "Content-Type":"multipart/form-data",
-        };
-        const formData = new FormData();
-        formData.append("employeeId", data.employeeId);
-        formData.append("firstName", data.firstName);
-        formData.append("middleName", data.middleName);
-        formData.append("lastName", data.lastName);
-        formData.append("email", data.email);
-        formData.append("phoneNumber", data.phoneNumber);
-        formData.append("department", data.department);
-        formData.append("experience", data.experience);
-        formData.append("gender", data.gender);
-        formData.append("post", data.post);
-        formData.append("type", "profile");
-        formData.append("profile", file);
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+    data.append("type", "profile");
+    data.append("profile", file);
 
-        axios
-            .post(``, formData, {
-                headers: headers,
-            })
-            .then((response) => {
-                toast.dismiss();
-                if (response.data.success) {
-                toast.success(response.data.message);
-                axios
-                    .post(``, {
-                    loginid: data.employeeId,
-                    password: data.employeeId,
-                    })
-                    .then((response) => {
-                    toast.dismiss();
-                    if (response.data.success) {
-                        toast.success(response.data.message);
-                        setFile();
-                        setPreviewImage();
-                        setData({
-                        employeeId: "",
-                        firstName: "",
-                        middleName: "",
-                        lastName: "",
-                        email: "",
-                        phoneNumber: "",
-                        department: "",
-                        gender: "",
-                        experience: "",
-                        post: "",
-                        });
-                    } else {
-                        toast.error(response.data.message);
-                    }
-                    })
-                    .catch((error) => {
-                    toast.dismiss();
-                    toast.error(error.response.data.message);
-                    });
-                } else {
-                toast.error(response.data.message);
-                }
-            })
-            .catch((error) => {
-                toast.dismiss();
-                toast.error(error.response.data.message);
-            });
-        };
-      
+    axios
+      .post("/api/v1/faculty/register", data, { headers })
+      .then((response) => {
+        toast.dismiss();
+        if (response.data.success) {
+          toast.success(response.data.message || "Faculty added successfully");
+          setFile(null);
+          setPreviewImage("");
+          reset();
+        } else {
+          toast.error(response.data.message || "Something went wrong");
+        }
+      })
+      .catch((error) => {
+        toast.dismiss();
+        toast.error(error?.response?.data?.message || "Server error occurred");
+      });
+  };
+
   return (
-    <form onSubmit={addFacultyProfile} className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10">
-        <div className='w-[40%]'>
-            <label htmlFor="firstname" className='className="leading-7 text-sm'>
-                Enter First Name
-            </label>
-            <input
-            type="text"
-            id="firstname"
-            value={data.firstName}
-            onChange={(e) => setData({ ...data, firstName: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-
-        <div className="w-[40%]">
-        <label htmlFor="middlename" className="leading-7 text-sm ">
-          Enter Middle Name
-        </label>
-        <input
-          type="text"
-          id="middlename"
-          value={data.middleName}
-          onChange={(e) => setData({ ...data, middleName: e.target.value })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-        />
-      </div>
-
-
+    <form
+      onSubmit={handleSubmit(addFacultyProfile)}
+      className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
+    >
       <div className="w-[40%]">
-        <label htmlFor="lastname" className="leading-7 text-sm ">
-          Enter Last Name
-        </label>
+        <label>Enter First Name</label>
         <input
-          type="text"
-          id="lastname"
-          value={data.lastName}
-          onChange={(e) => setData({ ...data, lastName: e.target.value })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          {...register("firstName", { required: "First name is required" })}
+          className="input-style"
         />
-      </div>
-
-      <div className='w-[40%]'>
-        <label htmlFor="employeeId" className="leading-7 text-sm ">
-            Enter Employee Id
-        </label>
-        <input type="number" id="employeeId" value={data.employeeId}
-          onChange={(e) => setData({ ...data, employeeId: e.target.value })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
+        {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
       </div>
 
       <div className="w-[40%]">
-        <label htmlFor="email" className="leading-7 text-sm ">
-          Enter Email Address
-        </label>
+        <label>Enter Middle Name</label>
+        <input {...register("middleName")} className="input-style" />
+      </div>
+
+      <div className="w-[40%]">
+        <label>Enter Last Name</label>
+        <input
+          {...register("lastName", { required: "Last name is required" })}
+          className="input-style"
+        />
+        {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
+      </div>
+
+      <div className="w-[40%]">
+        <label>Enter Employee Id</label>
+        <input
+          {...register("employeeId", { required: "Employee ID is required" })}
+          className="input-style"
+        />
+        {errors.employeeId && <p className="text-red-500 text-sm">{errors.employeeId.message}</p>}
+      </div>
+
+      <div className="w-[40%]">
+        <label>Enter Email Address</label>
         <input
           type="email"
-          id="email"
-          value={data.email}
-          onChange={(e) => setData({ ...data, email: e.target.value })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          {...register("email", { required: "Email is required" })}
+          className="input-style"
         />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
       </div>
 
       <div className="w-[40%]">
-        <label htmlFor="phoneNumber" className="leading-7 text-sm ">
-          Enter Phone Number
-        </label>
-        <input
-          type="number"
-          id="phoneNumber"
-          value={data.phoneNumber}
-          onChange={(e) => setData({ ...data, phoneNumber: e.target.value })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-        />
-      </div>
-
-      <div className="w-[40%]">
-        <label htmlFor="branch" className="leading-7 text-sm ">
-          Select Department
-        </label>
-        <select
-          id="branch"
-          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
-          value={data.department}
-          onChange={(e) => setData({ ...data, department: e.target.value })}
-        >
-          <option defaultValue>-- Select --</option>
-          {branch?.map((branch) => {
-            return (
-              <option value={branch.name} key={branch.name}>
-                {branch.name}
-              </option>
-            );
-          })}
-        </select>
-      </div>
-
-
-      <div className="w-[40%]">
-        <label htmlFor="post" className="leading-7 text-sm ">
-          Enter POST
-        </label>
+        <label>Enter Phone Number</label>
         <input
           type="text"
-          id="post"
-          value={data.post}
-          onChange={(e) => setData({ ...data, post: e.target.value })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          maxLength={10}
+          {...register("phoneNumber", {
+            required: "Phone number is required",
+            pattern: {
+              value: /^[0-9]{10}$/,
+              message: "Enter a valid 10-digit number",
+            },
+          })}
+          className="input-style"
         />
+        {errors.phoneNumber && (
+          <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
+        )}
       </div>
 
+      <div className="w-[40%]">
+        <label>Select Department</label>
+        <select
+          {...register("department", { required: "Department is required" })}
+          className="select-style"
+        >
+          <option value="">-- Select --</option>
+          {branch?.map((b) => (
+            <option key={b.name} value={b.name}>
+              {b.name}
+            </option>
+          ))}
+        </select>
+        {errors.department && (
+          <p className="text-red-500 text-sm">{errors.department.message}</p>
+        )}
+      </div>
+
+      <div className="w-[40%]">
+        <label>Select Post</label>
+        <select
+          {...register("post", { required: "Post is required" })}
+          className="select-style"
+        >
+          <option value="">-- Select --</option>
+          <option value="Professor">Professor</option>
+          <option value="Associate Professor">Associate Professor</option>
+          <option value="Assistant Professor">Assistant Professor</option>
+          <option value="HOD">HOD</option>
+          <option value="Lecturer">Lecturer</option>
+          <option value="Visiting Faculty">Visiting Faculty</option>
+          <option value="Lab Assistant">Lab Assistant</option>
+          <option value="Technical Assistant">Technical Assistant</option>
+        </select>
+        {errors.post && <p className="text-red-500 text-sm">{errors.post.message}</p>}
+      </div>
 
       <div className="w-[95%] flex justify-evenly items-center">
         <div className="w-[25%]">
-          <label htmlFor="gender" className="leading-7 text-sm ">
-            Select Gender
-          </label>
+          <label>Select Gender</label>
           <select
-            id="gender"
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
-            value={data.gender}
-            onChange={(e) => setData({ ...data, gender: e.target.value })}
+            {...register("gender", { required: "Gender is required" })}
+            className="select-style"
           >
-            <option defaultValue>-- Select --</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="">-- Select --</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
           </select>
+          {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
         </div>
+
         <div className="w-[25%]">
-          <label htmlFor="experience" className="leading-7 text-sm ">
-            Enter Experience
-          </label>
+          <label>Enter Experience</label>
           <input
             type="number"
-            id="experience"
-            value={data.experience}
-            onChange={(e) => setData({ ...data, experience: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+            min="0"
+            {...register("experience", { required: "Experience is required" })}
+            className="input-style"
           />
+          {errors.experience && (
+            <p className="text-red-500 text-sm">{errors.experience.message}</p>
+          )}
         </div>
+
         <div className="w-[25%]">
-          <label htmlFor="file" className="leading-7 text-sm ">
-            Select Profile
-          </label>
-          <label
-            htmlFor="file"
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
-          >
-            Upload
-            <span className="ml-2">
-              <FiUpload />
-            </span>
+          <label>Select Profile</label>
+          <label htmlFor="file" className="select-style flex justify-center items-center cursor-pointer">
+            Upload <span className="ml-2"><FiUpload /></span>
           </label>
           <input
             hidden
@@ -285,19 +224,18 @@ const AddFaculty = () => {
           />
         </div>
       </div>
+
       {previewImage && (
         <div className="w-full flex justify-center items-center">
-          <img src={previewImage} alt="student" className="h-36" />
+          <img src={previewImage} alt="faculty" className="h-36" />
         </div>
       )}
-      <button
-        type="submit"
-        className="bg-blue-500 px-6 py-3 rounded-sm my-6 text-white"
-      >
+
+      <button type="submit" className="bg-blue-500 px-6 py-3 rounded-sm my-6 text-white">
         Add New Faculty
       </button>
     </form>
-  )
-}
+  );
+};
 
-export default AddFaculty
+export default AddFaculty;

@@ -1,199 +1,231 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import toast from "react-hot-toast";
 import axios from "axios";
 import { FiUpload } from "react-icons/fi";
 
-
 const AddAdmin = () => {
-    const [file,setFile] = useState();
-    const [data,setData] = useState({
-        employeeId: "",
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: "",
-        gender: "",
+  const [previewImage, setPreviewImage] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    toast.loading("Adding Admin");
+
+    const formData = new FormData();
+    formData.append("employeeId", data.employeeId);
+    formData.append("firstName", data.firstName);
+    formData.append("middleName", data.middleName || "");
+    formData.append("lastName", data.lastName);
+    formData.append("email", data.email);
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("gender", data.gender);
+    formData.append("type", "profile");
+    formData.append("profile", data.profile[0]);
+
+    axios
+    .post("/api/v1/admin/register", formData, { headers })
+    .then((response) => {
+      toast.dismiss();
+      if (response.data.success) {
+        toast.success(response.data.message || "Admin added successfully");
+        setFile(null);
+        setPreviewImage("");
+        reset();
+      } else {
+        toast.error(response.data.message || "Something went wrong");
+      }
+    })
+    .catch((error) => {
+      toast.dismiss();
+      toast.error(error?.response?.data?.message || "Server error occurred");
     });
-    const [previewImage,setPreviewImage] = useSTate("");
+  };
 
-    const handleFileChange = (e)=>{
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-        const imageUrl = URL.createObjectURL(selectedFile);
-        setPreviewImage(imageUrl);
-    };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setPreviewImage(URL.createObjectURL(file));
+      setValue("profile", e.target.files); // manually set file
+    } else {
+      toast.error("Please select a valid image file.");
+    }
+  };
 
-    const addAdminProfile = (e)=>{
-        e.preventDefault();
-        toast.loading("Adding Admin");
-        const headers = {
-            "Content-Type": "multipart/form-data",
-        };
-        const formData = new FormData();
-        formData.append("employeeId", data.employeeId);
-        formData.append("firstName", data.firstName);
-        formData.append("middleName", data.middleName);
-        formData.append("lastName", data.lastName);
-        formData.append("email", data.email);
-        formData.append("phoneNumber", data.phoneNumber);
-        formData.append("gender", data.gender);
-        formData.append("type", "profile");
-        formData.append("profile", file);
-        axios.post(``,formData,{
-            headers:headers,
-        })
-        .then((response)=>{
-            toast.dismiss();
-            if(response.data.success){
-                toast.success(response.data.message);
-                setFile();
-                setData({
-                    employeeId: "",
-                    firstName: "",
-                    middleName: "",
-                    lastName: "",
-                    email: "",
-                    phoneNumber: "",
-                    gender: "",
-                    profile: "",
-                  });
-            }else{
-                toast.error(response.data.message);
-            }
-        })
-        .catch((error)=>{
-            toast.dismiss();
-            toast.error(error.response.data.message);
-        });
-        
-    };
   return (
-    <form onSubmit={addAdminProfile}
-        className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
     >
-            <div className="w-[40%]">
-            <label htmlFor="firstname" className="leading-7 text-sm ">
-            Enter First Name
-            </label>
-            <input
-            type="text"
-            id="firstname"
-            value={data.firstName}
-            onChange={(e) => setData({ ...data, firstName: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="middlename" className="leading-7 text-sm ">
-            Enter Middle Name
-            </label>
-            <input
-            type="text"
-            id="middlename"
-            value={data.middleName}
-            onChange={(e) => setData({ ...data, middleName: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="lastname" className="leading-7 text-sm ">
-            Enter Last Name
-            </label>
-            <input
-            type="text"
-            id="lastname"
-            value={data.lastName}
-            onChange={(e) => setData({ ...data, lastName: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="employeeId" className="leading-7 text-sm ">
-            Enter Employee Id
-            </label>
-            <input
-            type="number"
-            id="employeeId"
-            value={data.employeeId}
-            onChange={(e) => setData({ ...data, employeeId: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="email" className="leading-7 text-sm ">
-            Enter Email Address
-            </label>
-            <input
-            type="email"
-            id="email"
-            value={data.email}
-            onChange={(e) => setData({ ...data, email: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="phoneNumber" className="leading-7 text-sm ">
-            Enter Phone Number
-            </label>
-            <input
-            type="number"
-            id="phoneNumber"
-            value={data.phoneNumber}
-            onChange={(e) => setData({ ...data, phoneNumber: e.target.value })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="gender" className="leading-7 text-sm ">
-            Select Gender
-            </label>
-            <select
-            id="gender"
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
-            value={data.gender}
-            onChange={(e) => setData({ ...data, gender: e.target.value })}
-            >
-            {" "}
-            <option defaultValue>-- Select --</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            </select>
-        </div>
-        <div className="w-[40%]">
-            <label htmlFor="file" className="leading-7 text-sm ">
-            Select Profile
-            </label>
-            <label
-            htmlFor="file"
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
-            >
-            Upload
-            <span className="ml-2">
-                <FiUpload />
-            </span>
-            </label>
-            <input
-            hidden
-            type="file"
-            id="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            />
-        </div>
-        {previewImage && (
-            <div className="w-full flex justify-center items-center">
-            <img src={previewImage} alt="admin" className="h-36" />
-            </div>
+      {/* First Name */}
+      <div className="w-[40%]">
+        <label htmlFor="firstName" className="leading-7 text-sm">
+          Enter First Name
+        </label>
+        <input
+          type="text"
+          id="firstName"
+          {...register("firstName", { required: "First Name is required" })}
+          className="w-full bg-blue-50 rounded border px-3 py-1"
+        />
+        {errors.firstName && (
+          <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
         )}
-        <button
-            type="submit"
-            className="bg-blue-500 px-6 py-3 rounded-sm my-6 text-white"
-        >
-            Add New Admin
-        </button>
-    </form>
-  )
-}
+      </div>
 
-export default AddAdmin
+      {/* Middle Name */}
+      <div className="w-[40%]">
+        <label htmlFor="middleName" className="leading-7 text-sm">
+          Enter Middle Name
+        </label>
+        <input
+          type="text"
+          id="middleName"
+          {...register("middleName")}
+          className="w-full bg-blue-50 rounded border px-3 py-1"
+        />
+      </div>
+
+      {/* Last Name */}
+      <div className="w-[40%]">
+        <label htmlFor="lastName" className="leading-7 text-sm">
+          Enter Last Name
+        </label>
+        <input
+          type="text"
+          id="lastName"
+          {...register("lastName", { required: "Last Name is required" })}
+          className="w-full bg-blue-50 rounded border px-3 py-1"
+        />
+        {errors.lastName && (
+          <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+        )}
+      </div>
+
+      {/* Employee ID */}
+      <div className="w-[40%]">
+        <label htmlFor="employeeId" className="leading-7 text-sm">
+          Enter Employee ID
+        </label>
+        <input
+          type="text"
+          id="employeeId"
+          {...register("employeeId", { required: "Employee ID is required" })}
+          className="w-full bg-blue-50 rounded border px-3 py-1"
+        />
+        {errors.employeeId && (
+          <p className="text-red-500 text-sm mt-1">{errors.employeeId.message}</p>
+        )}
+      </div>
+
+      {/* Email */}
+      <div className="w-[40%]">
+        <label htmlFor="email" className="leading-7 text-sm">
+          Enter Email Address
+        </label>
+        <input
+          type="email"
+          id="email"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Invalid email address",
+            },
+          })}
+          className="w-full bg-blue-50 rounded border px-3 py-1"
+        />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+        )}
+      </div>
+
+      {/* Phone Number */}
+      <div className="w-[40%]">
+        <label htmlFor="phoneNumber" className="leading-7 text-sm">
+          Enter Phone Number
+        </label>
+        <input
+          type="text"
+          id="phoneNumber"
+          {...register("phoneNumber", { required: "Phone number is required" })}
+          className="w-full bg-blue-50 rounded border px-3 py-1"
+        />
+        {errors.phoneNumber && (
+          <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message}</p>
+        )}
+      </div>
+
+      {/* Gender */}
+      <div className="w-[40%]">
+        <label htmlFor="gender" className="leading-7 text-sm">
+          Select Gender
+        </label>
+        <select
+          id="gender"
+          {...register("gender", { required: "Gender is required" })}
+          className="w-full bg-blue-50 rounded border px-3 py-3"
+        >
+          <option value="">-- Select --</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+        {errors.gender && (
+          <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>
+        )}
+      </div>
+
+      {/* File Upload */}
+      <div className="w-[40%]">
+        <label htmlFor="file" className="leading-7 text-sm">
+          Select Profile
+        </label>
+        <label
+          htmlFor="file"
+          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
+        >
+          Upload
+          <span className="ml-2">
+            <FiUpload />
+          </span>
+        </label>
+        <input
+          hidden
+          type="file"
+          id="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          {...register("profile", {
+            required: "Profile image is required",
+          })}
+        />
+        {errors.profile && (
+          <p className="text-red-500 text-sm mt-1">{errors.profile.message}</p>
+        )}
+      </div>
+
+      {/* Preview Image */}
+      {previewImage && (
+        <div className="w-full flex justify-center items-center">
+          <img src={previewImage} alt="admin" className="h-36" />
+        </div>
+      )}
+
+      {/* Submit */}
+      <button
+        type="submit"
+        className="bg-blue-500 px-6 py-3 rounded-sm mt-1 text-white"
+      >
+        Add New Admin
+      </button>
+    </form>
+  );
+};
+
+export default AddAdmin;
