@@ -6,7 +6,7 @@ import { router as facultyRoutes } from './src/routes/faculty.routes.js';
 import { router as otherbranch } from './src/routes/Other Api/branch.route.js';
 import { router as othermarks } from './src/routes/Other Api/marks.route.js';
 import { router as othermaterial } from './src/routes/Other Api/material.route.js';
-
+import { router as othernotice } from './src/routes/Other Api/notice.route.js';
 const app = express();
 
 // Configure CORS
@@ -26,5 +26,6 @@ app.use('/api/v1/faculty', facultyRoutes);
 app.use('/api/v1/branch', otherbranch);
 app.use('/api/v1/marks', othermarks);
 app.use('/api/v1/material', othermaterial);
+app.use('/api/v1/notice', othernotice);
 
 export default app;
