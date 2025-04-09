@@ -60,10 +60,37 @@ const deleteMaterial = asyncHandler(async (req, res) => {
 });
 
 
+const updateMaterial = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { faculty, link, subject, title } = req.body;
+
+    if (!id) {
+        throw new ApiError(400, "Material ID is required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Material ID format!");
+    }
+
+    const updatedFields = { faculty, link, subject, title };
+
+    const material = await Material.findByIdAndUpdate(id, updatedFields, { new: true });
+
+    if (!material) {
+        throw new ApiError(404, "No Material Available!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, "Material Updated!", material)
+    );
+});
+
+
 
 export {
     getMaterial,
     addMaterial,
     deleteMaterial,
+    updateMaterial
 }
 
