@@ -10,7 +10,7 @@ import {
 
 const router=express.Router()
 
-router.route("/register").post(upload.single("facultyProfile"),facultyRegister);
+router.route("/register").post(upload.single("profile"),facultyRegister);
 router.route("/login").post(facultyLogin);
 router.route("/logout").post(verifyJWT,facultyLogout);
 router.route("/deleteFaculty/:facultyId").delete(verifyJWT,deleteFaculty);
