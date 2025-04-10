@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {TimeTable} from "../../models/other/timetable.model.js"
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
@@ -48,8 +49,31 @@ const addTimetable = asyncHandler(async (req, res) => {
 });
 
 
+const deleteTimetable = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        throw new ApiError(400, "Timetable ID is required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new ApiError(400, "Invalid Timetable ID format!");
+    }
+
+    const timetable = await TimeTable.findByIdAndDelete(id);
+
+    if (!timetable) {
+        throw new ApiError(404, "No Timetable Exists!");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, "Timetable Deleted!")
+    );
+});
+
+
 export {
     getTimetable,
     addTimetable,
-    
+    deleteTimetable
 }
