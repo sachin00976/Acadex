@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 
 const AddFaculty = () => {
   const [file, setFile] = useState();
-  const [branch, setBranch] = useState();
+  const [branch, setBranch] = useState([]);
+
   const [previewImage, setPreviewImage] = useState("");
 
   const {
