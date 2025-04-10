@@ -6,7 +6,8 @@ import {
     facultyLogin,
     facultyLogout,
     deleteFaculty,
-    getDetail
+    getDetail,
+    updateFaculty
  } from "../controller/faculty.controller.js";
 
 const router=express.Router()
@@ -16,5 +17,6 @@ router.route("/login").post(facultyLogin);
 router.route("/logout").post(verifyJWT,facultyLogout);
 router.route("/deleteFaculty/:facultyId").delete(verifyJWT,deleteFaculty);
 router.route("/getdetail").post(getDetail);
+router.route('/updateDetail').patch(upload.single("profile"),updateFaculty)
 
 export {router}
