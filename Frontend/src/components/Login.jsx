@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { TbLogin2 } from "react-icons/tb";
+import { useDispatch } from "react-redux";
+import { userLoggedIn } from "../features/authSlice.js"; 
 
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
@@ -10,19 +12,21 @@ const Login = () => {
     const navigate = useNavigate();
     const [selected, setSelected] = useState("Student");
     const { register, handleSubmit } = useForm();
+    const dispatch = useDispatch();
 
     const onSubmit = (data) => {
         if (data.email !== "" && data.password !== "") {
             const headers = {
                 "Content-Type": "application/json",
             };
+    
             axios.post(`/api/v1/${selected.toLowerCase()}/login`, data, {
                 headers: headers,
             }).then((response) => {
-                navigate(`/${selected.toLowerCase()}`, {
-                    state: { type: selected, email: response.data.email },
-                });
-                console.log("response:",response);
+                
+                dispatch(userLoggedIn({ user: response.data.data }));
+                localStorage.setItem("user", JSON.stringify(response.data.data));
+                navigate(`/${selected.toLowerCase()}`);
             }).catch((error) => {
                 toast.dismiss();
                 console.error(error);
@@ -30,6 +34,7 @@ const Login = () => {
             });
         }
     };
+    
 
     return (
         <div className="bg-white h-[100vh] w-full flex justify-between items-center">
