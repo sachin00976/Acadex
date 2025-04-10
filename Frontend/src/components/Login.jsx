@@ -25,6 +25,7 @@ const Login = () => {
             }).then((response) => {
                 
                 dispatch(userLoggedIn({ user: response.data.data }));
+                localStorage.setItem("user", JSON.stringify(response.data.data));
                 navigate(`/${selected.toLowerCase()}`);
             }).catch((error) => {
                 toast.dismiss();

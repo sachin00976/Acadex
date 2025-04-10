@@ -8,18 +8,20 @@ import EditStudent from './Screens/Admin/Student/EditStudent.jsx'
 import AddFaculty from './Screens/Admin/Faculty/AddFaculty.jsx'
 import EditFaculty from './Screens/Admin/Faculty/EditFaculty.jsx'
 import Home from './Screens/Admin/Home.jsx'
+import Admin from './Screens/Admin/Admin.jsx'
+import Profile from './Screens/Admin/Profile.jsx'
 
 const Router = createBrowserRouter(
     createRoutesFromElements(
         <>
         <Route path="/" element={<Login />} />
-        <Route path="/ad" element={<AddAdmin />} />
-        <Route path="/ed" element={<EditAdmin />} />
+        <Route path="/admin" element={<Profile/>} />
+        {/* <Route path="/ed" element={<EditAdmin />} />
         <Route path="/as" element={<AddStudent />} />
         <Route path="/es" element={<EditStudent />} />
         <Route path="/af" element={<AddFaculty />} />
         <Route path="/ef" element={<EditFaculty />} />
-        <Route path="/ho" element={<Home />} />
+        <Route path="/ho" element={<Home />} /> */}
         </>
     )
 )
