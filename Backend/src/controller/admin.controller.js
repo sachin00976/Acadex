@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Admin } from "../models/adminSchema.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 const genrateAccessTokenAndRefreshToken=async(adminId)=>{
     try {
         const admin=await Admin.findById(adminId)
@@ -170,11 +170,79 @@ const getDetail = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, employee, "Employee found successfully."));
 });
+const updateDetail = asyncHandler(async (req, res) => {
+    const { employeeId, firstName, middleName, lastName, email, phoneNumber, gender } = req.body;
+    
+
+    if (!employeeId || !firstName || !lastName || !email || !phoneNumber || !gender ) {
+        throw new ApiError(400, "All fields are required!");
+    }
+
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+        throw new ApiError(404, "Invalid Request");
+    }
+
+    const newData = {
+        employeeId,
+        firstName,
+        middleName,
+        lastName,
+        email,
+        phoneNumber,
+        gender,
+    };
+
+    if (req.file) {
+        const { path: adminProfilePath, mimetype: adminProfileType } = req.file;
+        const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+
+        if (!allowedFormats.includes(adminProfileType)) {
+            throw new ApiError(400, "Invalid file type. Please provide a profile in PNG, JPG, or WebP format");
+        }
+
+        try {
+            const profilePublicId = admin.profile?.public_id;
+            if (profilePublicId) {
+                await deleteOnCloudinary(profilePublicId);
+            }
+
+            const uploadResponse = await uploadOnCloudinary(adminProfilePath);
+            if (!uploadResponse) {
+                throw new ApiError(500, "Failed to upload image to Cloudinary");
+            }
+
+            newData.profile = {
+                public_id: uploadResponse.public_id,
+                url: uploadResponse.secure_url
+            };
+        } catch (err) {
+            throw new ApiError(500, "Error occurred during profile image update");
+        }
+    }
+
+    const updatedAdmin = await Admin.findByIdAndUpdate(admin._id, newData, {
+        new: true,
+        runValidators: true
+    });
+
+    if (!updatedAdmin) {
+        throw new ApiError(500, "Error occurred while updating the profile of admin");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, updatedAdmin, "Admin detail updated successfully")
+    );
+});
+
+
+
 export {
 
     adminRegister,
     adminLogin,
     adminLogout,
     deleteAdmin,
-    getDetail
+    getDetail,
+    updateDetail
 }
