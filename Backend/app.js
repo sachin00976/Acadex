@@ -8,6 +8,7 @@ import { router as othermarks } from './src/routes/Other Api/marks.route.js';
 import { router as othermaterial } from './src/routes/Other Api/material.route.js';
 import { router as othernotice } from './src/routes/Other Api/notice.route.js';
 import { router as othersubject } from './src/routes/Other Api/subject.route.js';
+import { router as othertimetable } from './src/routes/Other Api/timetable.route.js';
 const app = express();
 
 // Configure CORS
@@ -29,5 +30,6 @@ app.use('/api/v1/marks', othermarks);
 app.use('/api/v1/material', othermaterial);
 app.use('/api/v1/notice', othernotice);
 app.use('/api/v1/subject', othersubject);
+app.use('/api/v1/timetable', othertimetable);
 
 export default app;
