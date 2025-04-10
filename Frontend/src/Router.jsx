@@ -8,6 +8,7 @@ import EditStudent from './Screens/Admin/Student/EditStudent.jsx'
 import AddFaculty from './Screens/Admin/Faculty/AddFaculty.jsx'
 import EditFaculty from './Screens/Admin/Faculty/EditFaculty.jsx'
 import Home from './Screens/Admin/Home.jsx'
+import Notice from './components/Notice.jsx'
 
 const Router = createBrowserRouter(
     createRoutesFromElements(
@@ -20,6 +21,7 @@ const Router = createBrowserRouter(
         <Route path="/af" element={<AddFaculty />} />
         <Route path="/ef" element={<EditFaculty />} />
         <Route path="/ho" element={<Home />} />
+        <Route path="/no" element={<Notice />} />
         </>
     )
 )

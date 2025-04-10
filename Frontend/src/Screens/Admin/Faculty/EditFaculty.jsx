@@ -104,6 +104,7 @@ const EditFaculty = () => {
       .catch((error) => {
         toast.dismiss();
         toast.error(error?.response?.data?.message || 'Search failed');
+        clearSearchHandler();
       });
   };
 
