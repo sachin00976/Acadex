@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 const Home = () => {
     const router = useLocation();
     const navigate = useNavigate();
-    const [load,setLoad] = useState(false);
+    const [load,setLoad] = useState(true);
     const [selectedMenu,setSelectedMenu] = useState("Profile");
     const [dashboardData, setDashboardData] = useState({
         studentCount:"",
