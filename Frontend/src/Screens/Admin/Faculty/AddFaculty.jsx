@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiX } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 
 const AddFaculty = () => {
-  const [file, setFile] = useState();
-  const [branch, setBranch] = useState();
+  const [file, setFile] = useState(null);
+  const [branch, setBranch] = useState([]);
   const [previewImage, setPreviewImage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -17,21 +18,13 @@ const AddFaculty = () => {
   } = useForm();
 
   const getBranchData = () => {
-    const headers = {
-      "Content-Type": "application/json",
-    };
     axios
-      .get("/api/v1/branch/getBranch", { headers })
-      .then((response) => {
-        if (response.data.data) {
-          setBranch(response.data.data);
-        } else {
-          toast.error(response.data.message);
-        }
+      .get("/api/v1/branch/getBranch", { headers: { "Content-Type": "application/json" } })
+      .then((res) => {
+        if (res.data.data) setBranch(res.data.data);
+        else toast.error(res.data.message);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((err) => console.error(err));
   };
 
   useEffect(() => {
@@ -40,165 +33,199 @@ const AddFaculty = () => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
+    
+    if (!selectedFile) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(selectedFile.type)) {
+      toast.error("Only JPEG, JPG, and PNG files are allowed");
+      return;
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (selectedFile.size > maxSize) {
+      toast.error("File size must be less than 2MB");
+      return;
+    }
+
     setFile(selectedFile);
-    const imageUrl = URL.createObjectURL(selectedFile);
-    setPreviewImage(imageUrl);
+    setPreviewImage(URL.createObjectURL(selectedFile));
   };
 
-  const addFacultyProfile = (formDataInput) => {
+  const removeImage = () => {
+    setFile(null);
+    setPreviewImage("");
+    // Reset file input
+    document.getElementById("file").value = "";
+  };
+
+  const addFacultyProfile = (data) => {
     if (!file) {
       toast.error("Please upload a profile picture");
       return;
     }
 
+    setIsSubmitting(true);
     toast.loading("Adding Faculty...");
 
     const formData = new FormData();
-    Object.entries(formDataInput).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
+    Object.entries(data).forEach(([k, v]) => formData.append(k, v));
     formData.append("type", "profile");
     formData.append("profile", file);
 
-    const headers = {
-      "Content-Type": "multipart/form-data",
-    };
-
     axios
-      .post("/api/v1/faculty/register", formData, { headers })
-      .then((response) => {
+      .post("/api/v1/faculty/register", formData, { 
+        headers: { "Content-Type": "multipart/form-data" } 
+      })
+      .then((res) => {
         toast.dismiss();
-
-        if (response.data.success) {
-          toast.success(response.data.message || "Faculty added successfully");
-          setFile(null);
-          setPreviewImage("");
-          reset();
+        if (res.data.success) {
+          toast.success(res.data.message || "Faculty added successfully");
+          resetForm();
         } else {
-          toast.error(response.data.message || "Something went wrong");
+          toast.error(res.data.message || "Something went wrong");
         }
       })
-      .catch((error) => {
+      .catch((err) => {
         toast.dismiss();
-        toast.error(error?.response?.data?.message || "Server error occurred");
+        toast.error(err?.response?.data?.message || "Server error occurred");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
+  };
+
+  const resetForm = () => {
+    reset();
+    setFile(null);
+    setPreviewImage("");
+    document.getElementById("file").value = "";
   };
 
   return (
     <form
       onSubmit={handleSubmit(addFacultyProfile)}
-      className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
+      className="w-full max-w-6xl mx-auto p-8 mt-10 bg-white rounded-3xl shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-8"
     >
-      <div className="w-[40%]">
-        <label htmlFor="firstName" className="leading-7 text-sm">
-          Enter First Name
+      {/* First Name */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          First Name <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          id="firstName"
-          {...register("firstName", { required: true })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          {...register("firstName", { required: "First name is required" })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
-        {errors.firstName && <span className="text-red-500 text-xs">First name is required</span>}
+        {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="middleName" className="leading-7 text-sm">
-          Enter Middle Name
-        </label>
+      {/* Middle Name */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
         <input
           type="text"
-          id="middleName"
           {...register("middleName")}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="lastName" className="leading-7 text-sm">
-          Enter Last Name
+      {/* Last Name */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Last Name <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          id="lastName"
-          {...register("lastName", { required: true })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          {...register("lastName", { required: "Last name is required" })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
-        {errors.lastName && <span className="text-red-500 text-xs">Last name is required</span>}
+        {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="employeeId" className="leading-7 text-sm">
-          Enter Employee Id
+      {/* Employee ID */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Employee ID <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          id="employeeId"
-          {...register("employeeId", { required: true })}
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          {...register("employeeId", { required: "Employee ID is required" })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
-        {errors.employeeId && <span className="text-red-500 text-xs">Employee ID is required</span>}
+        {errors.employeeId && <p className="text-red-500 text-sm mt-1">{errors.employeeId.message}</p>}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="email" className="leading-7 text-sm">
-          Enter Email Address
+      {/* Email */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Email Address <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
-          id="email"
-          {...register("email", { required: true })}
-          placeholder="e.g. example@domain.com"
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          placeholder="example@domain.com"
+          {...register("email", { 
+            required: "Email is required",
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Invalid email address"
+            }
+          })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
-        {errors.email && <span className="text-red-500 text-xs">Email is required</span>}
+        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="phoneNumber" className="leading-7 text-sm">
-          Enter Phone Number
+      {/* Phone Number */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Phone Number <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          id="phoneNumber"
-          {...register("phoneNumber", {
-            required: true,
-            pattern: /^\d{10}$/,
-          })}
           maxLength={10}
-          placeholder="e.g. 9876543210"
-          className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          placeholder="9876543210"
+          {...register("phoneNumber", {
+            required: "Phone number is required",
+            pattern: {
+              value: /^\d{10}$/,
+              message: "Valid 10-digit number required"
+            }
+          })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
-        {errors.phoneNumber && <span className="text-red-500 text-xs">Enter a valid 10-digit phone number</span>}
+        {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message}</p>}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="department" className="leading-7 text-sm">
-          Select Department
+      {/* Department */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Department <span className="text-red-500">*</span>
         </label>
         <select
-          id="department"
-          {...register("department", { required: true })}
-          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
+          {...register("department", { required: "Department is required" })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         >
           <option value="">-- Select --</option>
-          {branch?.map((branch) => (
-            <option value={branch.name} key={branch.name}>
-              {branch.name}
+          {branch.map((b) => (
+            <option value={b.name} key={b.name}>
+              {b.name}
             </option>
           ))}
         </select>
-        {errors.department && <span className="text-red-500 text-xs">Department is required</span>}
+        {errors.department && <p className="text-red-500 text-sm mt-1">{errors.department.message}</p>}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="post" className="leading-7 text-sm">
-          Select Post
+      {/* Post */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Post <span className="text-red-500">*</span>
         </label>
         <select
-          id="post"
-          {...register("post", { required: true })}
-          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
+          {...register("post", { required: "Post is required" })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         >
           <option value="">-- Select --</option>
           <option value="Professor">Professor</option>
@@ -210,76 +237,110 @@ const AddFaculty = () => {
           <option value="Lab Assistant">Lab Assistant</option>
           <option value="Technical Assistant">Technical Assistant</option>
         </select>
-        {errors.post && <span className="text-red-500 text-xs">Post is required</span>}
+        {errors.post && <p className="text-red-500 text-sm mt-1">{errors.post.message}</p>}
       </div>
 
-      <div className="w-[95%] flex justify-evenly items-center">
-        <div className="w-[25%]">
-          <label htmlFor="gender" className="leading-7 text-sm">
-            Select Gender
-          </label>
-          <select
-            id="gender"
-            {...register("gender", { required: true })}
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full accent-blue-700 mt-1"
-          >
-            <option value="">-- Select --</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-          {errors.gender && <span className="text-red-500 text-xs">Gender is required</span>}
-        </div>
-
-        <div className="w-[25%]">
-          <label htmlFor="experience" className="leading-7 text-sm">
-            Enter Experience
-          </label>
-          <input
-            type="number"
-            id="experience"
-            min={0}
-            {...register("experience", { required: true })}
-            className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-          />
-          {errors.experience && <span className="text-red-500 text-xs">Experience is required</span>}
-        </div>
-
-        <div className="w-[25%]">
-          <label htmlFor="file" className="leading-7 text-sm">
-            Select Profile
-          </label>
-          <label
-            htmlFor="file"
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
-          >
-            Upload
-            <span className="ml-2">
-              <FiUpload />
-            </span>
-          </label>
-          <input
-            hidden
-            type="file"
-            id="file"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-        </div>
+      {/* Gender */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Gender <span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register("gender", { required: "Gender is required" })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        >
+          <option value="">-- Select --</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+        {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
       </div>
 
+      {/* Experience */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Experience (years) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          min={0}
+          {...register("experience", { 
+            required: "Experience is required",
+            min: {
+              value: 0,
+              message: "Experience cannot be negative"
+            }
+          })}
+          className="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        />
+        {errors.experience && <p className="text-red-500 text-sm mt-1">{errors.experience.message}</p>}
+      </div>
+
+      {/* Profile Picture Upload */}
+      <div className="flex flex-col justify-center items-center">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Profile Picture <span className="text-red-500">*</span>
+        </label>
+        <label
+          htmlFor="file"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-100 text-blue-800 font-medium rounded-xl cursor-pointer hover:bg-blue-200 transition"
+        >
+          {file ? "Change Image" : "Upload Image"} <FiUpload className="text-lg" />
+        </label>
+        <input 
+          hidden 
+          type="file" 
+          id="file" 
+          accept="image/*" 
+          onChange={handleFileChange} 
+        />
+        <p className="text-gray-500 text-xs mt-2">JPEG, JPG, or PNG (Max 2MB)</p>
+      </div>
+
+      {/* Image Preview with Cancel Button */}
       {previewImage && (
-        <div className="w-full flex justify-center items-center">
-          <img src={previewImage} alt="faculty" className="h-36" />
+        <div className="col-span-full flex flex-col justify-center items-center mt-4">
+          <div className="relative">
+            <img 
+              src={previewImage} 
+              alt="Preview" 
+              className="h-36 rounded-xl border border-gray-200 shadow-md object-cover"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+            >
+              <FiX size={16} />
+            </button>
+          </div>
+          <p className="text-green-600 text-sm mt-2">Image selected</p>
         </div>
       )}
 
-      <button
-        type="submit"
-        className="bg-blue-500 px-6 py-3 rounded-sm my-6 text-white"
-      >
-        Add New Faculty
-      </button>
+      {/* Submit Button */}
+      <div className="col-span-full flex justify-center mt-6">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-2xl shadow-lg transition flex items-center gap-2 ${
+            isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+          }`}
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            "Add New Faculty"
+          )}
+        </button>
+      </div>
     </form>
   );
 };
