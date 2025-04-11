@@ -26,7 +26,9 @@ const Login = () => {
                 
                 dispatch(userLoggedIn({ user: response.data.data }));
                 localStorage.setItem("user", JSON.stringify(response.data.data));
-                navigate(`/${selected.toLowerCase()}`);
+                navigate(`/${selected.toLowerCase()}`,{
+                    state: { type: selected, loginid: response.data.loginid },
+                  });
             }).catch((error) => {
                 toast.dismiss();
                 console.error(error);
