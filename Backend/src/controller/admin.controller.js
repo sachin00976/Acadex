@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Admin } from "../models/adminSchema.js";
 import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { response } from "express";
 const genrateAccessTokenAndRefreshToken=async(adminId)=>{
     try {
         const admin=await Admin.findById(adminId)
@@ -234,6 +235,53 @@ const updateDetail = asyncHandler(async (req, res) => {
         new ApiResponse(200, updatedAdmin, "Admin detail updated successfully")
     );
 });
+const passwordValidator = asyncHandler(async (req, res) => {
+    const { employeeId, password } = req.body;
+    
+    if (!employeeId || !password) {
+        throw new ApiError(400, "Employee ID or password is missing");
+    }
+
+    const admin = await Admin.findOne({ employeeId });
+
+    if (!admin) {
+        throw new ApiError(404, "No admin found with given employeeId");
+    }
+
+    const isPasswordValid = await admin.isPasswordCorrect(password);
+    
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid current password");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, [], "Valid Password")
+    );
+});
+
+const passwordChangeHandler = asyncHandler(async (req, res) => {
+    const { newPassword, employeeId } = req.body;
+
+    if (!newPassword || !employeeId) {
+        throw new ApiError(400, "Both newPassword and employeeId are required");
+    }
+
+    const admin = await Admin.findOne({ employeeId });
+    if (!admin) {
+        throw new ApiError(404, "No admin found with given employeeId");
+    }
+
+    admin.password = newPassword; 
+    admin.markModified("password");
+    await admin.save();
+    
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, [], "Password updated successfully"));
+});
+
 
 
 
@@ -244,5 +292,7 @@ export {
     adminLogout,
     deleteAdmin,
     getDetail,
-    updateDetail
+    updateDetail,
+    passwordValidator,
+    passwordChangeHandler
 }
