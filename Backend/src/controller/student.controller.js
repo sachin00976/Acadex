@@ -153,3 +153,19 @@ const options = {
           .clearCookie("refreshToken", options)
           .json(new ApiResponse(200, {}, "User logged out successfully"));
   });
+
+
+  const deleteStudent = asyncHandler(async (req, res) => {
+    const { studentId } = req.params;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+        throw new ApiError(404, "No Student Found");
+    }
+
+    await student.deleteOne();
+
+    return res.status(200).json(
+        new ApiResponse(200, "Student deleted successfully")
+    );
+});
