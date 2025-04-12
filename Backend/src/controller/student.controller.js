@@ -132,4 +132,24 @@ const options = {
           .json(new ApiResponse(200, studentData, "Student logged in successfully"));
   });
 
+  const studentLogout = asyncHandler(async (req, res) => {
+      
+      if (!req.student || !req.student.id) {
+          throw new ApiError(401, "Unauthorized: No user data found in request");
+      }
   
+      const studentId = req.student._id;
+      const student = await Student.findById(studentId);
+  
+      if (!student) {
+          throw new ApiError(401, "User not found. Please log in again.");
+      }
+  
+      student.refreshToken = null;
+      await student.save({ validateBeforeSave: false });
+  
+      return res.status(200)
+          .clearCookie("accessToken", options)
+          .clearCookie("refreshToken", options)
+          .json(new ApiResponse(200, {}, "User logged out successfully"));
+  });
