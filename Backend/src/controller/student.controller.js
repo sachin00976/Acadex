@@ -97,3 +97,39 @@ const options = {
           .cookie("refreshToken", refreshToken, options)
           .json(new ApiResponse(201, createdStudent, "Student registered successfully"));
   });
+
+
+
+
+  const studentLogin = asyncHandler(async (req, res) => {
+      const { email, password } = req.body;
+  
+      if (!email || !password) {
+          throw new ApiError(404, "Please enter all fields to login");
+      }
+  
+      const student = await Student.findOne({ email }).select("-createdAt -updatedAt -__v");
+  
+      if (!student) {
+          throw new ApiError(404, "Invalid email. Please try again!");
+      }
+  
+      const isPasswordValid = await student.isPasswordCorrect(password);
+  
+      if (!isPasswordValid) {
+          throw new ApiError(404, "Invalid password. Please try again!");
+      }
+  
+      const studentData = student.toObject();
+      delete studentData.password;
+      delete studentData.refreshToken;
+  
+      const { refreshToken, accessToken } = await generateAccessTokenAndRefreshToken(student._id);
+  
+      return res.status(200)
+          .cookie("accessToken", accessToken, options)
+          .cookie("refreshToken", refreshToken, options)
+          .json(new ApiResponse(200, studentData, "Student logged in successfully"));
+  });
+
+  
