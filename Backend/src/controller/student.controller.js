@@ -187,3 +187,87 @@ const getDetail = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, employee, "Student found successfully."));
 });
 
+
+const updateStudent = asyncHandler(async (req, res) => {
+    const {
+      enrollmentNo,
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phoneNumber,
+      gender,
+      semester,
+      branch,
+    } = req.body;
+  
+    if (
+      !enrollmentNo ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phoneNumber ||
+      !gender ||
+      !semester ||
+      !branch
+    ) {
+      throw new ApiError(400, "All fields are required!");
+    }
+  
+    const student = await Student.findOne({ employeeId });
+    if (!student) {
+      throw new ApiError(404, "Invalid enrollementNo");
+    }
+  
+    const newData = {
+      enrollmentNo,
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phoneNumber,
+      gender,
+      semester,
+      branch,
+    };
+  
+    if (req.file) {
+      const studentProfilePath = req.file?.path;
+      const studentProfileType = req.file?.mimetype;
+  
+      const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+      if (!allowedFormats.includes(studentProfileType)) {
+        throw new ApiError(
+          400,
+          "Invalid file type. Please provide a profile in PNG, JPG, or WebP format."
+        );
+      }
+  
+      const profilePublicId = student.profile?.public_id;
+      if (studentPublicId) {
+        await deleteOnCloudinary(profilePublicId);
+      }
+  
+      const uploadResponse = await uploadOnCloudinary(studentProfilePath);
+  
+      newData.profile = {
+        public_id: uploadResponse.public_id,
+        url: uploadResponse.secure_url,
+      };
+    }
+  
+    const updatedStudent = await Student.findByIdAndUpdate(student._id, newData, {
+      new: true,
+      runValidators: true,
+    });
+  
+    if (!updatedStudent) {
+      throw new ApiError(500, "Error occurred while updating the student");
+    }
+  
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedStudent, "Student detail updated successfully")
+      );
+  });
