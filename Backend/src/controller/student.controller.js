@@ -169,3 +169,21 @@ const options = {
         new ApiResponse(200, "Student deleted successfully")
     );
 });
+
+const getDetail = asyncHandler(async (req, res) => {
+    
+    const { enrollmentNo } = req.body;
+
+    if (!enrollmentNo) {
+        throw new ApiError(400, "enrollmentNo is required.");
+    }
+
+    const student = await Student.findOne({ enrollmentNo }).select("-password -createdAt -updatedAt -__v");
+
+    if (!student) {
+        return res.status(200).json(new ApiResponse(200, [], "No student found with the given enrollmentNo."));
+    }
+
+    return res.status(200).json(new ApiResponse(200, employee, "Student found successfully."));
+});
+
