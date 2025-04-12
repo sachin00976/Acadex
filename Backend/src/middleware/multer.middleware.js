@@ -23,6 +23,9 @@ const storage=multer.diskStorage(
                     filename=`Admin_Profile_${req.body.employeeId}`;
                 }
             }
+            else if (req.body?.type === "timetable") {
+                  filename = `Timetable_${req.body.semester}_Semester_${req.body.branch}.png`
+            }
             cb(null,`${filename}`)
         }
     }
