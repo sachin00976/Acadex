@@ -8,7 +8,9 @@ const getSubject = asyncHandler(async (req, res) => {
     const subject = await Subject.find();
 
     if (!subject || subject.length === 0) {
-        throw new ApiError(404, "No Subject Available");
+        return res.status(200).json(
+            new ApiResponse(200,[], "No subject found")
+        )
     }
 
     return res.status(200).json(
