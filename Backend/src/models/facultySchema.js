@@ -65,6 +65,9 @@ const facultySchema = new mongoose.Schema({
     minlength: [8, "Password must contain at least 8 characters"],
     maxlength: [50, "Password cannot exceed 50 characters"],
   },
+  refreshToken: {
+    type: String,
+},
 }, { timestamps: true });
 
 facultySchema.pre("save", async function (next) {

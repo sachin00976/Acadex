@@ -62,6 +62,9 @@ const studentSchema = new mongoose.Schema(
             required:true,
         },
       },
+      refreshToken: {
+        type: String,
+    },
   },
   { timestamps: true }
 );
