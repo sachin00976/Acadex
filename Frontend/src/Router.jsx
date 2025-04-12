@@ -8,6 +8,7 @@ import EditStudent from './Screens/Admin/Student/EditStudent.jsx'
 import AddFaculty from './Screens/Admin/Faculty/AddFaculty.jsx'
 import EditFaculty from './Screens/Admin/Faculty/EditFaculty.jsx'
 import Home from './Screens/Admin/Home.jsx'
+import Home1 from './Screens/Faculty/Home.jsx'
 import Admin from './Screens/Admin/Admin.jsx'
 import Profile from './Screens/Admin/Profile.jsx'
 import Notice from './components/Notice.jsx'
@@ -21,7 +22,7 @@ const Router = createBrowserRouter(
       <Route path="/as" element={<AddStudent />} />
       <Route path="/es" element={<EditStudent />} />
       <Route path="/af" element={<AddFaculty />} />
-      <Route path="/ef" element={<EditFaculty />} />
+      <Route path="/faculty" element={<Home1 />} />
       <Route path="/ho" element={<Home />} />
       <Route path="/no" element={<Notice />} />
     </>
