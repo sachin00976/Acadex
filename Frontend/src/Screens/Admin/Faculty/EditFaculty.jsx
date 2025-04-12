@@ -1,306 +1,411 @@
-import React, { useState } from 'react'
-import toast from "react-hot-toast";
-import axios from "axios";
-import { FiSearch, FiUpload, FiX } from "react-icons/fi";
+import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import { FiSearch, FiUpload, FiX } from 'react-icons/fi';
+import { useForm } from 'react-hook-form';
 
 const EditFaculty = () => {
-    const [file,setFile] = useState();
-    const [searchActive,setSearchActive] = useState(false);
-    const [data,setData] = useState({
-        employeeId: "",
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: "",
-        department: "",
-        gender: "",
-        experience: "",
-        post: "",
-        profile: "",
-    });
-    const [id,setId] = useState();
-    const [search,setSearch] = useState();
-    const [previewImage,setPreviewImage] = useState("");
+  const [file, setFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState('');
+  const [search, setSearch] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
+  const [id, setId] = useState('');
+  const [branch, setBranch] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleFileChange = (e)=>{
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-        const imageUrl = URL.createObjectURL(selectedFile);
-        setPreviewImage(imageUrl);
-    };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    getValues,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      employeeId: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      department: '',
+      gender: '',
+      experience: '',
+      post: '',
+      profile: ''
+    }
+  });
 
-    const updateFacultyProfile = (e)=>{
-        e.preventDefault();
-        toast.loading("Updating Profile");
-        const headers = {
-            "Content-Type":"multipart/form-data",
-        };
-        const formData = new FormData();
-        formData.append("employeeId", data.employeeId);
-        formData.append("firstName", data.firstName);
-        formData.append("middleName", data.middleName);
-        formData.append("lastName", data.lastName);
-        formData.append("email", data.email);
-        formData.append("phoneNumber", data.phoneNumber);
-        formData.append("department", data.department);
-        formData.append("experience", data.experience);
-        formData.append("gender", data.gender);
-        formData.append("post", data.post);
-        if(file){
-            formData.append("type","profile");
-            formData.append("profile",file);
-        }
-        axios.put(``,formData,{
-            headers:headers,
-        })
-        .then((response)=>{
-            toast.dismiss();
-            if(response.data.success){
-                toast.success(response.data.message);
-                clearSearchHandler();
-            }else{
-                toast.error(response.data.message);
-            }
-        })
-        .catch((error)=>{
-            toast.dismiss();
-            toast.error(error.response.data.message);
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    
+    if (!selectedFile) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(selectedFile.type)) {
+      toast.error("Only JPEG, JPG, and PNG files are allowed");
+      return;
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (selectedFile.size > maxSize) {
+      toast.error("File size must be less than 2MB");
+      return;
+    }
+
+    setFile(selectedFile);
+    setPreviewImage(URL.createObjectURL(selectedFile));
+  };
+
+  const removeImage = () => {
+    setFile(null);
+    setPreviewImage("");
+    // Reset file input
+    document.getElementById("file").value = "";
+  };
+
+  const updateFacultyProfile = async (data) => {
+    if (!id) {
+      toast.error("Please search for a faculty first");
+      return;
+    }
+
+    setIsSubmitting(true);
+    toast.loading('Updating Profile...');
+
+    const formData = new FormData();
+    formData.append('employeeId', data.employeeId);
+    formData.append('firstName', data.firstName);
+    formData.append('middleName', data.middleName);
+    formData.append('lastName', data.lastName);
+    formData.append('email', data.email);
+    formData.append('phoneNumber', data.phoneNumber);
+    formData.append('department', data.department);
+    formData.append('experience', data.experience);
+    formData.append('gender', data.gender);
+    formData.append('post', data.post);
+
+    if (file) {
+      formData.append('type', 'profile');
+      formData.append('profile', file);
+    }
+
+    try {
+      const response = await axios.patch(`/api/v1/faculty/updateDetail`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      toast.dismiss();
+      if (response.data.success) {
+        toast.success(response.data.message);
+        clearSearchHandler();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error?.response?.data?.message || 'Update failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const searchFacultyHandler = async (e) => {
+    e.preventDefault();
+    if (!search.trim()) {
+      toast.error("Please enter an employee ID");
+      return;
+    }
+
+    setSearchActive(true);
+    toast.loading('Searching Faculty...');
+
+    try {
+      // Get branch data
+      const branchResponse = await axios.get("/api/v1/branch/getBranch", {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (branchResponse.data.data) {
+        setBranch(branchResponse.data.data);
+      } else {
+        toast.error(branchResponse.data.message);
+      }
+
+      // Get faculty data
+      const facultyResponse = await axios.post(
+        `/api/v1/faculty/getDetail`, 
+        { employeeId: search }, 
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      toast.dismiss();
+      const faculty = facultyResponse.data?.data;
+      if (!faculty || Object.keys(faculty).length === 0) {
+        toast.error('No Faculty Found!');
+      } else {
+        toast.success(facultyResponse.data.message);
+        setId(faculty._id);
+        setPreviewImage(faculty.profile?.url || '');
+        reset({
+          employeeId: faculty.employeeId || '',
+          firstName: faculty.firstName || '',
+          middleName: faculty.middleName || '',
+          lastName: faculty.lastName || '',
+          email: faculty.email || '',
+          phoneNumber: faculty.phoneNumber || '',
+          department: faculty.department || '',
+          gender: faculty.gender || '',
+          experience: faculty.experience || '',
+          post: faculty.post || '',
+          profile: faculty.profile?.url || '',
         });
-    };
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error?.response?.data?.message || 'Search failed');
+    }
+  };
 
-    const searchFacultyHandler = (e)=>{
-        setSearchActive(true);
-        e.preventDefault();
-        toast.loading("Getting Faculty");
-        const headers = {
-            "Content-Type": "application/json",
-        };
-        axios.post(``,{employeeId:search},{headers})
-        .then((response)=>{
-            toast.dismiss();
-            if(response.data.user.length === 0){
-                toast.error("No Faculty Found!");
-            }else{
-                toast.success(response.data.message);
-                setId(response.data.user[0]._id);
-                setData({
-                    employeeId: response.data.user[0].employeeId,
-                    firstName: response.data.user[0].firstName,
-                    middleName: response.data.user[0].middleName,
-                    lastName: response.data.user[0].lastName,
-                    email: response.data.user[0].email,
-                    phoneNumber: response.data.user[0].phoneNumber,
-                    post: response.data.user[0].post,
-                    department: response.data.user[0].department,
-                    gender: response.data.user[0].gender,
-                    profile: response.data.user[0].profile,
-                    experience: response.data.user[0].experience,
-                });
-            }
-        })
-        .catch((error)=>{
-            toast.dismiss();
-            if(error?.response?.data) toast.error(error.response.data.message);
-            console.error(error);
-        });
-    };
-
-    const clearSearchHandler = ()=>{
-        setSearchActive(false);
-        setSearch("");
-        setId("");
-        setPreviewImage();
-        setData({
-            employeeId: "",
-            firstName: "",
-            middleName: "",
-            lastName: "",
-            email: "",
-            phoneNumber: "",
-            department: "",
-            gender: "",
-            experience: "",
-            post: "",
-            profile: "",
-        });
-    };
+  const clearSearchHandler = () => {
+    setSearchActive(false);
+    setSearch('');
+    setId('');
+    setFile(null);
+    setPreviewImage('');
+    reset();
+    document.getElementById("file").value = "";
+  };
 
   return (
-    <div className="my-6 mx-auto w-full">
-      <form onSubmit={searchFacultyHandler} className="flex justify-center items-center border-2 border-blue-500 rounded w-[40%] mx-auto">
-        <input type="text" className='px-6 py-3 w-full outline-none' placeholder='Employee Id' value={search} onChange={(e)=>{setSearch(e.target.value)}} />
+    <div className="my-10 mx-auto w-full px-4">
+      <form
+        onSubmit={searchFacultyHandler}
+        className="flex justify-center items-center border border-blue-500 rounded-xl w-full sm:w-[60%] mx-auto overflow-hidden shadow-md"
+      >
+        <input
+          type="text"
+          className="px-4 py-3 w-full outline-none text-sm"
+          placeholder="Enter Employee ID"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-        {!searchActive && (
-            <button className="px-4 text-2xl hover:text-blue-500" type="submit">
-                <FiSearch/>
-            </button>
-        )}
-        {searchActive && (
-            <button className="px-4 text-2xl hover:text-blue-500" onClick={clearSearchHandler}>
-                <FiX/>
-            </button>
+        {search ? (
+          <button
+            type="button"
+            className="px-5 py-3 bg-red-500 text-white hover:bg-red-600 transition duration-200"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              clearSearchHandler();
+            }}
+          >
+            <FiX className="text-xl pointer-events-none" />
+          </button>
+        ) : (
+          <button
+            className="px-5 py-3 bg-blue-500 text-white hover:bg-blue-600 transition duration-200"
+            type="submit"
+          >
+            <FiSearch className="text-xl" />
+          </button>
         )}
       </form>
 
-      {search && id && (
-        <form onSubmit={updateFacultyProfile} className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10">
-            <div className='w-[40%]'>
-                <label htmlFor="firstname" className="leading-7 text-sm ">
-                    Enter First Name
-                </label>
-                <input type="text" id="firstname" value={data.firstName} 
-                    onChange={(e)=>setData({...data,firstName:e.target.value})}
-                    className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-                />
+      {searchActive && id && (
+        <form
+          onSubmit={handleSubmit(updateFacultyProfile)}
+          className="w-full sm:w-[80%] flex flex-wrap justify-center gap-6 mx-auto mt-10"
+        >
+          {["firstName", "middleName", "lastName", "employeeId", "phoneNumber", "email", "experience"].map((name) => (
+            <div key={name} className="w-full sm:w-[45%]">
+              <label htmlFor={name} className="block mb-1 text-sm font-medium text-gray-700">
+                {name === "employeeId" ? "Employee ID" :
+                 name === "phoneNumber" ? "Phone Number" :
+                 name === "email" ? "Email" :
+                 name === "experience" ? "Experience (years)" :
+                 `${name.charAt(0).toUpperCase() + name.slice(1)}`}
+                {["firstName", "lastName", "employeeId", "phoneNumber", "email", "experience"].includes(name) && (
+                  <span className="text-red-500 ml-1">*</span>
+                )}
+              </label>
+              <input
+                {...register(name, {
+                  required: ["firstName", "lastName", "employeeId", "phoneNumber", "email", "experience"].includes(name) 
+                    ? `${name === "employeeId" ? "Employee ID" :
+                       name === "phoneNumber" ? "Phone number" :
+                       name === "email" ? "Email" :
+                       name === "experience" ? "Experience" :
+                       name} is required`
+                    : false,
+                  pattern: name === "email" ? {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address"
+                  } : name === "phoneNumber" ? {
+                    value: /^\d{10}$/,
+                    message: "Must be 10 digits"
+                  } : undefined,
+                  min: name === "experience" ? {
+                    value: 0,
+                    message: "Cannot be negative"
+                  } : undefined
+                })}
+                type={name === "employeeId" || name === "phoneNumber" || name === "experience" ? "number" : "text"}
+                id={name}
+                disabled={name === "employeeId"}
+                min={name === "experience" ? 0 : undefined}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              />
+              {errors[name] && (
+                <p className="text-red-500 text-xs mt-1">{errors[name].message}</p>
+              )}
             </div>
+          ))}
 
-            <div className="w-[40%]">
-            <label htmlFor="middlename" className="leading-7 text-sm ">
-              Enter Middle Name
+          <div className="w-full sm:w-[45%]">
+            <label htmlFor="department" className="block mb-1 text-sm font-medium text-gray-700">
+              Department <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="middlename"
-              value={data.middleName}
-              onChange={(e) => setData({ ...data, middleName: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
+            <select
+              id="department"
+              {...register("department", { required: "Department is required" })}
+              className="px-4 py-2 bg-blue-50 rounded-lg text-base w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1"
+            >
+              <option value="">-- Select --</option>
+              {branch?.map((branch) => (
+                <option value={branch.name} key={branch.name}>
+                  {branch.name}
+                </option>
+              ))}
+            </select>
+            {errors.department && (
+              <p className="text-red-500 text-xs mt-1">{errors.department.message}</p>
+            )}
           </div>
 
-
-          <div className="w-[40%]">
-            <label htmlFor="lastname" className="leading-7 text-sm ">
-              Enter Last Name
+          <div className="w-full sm:w-[45%]">
+            <label htmlFor="gender" className="block mb-1 text-sm font-medium text-gray-700">
+              Gender <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="lastname"
-              value={data.lastName}
-              onChange={(e) => setData({ ...data, lastName: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
+            <select
+              id="gender"
+              {...register("gender", { required: "Gender is required" })}
+              className="px-4 py-2 bg-blue-50 rounded-lg text-base w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1"
+            >
+              <option value="">-- Select --</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            {errors.gender && (
+              <p className="text-red-500 text-xs mt-1">{errors.gender.message}</p>
+            )}
           </div>
 
-
-          <div className="w-[40%]">
-            <label htmlFor="employeeId" className="leading-7 text-sm ">
-              Enter Employee Id
+          <div className="w-full sm:w-[45%]">
+            <label htmlFor="post" className="block mb-1 text-sm font-medium text-gray-700">
+              Post <span className="text-red-500">*</span>
             </label>
-            <input
-              disabled
-              type="number"
-              id="employeeId"
-              value={data.employeeId}
-              onChange={(e) => setData({ ...data, employeeId: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-          </div>
-
-
-          <div className="w-[40%]">
-            <label htmlFor="phoneNumber" className="leading-7 text-sm ">
-              Enter Phone Number
-            </label>
-            <input
-              type="number"
-              id="phoneNumber"
-              value={data.phoneNumber}
-              onChange={(e) =>
-                setData({ ...data, phoneNumber: e.target.value })
-              }
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-          </div>
-
-
-          <div className="w-[40%]">
-            <label htmlFor="email" className="leading-7 text-sm ">
-              Enter Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={data.email}
-              onChange={(e) => setData({ ...data, email: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-          </div>
-
-
-          <div className="w-[40%]">
-            <label htmlFor="post" className="leading-7 text-sm ">
-              POST
-            </label>
-            <input
-              type="text"
+            <select
               id="post"
-              value={data.post}
-              onChange={(e) => setData({ ...data, post: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
+              {...register("post", { required: "Post is required" })}
+              className="px-4 py-2 bg-blue-50 rounded-lg text-base w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1"
+            >
+              <option value="">-- Select --</option>
+              <option value="Professor">Professor</option>
+              <option value="Associate Professor">Associate Professor</option>
+              <option value="Assistant Professor">Assistant Professor</option>
+              <option value="HOD">HOD</option>
+              <option value="Lecturer">Lecturer</option>
+              <option value="Visiting Faculty">Visiting Faculty</option>
+              <option value="Lab Assistant">Lab Assistant</option>
+              <option value="Technical Assistant">Technical Assistant</option>
+            </select>
+            {errors.post && (
+              <p className="text-red-500 text-xs mt-1">{errors.post.message}</p>
+            )}
           </div>
 
-
-          <div className="w-[40%]">
-            <label htmlFor="experience" className="leading-7 text-sm ">
-              Experience
-            </label>
-            <input
-              type="number"
-              id="experience"
-              value={data.experience}
-              onChange={(e) => setData({ ...data, experience: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-            />
-          </div>
-
-
-          <div className="w-[40%]">
-            <label htmlFor="file" className="leading-7 text-sm ">
-              Select New Profile
+          <div className="w-full sm:w-[45%]">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Profile Picture
             </label>
             <label
               htmlFor="file"
-              className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
+              className="w-full flex justify-center items-center gap-2 border border-blue-300 rounded-lg px-4 py-2 bg-blue-50 cursor-pointer hover:bg-blue-100 transition"
             >
-              Upload
-              <span className="ml-2">
-                <FiUpload />
-              </span>
+              {file ? "Change Image" : "Upload Image"} <FiUpload />
             </label>
-            <input
-              hidden
-              type="file"
-              id="file"
-              accept="image/*"
-              onChange={handleFileChange}
+            <input 
+              hidden 
+              type="file" 
+              id="file" 
+              accept="image/*" 
+              onChange={handleFileChange} 
             />
+            <p className="text-gray-500 text-xs mt-1">JPEG, JPG, or PNG (Max 2MB)</p>
           </div>
 
-              {previewImage && (
-                <div className='w-full flex justify-center items-center'>
-                    <img src={previewImage} alt="Faculty Image" className='h-36' />
-                </div>
+          {(previewImage || getValues('profile')) && (
+            <div className="w-full flex flex-col justify-center items-center">
+              <div className="relative">
+                <img
+                  src={previewImage || getValues('profile')}
+                  alt="Faculty"
+                  className="h-36 w-36 object-cover rounded-full border-2 border-blue-400 shadow"
+                  onError={(e) => { e.target.src = '/default-avatar.png'; }}
+                />
+                {(previewImage || file) && (
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                  >
+                    <FiX size={16} />
+                  </button>
+                )}
+              </div>
+              {file && (
+                <p className="text-green-600 text-sm mt-2">New image selected</p>
               )}
+            </div>
+          )}
 
-              {!previewImage  && data.profile && (
-                <div className="w-full flex justify-center items-center">
-                    <img src={data.profile} alt="faculty" className='h-36'/>
-                </div>
-              )}
-
+          <div className="w-full flex justify-center gap-4 mt-6">
             <button
-                type="submit"
-                className="bg-blue-500 px-6 py-3 rounded-sm mt-6 text-white"
+              type="submit"
+              disabled={isSubmitting}
+              className={`bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-md flex items-center gap-2 ${
+                isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+              }`}
             >
-                Update Faculty
-          </button>
-
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Updating...
+                </>
+              ) : (
+                "Update Faculty"
+              )}
+            </button>
+            <button
+              type="button"
+              className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition shadow-md"
+              onClick={clearSearchHandler}
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default EditFaculty
+export default EditFaculty;

@@ -154,11 +154,27 @@ const deleteAdmin=asyncHandler(async(req,res)=>{
     )
     
 })
+const getDetail = asyncHandler(async (req, res) => {
+    
+    const { employeeId } = req.body;
+
+    if (!employeeId) {
+        throw new ApiError(400, "Employee ID is required.");
+    }
+
+    const employee = await Admin.findOne({ employeeId }).select("-password -createdAt -updatedAt -__v");
+
+    if (!employee) {
+        return res.status(200).json(new ApiResponse(200, [], "No employee found with the given ID."));
+    }
+
+    return res.status(200).json(new ApiResponse(200, employee, "Employee found successfully."));
+});
 export {
 
     adminRegister,
     adminLogin,
     adminLogout,
     deleteAdmin,
-
+    getDetail
 }

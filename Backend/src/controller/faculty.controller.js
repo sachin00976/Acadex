@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Faculty } from "../models/facultySchema.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary,deleteOnCloudinary } from "../utils/cloudinary.js";
 
 const generateAccessTokenAndRefreshToken = async (facultyId) => {
     try {
@@ -41,8 +41,11 @@ const facultyRegister = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid file type. Please provide a profile in PNG, JPG, or WebP format.");
     }
 
-    const { employeeId, firstName, middleName, lastName, email, phoneNumber, gender, password,department,experience,post } = req.body;
-
+    let { employeeId, firstName, middleName, lastName, email, phoneNumber, gender, password,department,experience,post } = req.body;
+    if(!password)
+    {
+        password=`${firstName}.${employeeId}`;
+    }
     if (!employeeId || !firstName || !lastName || !email || !phoneNumber || !gender || !password || !department || !experience || !post) {
         throw new ApiError(400, "All fields are required!");
     }
@@ -160,13 +163,117 @@ const deleteFaculty = asyncHandler(async (req, res) => {
         new ApiResponse(200, "Faculty deleted successfully")
     );
 });
+const getDetail = asyncHandler(async (req, res) => {
+    
+    const { employeeId } = req.body;
 
+    if (!employeeId) {
+        throw new ApiError(400, "Employee ID is required.");
+    }
 
+    const employee = await Faculty.findOne({ employeeId }).select("-password -createdAt -updatedAt -__v");
+
+    if (!employee) {
+        return res.status(200).json(new ApiResponse(200, [], "No employee found with the given ID."));
+    }
+
+    return res.status(200).json(new ApiResponse(200, employee, "Employee found successfully."));
+});
+
+const updateFaculty = asyncHandler(async (req, res) => {
+    const {
+      employeeId,
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phoneNumber,
+      gender,
+      department,
+      experience,
+      post,
+    } = req.body;
+  
+    if (
+      !employeeId ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phoneNumber ||
+      !gender ||
+      !department ||
+      !experience ||
+      !post
+    ) {
+      throw new ApiError(400, "All fields are required!");
+    }
+  
+    const faculty = await Faculty.findOne({ employeeId });
+    if (!faculty) {
+      throw new ApiError(404, "Invalid employeeId");
+    }
+  
+    const newData = {
+      employeeId,
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phoneNumber,
+      gender,
+      department,
+      experience,
+      post,
+    };
+  
+    if (req.file) {
+      const facultyProfilePath = req.file?.path;
+      const facultyProfileType = req.file?.mimetype;
+  
+      const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+      if (!allowedFormats.includes(facultyProfileType)) {
+        throw new ApiError(
+          400,
+          "Invalid file type. Please provide a profile in PNG, JPG, or WebP format."
+        );
+      }
+  
+      const profilePublicId = faculty.profile?.public_id;
+      if (profilePublicId) {
+        await deleteOnCloudinary(profilePublicId);
+      }
+  
+      const uploadResponse = await uploadOnCloudinary(facultyProfilePath);
+  
+      newData.profile = {
+        public_id: uploadResponse.public_id,
+        url: uploadResponse.secure_url,
+      };
+    }
+  
+    const updatedFaculty = await Faculty.findByIdAndUpdate(faculty._id, newData, {
+      new: true,
+      runValidators: true,
+    });
+  
+    if (!updatedFaculty) {
+      throw new ApiError(500, "Error occurred while updating the faculty");
+    }
+  
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedFaculty, "Faculty detail updated successfully")
+      );
+  });
+  
 export {
     facultyRegister,
     facultyLogin,
     facultyLogout,
-    deleteFaculty
+    deleteFaculty,
+    getDetail,
+    updateFaculty
     
 }
 

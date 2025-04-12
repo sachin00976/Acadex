@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Heading from "../../components/Heading";
 import { MdOutlineDelete } from "react-icons/md";
-import { baseApiURL } from "../../baseUrl";
+
 const Branch = () => {
   const [data, setData] = useState({
     name: "",
@@ -16,7 +16,7 @@ const Branch = () => {
 
   const getBranchHandler = () => {
     axios
-      .get(`${baseApiURL()}/branch/getBranch`)
+      .get(``)
       .then((response) => {
         if (response.data.success) {
           setBranch(response.data.branches);
@@ -36,7 +36,7 @@ const Branch = () => {
       "Content-Type": "application/json",
     };
     axios
-      .post(`${baseApiURL()}/branch/addBranch`, data, {
+      .post(``, data, {
         headers: headers,
       })
       .then((response) => {
@@ -63,7 +63,7 @@ const Branch = () => {
         "Content-Type": "application/json",
       };
       axios
-        .delete(`${baseApiURL()}/branch/deleteBranch/${id}`, {
+        .delete(``, {
           headers: headers,
         })
         .then((response) => {

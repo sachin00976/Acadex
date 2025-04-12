@@ -1,15 +1,13 @@
 import "./App.css";
-import {Route,Routes} from "react-router-dom"
-import Login from "./components/Login";
+import Router from "./Router.jsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+// import MainLayout from "./Screens/layout/MainLayout.jsx";
+import Login from "./components/Login.jsx";
+import Admin from "./Screens/Admin/Admin.jsx";
 
 function App() {
   return (
-    <div>
-      <Routes>
-         <Route path='/' element={<Login/>}/>
-      </Routes>
-      
-    </div>
+    <RouterProvider router={Router} />
   );
 }
 

@@ -5,14 +5,18 @@ import {
     facultyRegister,
     facultyLogin,
     facultyLogout,
-    deleteFaculty
+    deleteFaculty,
+    getDetail,
+    updateFaculty
  } from "../controller/faculty.controller.js";
 
 const router=express.Router()
 
-router.route("/register").post(upload.single("facultyProfile"),facultyRegister);
+router.route("/register").post(upload.single("profile"),facultyRegister);
 router.route("/login").post(facultyLogin);
 router.route("/logout").post(verifyJWT,facultyLogout);
 router.route("/deleteFaculty/:facultyId").delete(verifyJWT,deleteFaculty);
+router.route("/getdetail").post(getDetail);
+router.route('/updateDetail').patch(upload.single("profile"),updateFaculty)
 
 export {router}
