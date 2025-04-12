@@ -19,7 +19,7 @@ const Student = () => {
     profile: "",
   });
 
-  const [is,setId] = useState();
+  const [id,setId] = useState();
 
   const searchStudentHandler = (e)=>{
     setId("");
