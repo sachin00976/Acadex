@@ -202,7 +202,7 @@ const updateDetail = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Invalid file type. Please provide a profile in PNG, JPG, or WebP format");
         }
 
-        try {
+        
             const profilePublicId = admin.profile?.public_id;
             if (profilePublicId) {
                 await deleteOnCloudinary(profilePublicId);
@@ -217,9 +217,7 @@ const updateDetail = asyncHandler(async (req, res) => {
                 public_id: uploadResponse.public_id,
                 url: uploadResponse.secure_url
             };
-        } catch (err) {
-            throw new ApiError(500, "Error occurred during profile image update");
-        }
+        
     }
 
     const updatedAdmin = await Admin.findByIdAndUpdate(admin._id, newData, {
