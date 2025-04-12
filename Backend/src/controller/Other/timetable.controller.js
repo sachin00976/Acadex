@@ -3,6 +3,7 @@ import {TimeTable} from "../../models/other/timetable.model.js"
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
+import {uploadOnCloudinary,deleteOnCloudinary} from "../../utils/cloudinary.js"
 
 const getTimetable = asyncHandler(async (req, res) => {
     const timetable = await TimeTable.find(req.body);
@@ -16,6 +17,7 @@ const getTimetable = asyncHandler(async (req, res) => {
     );
 });
 
+
 const addTimetable = asyncHandler(async (req, res) => {
     const { semester, branch } = req.body;
 
@@ -23,25 +25,44 @@ const addTimetable = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Semester, branch, and file are required!");
     }
 
+    const timeTablePath = req.file.path;
+    const timeTableFileType = req.file.mimetype;
+    const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+
+    if (!allowedFormats.includes(timeTableFileType)) {
+        throw new ApiError(400, "Invalid file type. Please upload PNG, JPG, or WebP format.");
+    }
+
+    const uploadResponse = await uploadOnCloudinary(timeTablePath);
+    if (!uploadResponse) {
+        throw new ApiError(500, "Failed to upload image on Cloudinary.");
+    }
+
+    const timeTableData = {
+        semester,
+        branch,
+        link: {
+            public_id: uploadResponse.public_id,
+            url: uploadResponse.secure_url
+        }
+    };
+
     const existing = await TimeTable.findOne({ semester, branch });
 
     if (existing) {
-        await TimeTable.findByIdAndUpdate(existing._id, {
-            semester,
-            branch,
-            link: req.file.filename,
-        });
+        const timeTablePublicId = existing.link.public_id;
+        if (timeTablePublicId) {
+            await deleteOnCloudinary(timeTablePublicId);
+        }
+
+        await TimeTable.findByIdAndUpdate(existing._id, timeTableData);
 
         return res.status(200).json(
             new ApiResponse(200, "Timetable Updated!")
         );
     }
 
-    await TimeTable.create({
-        semester,
-        branch,
-        link: req.file.filename,
-    });
+    await TimeTable.create(timeTableData);
 
     return res.status(201).json(
         new ApiResponse(201, "Timetable Added!")
