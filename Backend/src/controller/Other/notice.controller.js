@@ -18,6 +18,7 @@ const getNotice = asyncHandler(async (req, res) => {
 
 const addNotice = asyncHandler(async (req, res) => {
     const { link, description, title, type } = req.body;
+    console.log(req.body)
 
     if (!description || !title) {
         throw new ApiError(400, "All fields (link, description, title, type) are required!");
