@@ -266,14 +266,60 @@ const updateFaculty = asyncHandler(async (req, res) => {
         new ApiResponse(200, updatedFaculty, "Faculty detail updated successfully")
       );
   });
-  
+  const passwordValidator = asyncHandler(async (req, res) => {
+    const { employeeId, password } = req.body;
+
+    if (!employeeId || !password) {
+        throw new ApiError(400, "Employee ID or password is missing");
+    }
+
+    const faculty = await Faculty.findOne({ employeeId });
+
+    if (!faculty) {
+        throw new ApiError(404, "No faculty found with given employee ID");
+    }
+
+    const isPasswordValid = await faculty.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid current password");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, null, "Valid Password")
+    );
+});
+
+const passwordChangeHandler = asyncHandler(async (req, res) => {
+    const { newPassword, employeeId } = req.body;
+
+    if (!newPassword || !employeeId) {
+        throw new ApiError(400, "Both newPassword and employeeId are required");
+    }
+
+    const faculty = await Faculty.findOne({ employeeId });
+    if (!faculty) {
+        throw new ApiError(404, "No faculty found with given employeeId");
+    }
+
+    faculty.password = newPassword; 
+    faculty.markModified("password");
+    await faculty.save();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Password updated successfully"));
+});
+
 export {
     facultyRegister,
     facultyLogin,
     facultyLogout,
     deleteFaculty,
     getDetail,
-    updateFaculty
+    updateFaculty,
+    passwordChangeHandler,
+    passwordValidator
     
 }
 
