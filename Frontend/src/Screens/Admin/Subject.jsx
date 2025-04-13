@@ -11,16 +11,17 @@ const Subjects = () => {
   });
   const [selected, setSelected] = useState("add");
   const [subject, setSubject] = useState();
+
   useEffect(() => {
     getSubjectHandler();
   }, []);
 
   const getSubjectHandler = () => {
     axios
-      .get(``)
+      .get(`/api/v1/subject/getSubject`)
       .then((response) => {
         if (response.data.success) {
-          setSubject(response.data.subject);
+          setSubject(response.data.data);
         } else {
           toast.error(response.data.message);
         }
@@ -36,7 +37,7 @@ const Subjects = () => {
       "Content-Type": "application/json",
     };
     axios
-      .post(``, data, {
+      .post(`/api/v1/subject/addSubject`, data, {
         headers: headers,
       })
       .then((response) => {
@@ -61,7 +62,7 @@ const Subjects = () => {
       "Content-Type": "application/json",
     };
     axios
-      .delete(``, {
+      .delete(`/api/v1/subject/deleteSubject/${id}`, {
         headers: headers,
       })
       .then((response) => {
@@ -78,6 +79,7 @@ const Subjects = () => {
         toast.error(error.response.data.message);
       });
   };
+
   return (
     <div className="w-full mx-auto mt-10 flex justify-center items-start flex-col mb-10">
       <div className="flex justify-between items-center w-full">
@@ -101,6 +103,7 @@ const Subjects = () => {
           </button>
         </div>
       </div>
+
       {selected === "add" && (
         <div className="flex flex-col justify-center items-center w-full mt-8">
           <div className="w-[40%] mb-4">
@@ -135,29 +138,34 @@ const Subjects = () => {
           </button>
         </div>
       )}
+
       {selected === "view" && (
         <div className="mt-8 w-full">
-          <ul>
-            {subject &&
-              subject.map((item) => {
-                return (
-                  <li
-                    key={item.code}
-                    className="bg-blue-100 py-3 px-6 mb-3 flex justify-between items-center w-[70%]"
-                  >
-                    <div>
-                      {item.code} - {item.name}
-                    </div>
-                    <button
-                      className="text-2xl hover:text-red-500"
-                      onClick={() => deleteSubjectHandler(item._id)}
+          {subject && subject.length === 0 ? (
+            <p className="text-gray-600 text-lg font-medium">No subject found</p>
+          ) : (
+            <ul>
+              {subject &&
+                subject.map((item) => {
+                  return (
+                    <li
+                      key={item.code}
+                      className="bg-blue-100 py-3 px-6 mb-3 flex justify-between items-center w-[70%]"
                     >
-                      <MdOutlineDelete />
-                    </button>
-                  </li>
-                );
-              })}
-          </ul>
+                      <div>
+                        {item.code} - {item.name}
+                      </div>
+                      <button
+                        className="text-2xl hover:text-red-500"
+                        onClick={() => deleteSubjectHandler(item._id)}
+                      >
+                        <MdOutlineDelete />
+                      </button>
+                    </li>
+                  );
+                })}
+            </ul>
+          )}
         </div>
       )}
     </div>
