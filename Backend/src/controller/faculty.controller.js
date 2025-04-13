@@ -268,7 +268,7 @@ const updateFaculty = asyncHandler(async (req, res) => {
   });
   const passwordValidator = asyncHandler(async (req, res) => {
     const { employeeId, password } = req.body;
-
+    
     if (!employeeId || !password) {
         throw new ApiError(400, "Employee ID or password is missing");
     }
@@ -292,7 +292,7 @@ const updateFaculty = asyncHandler(async (req, res) => {
 
 const passwordChangeHandler = asyncHandler(async (req, res) => {
     const { newPassword, employeeId } = req.body;
-
+    console.log(req.body)
     if (!newPassword || !employeeId) {
         throw new ApiError(400, "Both newPassword and employeeId are required");
     }
