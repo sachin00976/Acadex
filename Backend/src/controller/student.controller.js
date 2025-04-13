@@ -1,15 +1,15 @@
-import { asyncHandler } from "../utils/AsyncHandler";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { Student } from "../models/studentSchema";
-import { uploadOnCloudinary } from "../utils/cloudinary";
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { Student } from "../models/studentSchema.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const genrateAccessTokenAndRefreshToken=async(studentId)=>{
     try {
         const student=await Student.findById(studentId)
-        const accessToken= await admin.generateAccessToken();
-        const refreshToken=await admin.generateRefreshToken();
-
+        const accessToken= await student.generateAccessToken();
+        const refreshToken=await student.generateRefreshToken();
+        console.log("123")
         student.refreshToken=refreshToken
         student.save({validateBeforeSave:false})
 
@@ -27,6 +27,7 @@ const options = {
 
 
   const studentRegister = asyncHandler(async (req, res) => {
+    
       const studentProfilePath = req.file?.path;
       const studentProfileType = req.file?.mimetype;
       
@@ -38,33 +39,36 @@ const options = {
       if (!allowedFormats.includes(studentProfileType)) {
           throw new ApiError(400, "Invalid file type. Please provide a profile in PNG, JPG, or WebP format.");
       }
+      console.log(req.body)
   
-      const {enrollmentNo, firstName, middleName, lastName, email, phoneNumber, gender, password,semester } = req.body;
+      let {enrollmentNo, firstName, middleName, lastName, email, phoneNumber, gender,branch, password,semester } = req.body;
 
      
       if(!password)
         {
+         
             password=`${firstName}.${enrollmentNo}`;
+            
         }
-        if (!enrollmentNo || !firstName || !lastName || !email || !phoneNumber || !gender || !password || !semester) {
+        if (!enrollmentNo || !firstName || !lastName || !email || !phoneNumber || !gender || !branch ||  !password || !semester) {
             throw new ApiError(400, "All fields are required!");
         }
       
-  
+        
       const user = await Student.findOne({
-          $or: [{ email }, { employeeId }]
+          $or: [{ email }, { enrollmentNo }]
       });
-  
+      
       if (user) {
-        throw new ApiError(409, "Student with given email or employeeId already exists");
+        throw new ApiError(409, "Student with given email or enrollement already exists");
       }
-  
+      
       const uploadResponse = await uploadOnCloudinary(studentProfilePath);
       if (!uploadResponse) {
           throw new ApiError(500, "Error occurred while uploading the student profile");
       }
-  
-      const createResponse = await Admin.create({
+      
+      const createResponse = await Student.create({
           enrollmentNo,
           firstName,
           middleName,
@@ -72,6 +76,7 @@ const options = {
           email,
           phoneNumber,
           gender,
+          branch,
           password,
           semester,
           profile: {
@@ -83,13 +88,13 @@ const options = {
       if (!createResponse) {
           throw new ApiError(500, "Failed to register student");
       }
-  
+      
       const createdStudent = await Student.findOne({ email }).select("-password -__v -createdAt -updatedAt");
   
       if (!createdStudent) {
           throw new ApiError(500, "Internal DB server error! Please try again");
       }
-  
+      
       const { refreshToken, accessToken } = await genrateAccessTokenAndRefreshToken(createdStudent._id);
   
       return res.status(201)
@@ -271,3 +276,13 @@ const updateStudent = asyncHandler(async (req, res) => {
         new ApiResponse(200, updatedStudent, "Student detail updated successfully")
       );
   });
+
+
+  export{
+    studentRegister,
+    studentLogin,
+    studentLogout,
+    deleteStudent,
+    getDetail,
+    updateStudent
+  }
