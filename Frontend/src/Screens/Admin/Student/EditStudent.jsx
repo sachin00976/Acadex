@@ -5,30 +5,39 @@ import { FiSearch, FiUpload, FiX } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 
 const EditStudent = () => {
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
   const [search, setSearch] = useState("");
   const [branch, setBranch] = useState([]);
   const [searchActive, setSearchActive] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const [id, setId] = useState();
+  const [id, setId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [branchLoading, setBranchLoading] = useState(true);
 
   const { register, handleSubmit, reset, setValue } = useForm();
 
   const getBranchData = () => {
+    setBranchLoading(true);
     const headers = {
       "Content-Type": "application/json",
     };
     axios
-      .get(``, { headers })
+      .get(`/api/v1/branch/getBranch`, { headers })
       .then((response) => {
-        if (response.data.success) {
-          setBranch(response.data.branches);
+        if (response.data?.success) {
+          setBranch(response.data.data || []);
         } else {
-          toast.error(response.data.message);
+          toast.error(response.data?.message || "Failed to fetch branches");
+          setBranch([]);
         }
       })
       .catch((error) => {
         console.error(error);
+        toast.error("Failed to fetch branches");
+        setBranch([]);
+      })
+      .finally(() => {
+        setBranchLoading(false);
       });
   };
 
@@ -38,17 +47,24 @@ const EditStudent = () => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    const imageUrl = URL.createObjectURL(selectedFile);
-    setPreviewImage(imageUrl);
+    if (selectedFile) {
+      setFile(selectedFile);
+      const imageUrl = URL.createObjectURL(selectedFile);
+      setPreviewImage(imageUrl);
+    }
   };
 
   const updateStudentProfile = (formDataInput) => {
+    if (!id) {
+      toast.error("No student selected");
+      return;
+    }
+
     toast.loading("Updating Student");
     const formData = new FormData();
 
     Object.entries(formDataInput).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (value) formData.append(key, value);
     });
 
     if (file) {
@@ -61,9 +77,7 @@ const EditStudent = () => {
     };
 
     axios
-      .put(``, formData, {
-        headers,
-      })
+      .patch(`/api/v1/student/updateDetail`, formData, { headers })
       .then((response) => {
         toast.dismiss();
         if (response.data.success) {
@@ -75,46 +89,66 @@ const EditStudent = () => {
       })
       .catch((error) => {
         toast.dismiss();
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message || "Update failed");
       });
   };
 
-  const clearSearchHandler = () => {
+  const clearSearchHandler = (e) => {
+    if (e) e.preventDefault();
     setSearchActive(false);
     setSearch("");
-    setId("");
+    setId(null);
     setPreviewImage("");
+    setFile(null);
     reset();
   };
 
   const searchStudentHandler = (e) => {
-    setSearchActive(true);
     e.preventDefault();
+    
+    const isClearAction = e.nativeEvent?.submitter?.ariaLabel === "clear-search";
+    
+    if (!search.trim() && !isClearAction) {
+      toast.error("Please enter enrollment number");
+      return;
+    }
+
+    if (isClearAction) {
+      clearSearchHandler();
+      return;
+    }
+
+    setLoading(true);
     toast.loading("Getting Student");
+    
     const headers = {
       "Content-Type": "application/json",
     };
+    
     axios
-      .post(``, { enrollmentNo: search }, { headers })
+      .post(`/api/v1/student/getdetail`, { enrollmentNo: search }, { headers })
       .then((response) => {
         toast.dismiss();
+        setLoading(false);
         if (response.data.success) {
-          if (response.data.user.length === 0) {
+          if (!response.data.data) {
             toast.error("No Student Found");
           } else {
             toast.success(response.data.message);
-            const student = response.data.user[0];
+            const student = response.data.data;
             reset(student);
             setId(student._id);
-            setPreviewImage(student.profile);
+            setPreviewImage(student.profile?.url || "");
+            setSearchActive(true);
           }
         } else {
           toast.error(response.data.message);
-        }
+        } 
       })
       .catch((error) => {
         toast.dismiss();
-        toast.error(error?.response?.data?.message || "Error");
+        setLoading(false);
+        toast.error(error?.response?.data?.message || "Error fetching student");
       });
   };
 
@@ -130,23 +164,29 @@ const EditStudent = () => {
           placeholder="Enrollment No."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          disabled={loading}
         />
         {!searchActive ? (
-          <button className="px-4 text-2xl hover:text-blue-500" type="submit">
+          <button 
+            className="px-4 text-2xl hover:text-blue-500" 
+            type="submit"
+            disabled={loading}
+          >
             <FiSearch />
           </button>
         ) : (
           <button
             className="px-4 text-2xl hover:text-blue-500"
-            onClick={clearSearchHandler}
-            type="button"
+            type="submit"
+            disabled={loading}
+            aria-label="clear-search"
           >
             <FiX />
           </button>
         )}
       </form>
 
-      {search && id && (
+      {searchActive && id && (
         <form
           onSubmit={handleSubmit(updateStudentProfile)}
           className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
@@ -156,7 +196,7 @@ const EditStudent = () => {
               Enter First Name
             </label>
             <input
-              {...register("firstName")}
+              {...register("firstName", { required: true })}
               type="text"
               id="firstName"
               className="w-full bg-blue-50 rounded border text-base outline-none py-1 px-3 leading-8"
@@ -180,7 +220,7 @@ const EditStudent = () => {
               Enter Last Name
             </label>
             <input
-              {...register("lastName")}
+              {...register("lastName", { required: true })}
               type="text"
               id="lastName"
               className="w-full bg-blue-50 rounded border text-base outline-none py-1 px-3 leading-8"
@@ -205,7 +245,7 @@ const EditStudent = () => {
               Enter Email
             </label>
             <input
-              {...register("email")}
+              {...register("email", { required: true })}
               type="email"
               id="email"
               className="w-full bg-blue-50 rounded border text-base outline-none py-1 px-3 leading-8"
@@ -217,7 +257,7 @@ const EditStudent = () => {
               Enter Phone Number
             </label>
             <input
-              {...register("phoneNumber")}
+              {...register("phoneNumber", { required: true })}
               type="number"
               id="phoneNumber"
               className="w-full bg-blue-50 rounded border text-base outline-none py-1 px-3 leading-8"
@@ -229,7 +269,7 @@ const EditStudent = () => {
               Semester
             </label>
             <select
-              {...register("semester")}
+              {...register("semester", { required: true })}
               id="semester"
               disabled
               className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full"
@@ -248,17 +288,21 @@ const EditStudent = () => {
               Branch
             </label>
             <select
-              {...register("branch")}
+              {...register("branch", { required: true })}
               id="branch"
-              disabled
+              disabled={branchLoading || loading}
               className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full"
             >
               <option value="">-- Select --</option>
-              {branch.map((b) => (
-                <option key={b.name} value={b.name}>
-                  {b.name}
-                </option>
-              ))}
+              {branch?.length > 0 ? (
+                branch.map((b) => (
+                  <option key={b.name} value={b.name}>
+                    {b.name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No branches available</option>
+              )}
             </select>
           </div>
 
@@ -267,13 +311,14 @@ const EditStudent = () => {
               Gender
             </label>
             <select
-              {...register("gender")}
+              {...register("gender", { required: true })}
               id="gender"
               className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full"
             >
               <option value="">-- Select --</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -308,7 +353,8 @@ const EditStudent = () => {
           <div className="w-full flex justify-center">
             <button
               type="submit"
-              className="bg-blue-500 px-6 py-3 rounded-sm mt-6 text-white"
+              className="bg-blue-500 px-6 py-3 rounded-sm mt-6 text-white hover:bg-blue-600 transition-colors"
+              disabled={loading}
             >
               Update Student
             </button>

@@ -194,6 +194,7 @@ const getDetail = asyncHandler(async (req, res) => {
 
 
 const updateStudent = asyncHandler(async (req, res) => {
+    
     const {
       enrollmentNo,
       firstName,
@@ -218,12 +219,12 @@ const updateStudent = asyncHandler(async (req, res) => {
     ) {
       throw new ApiError(400, "All fields are required!");
     }
-  
-    const student = await Student.findOne({ employeeId });
+    
+    const student = await Student.findOne({ enrollmentNo });
     if (!student) {
       throw new ApiError(404, "Invalid enrollementNo");
     }
-  
+   
     const newData = {
       enrollmentNo,
       firstName,
