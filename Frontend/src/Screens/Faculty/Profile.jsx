@@ -11,57 +11,57 @@ const Profile = () => {
     new: "",
     current: "",
   });
-  // const checkPasswordHandler = (e) => {
-  //   e.preventDefault();
-  //   const headers = {
-  //     "Content-Type": "application/json",
-  //   };
-  //   axios
-  //     .post(
-  //       `${baseApiURL()}/faculty/auth/login`,
-  //       { loginid: router.state.loginid, password: password.current },
-  //       {
-  //         headers: headers,
-  //       }
-  //     )
-  //     .then((response) => {
-  //       if (response.data.success) {
-  //         changePasswordHandler(response.data.id);
-  //       } else {
-  //         toast.error(response.data.message);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       toast.error(error.response.data.message);
-  //       console.error(error);
-  //     });
-  // };
+  const checkPasswordHandler = (e) => {
+    e.preventDefault();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    axios
+      .post(
+        `/api/v1/faculty/passwordAuth`,
+        { employeeId: router.state.loginid, password: password.current },
+        {
+          headers: headers,
+        }
+      )
+      .then((response) => {
+        if (response.data.success) {
+          changePasswordHandler(response.data.id);
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+        console.error(error);
+      });
+  };
 
-  // const changePasswordHandler = (id) => {
-  //   const headers = {
-  //     "Content-Type": "application/json",
-  //   };
-  //   axios
-  //     .put(
-  //       `${baseApiURL()}/faculty/auth/update/${id}`,
-  //       { loginid: router.state.loginid, password: password.new },
-  //       {
-  //         headers: headers,
-  //       }
-  //     )
-  //     .then((response) => {
-  //       if (response.data.success) {
-  //         toast.success(response.data.message);
-  //         setPassword({ new: "", current: "" });
-  //       } else {
-  //         toast.error(response.data.message);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       toast.error(error.response.data.message);
-  //       console.error(error);
-  //     });
-  // };
+  const changePasswordHandler = (id) => {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    axios
+      .patch(
+        `/api/v1/faculty/passwordAuth`,
+        { loginid: router.state.loginid, password: password.new },
+        {
+          headers: headers,
+        }
+      )
+      .then((response) => {
+        if (response.data.success) {
+          toast.success(response.data.message);
+          setPassword({ new: "", current: "" });
+        } else {
+          toast.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+        console.error(error);
+      });
+  };
   return (
     <div className="max-w-5xl mx-auto my-12 p-8 bg-white rounded-xl shadow-lg flex flex-col md:flex-row gap-8">
       {data && (
