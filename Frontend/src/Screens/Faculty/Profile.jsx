@@ -16,10 +16,11 @@ const Profile = () => {
     const headers = {
       "Content-Type": "application/json",
     };
+    
     axios
       .post(
         `/api/v1/faculty/passwordAuth`,
-        { employeeId: router.state.loginid, password: password.current },
+        { employeeId: data.employeeId, password: password.current },
         {
           headers: headers,
         }
@@ -43,8 +44,8 @@ const Profile = () => {
     };
     axios
       .patch(
-        `/api/v1/faculty/passwordAuth`,
-        { loginid: router.state.loginid, password: password.new },
+        `/api/v1/faculty/passwordChange`,
+        { employeeId: data.employeeId, newPassword: password.new },
         {
           headers: headers,
         }
@@ -110,7 +111,7 @@ const Profile = () => {
             {showPass && (
               <form
                 className="mt-6 border-t pt-6 border-blue-400 flex flex-col gap-4"
-                // onSubmit={checkPasswordHandler}
+                onSubmit={checkPasswordHandler}
               >
                 <input
                   type="password"
