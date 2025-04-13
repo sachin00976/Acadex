@@ -8,17 +8,19 @@ const getNotice = asyncHandler(async (req, res) => {
     const notice = await Notice.find(req.body);
 
     if (!notice || notice.length === 0) {
-        throw new ApiError(404, "No Notice Available!");
+        return res.status(200).json(
+            new ApiResponse(200, [],"No notice found", )
+        )
     }
 
     return res.status(200).json(
-        new ApiResponse(200, "Notice Get Successfully", notice)
+        new ApiResponse(200, notice,"Notice Get Successfully", )
     );
 });
 
 const addNotice = asyncHandler(async (req, res) => {
     const { link, description, title, type } = req.body;
-    console.log(req.body)
+    
 
     if (!description || !title) {
         throw new ApiError(400, "All fields (link, description, title, type) are required!");
