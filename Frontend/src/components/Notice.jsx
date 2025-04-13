@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import toast from 'react-hot-toast';
-import axios from 'axios';
-import Heading from './Heading'
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
+import axios from "axios";
+import Heading from "./Heading";
 import { IoAddOutline } from "react-icons/io5";
 import { MdDeleteOutline, MdEditNote } from "react-icons/md";
 import { BiArrowBack } from "react-icons/bi";
@@ -10,18 +10,18 @@ import { IoMdLink } from "react-icons/io";
 import { HiOutlineCalendar } from "react-icons/hi";
 import { useForm } from "react-hook-form";
 
+const formatDate = (dateStr) => {
+    const [date, time] = dateStr.split("T");
+    const [y, m, d] = date.split("-");
+    return `${d}/${m}/${y} ${time.split(".")[0]}`;
+};
+
 const Notice = () => {
     const router = useLocation();
-    const [notice, setNotice] = useState("");
+    const [notice, setNotice] = useState([]);
     const [open, setOpen] = useState(false);
     const [edit, setEdit] = useState(false);
     const [id, setId] = useState("");
-    const [data, setData] = useState({
-        title: "",
-        description: "",
-        type: "student",
-        link: "",
-    });
 
     const {
         register,
@@ -38,42 +38,24 @@ const Notice = () => {
     });
 
     const onSubmit = (formData) => {
-        if (edit) {
-            updateNoticehandler(formData);
-        } else {
-            addNoticehandler(formData);
-        }
+        edit ? updateNoticehandler(formData) : addNoticehandler(formData);
     };
 
     const getNoticeHandler = () => {
-        let data = {};
-        if (router.pathname.replace("/", "") === "student") {
-            data = {
-                type: ["student", "both"],
-            };
-        } else {
-            data = {
-                type: ["student", "both", "faculty"],
-            };
-        }
-        const headers = {
-            "Content-Type": "application/json",
-        };
+        const typeList = router.pathname.replace("/", "") === "student"
+            ? ["student", "both"]
+            : ["student", "both", "faculty"];
+
         axios.get(`/api/v1/notice/getNotice`, {
-            headers: headers,
-            params: data,
+            headers: { "Content-Type": "application/json" },
+            params: { type: typeList },
         })
-            .then((response) => {
-                if (response.data.success) {
-                    setNotice(response.data.data);
-                } else {
-                    toast.error(response.data.message);
-                }
+            .then((res) => {
+                res.data.success
+                    ? setNotice(res.data.data)
+                    : toast.error(res.data.message);
             })
-            .catch((error) => {
-                toast.dismiss();
-                toast.error(error?.response?.data?.message || "Failed to fetch notices");
-            });
+            .catch((err) => toast.error(err?.response?.data?.message || "Failed to fetch notices"));
     };
 
     useEffect(() => {
@@ -81,77 +63,39 @@ const Notice = () => {
     }, [router.pathname]);
 
     const addNoticehandler = (formData) => {
-        toast.loading("Adding Notice");
-        const headers = {
-            "Content-Type": "application/json",
-        };
-        axios.post(`/api/v1/notice/addNotice`, formData, {
-            headers: headers,
-        })
-            .then((response) => {
+        toast.loading("Adding Notice...");
+        axios.post(`/api/v1/notice/addNotice`, formData)
+            .then((res) => {
                 toast.dismiss();
-                if (response.data.success) {
-                    toast.success(response.data.message);
-                    getNoticeHandler();
-                    setOpen(false);
-                    reset();
-                } else {
-                    toast.error(response.data.message);
-                }
+                res.data.success
+                    ? (toast.success(res.data.message), getNoticeHandler(), setOpen(false), reset())
+                    : toast.error(res.data.message);
             })
-            .catch((error) => {
-                toast.dismiss();
-                toast.error(error?.response?.data?.message || "Failed to add notice");
-            });
+            .catch((err) => toast.error(err?.response?.data?.message || "Failed to add notice"));
     };
 
     const deleteNoticehandler = (id) => {
-        toast.loading("Deleting Notice");
-        const headers = {
-            "Content-Type": "application/json",
-        };
-        axios
-            .delete(`/api/v1/deleteNotice/${id}`, { headers: headers })
-            .then((response) => {
+        toast.loading("Deleting...");
+        axios.delete(`/api/v1/notice/deleteNotice/${id}`)
+            .then((res) => {
                 toast.dismiss();
-                if (response.data.success) {
-                    toast.success(response.data.message);
-                    getNoticeHandler();
-                } else {
-                    toast.error(response.data.message);
-                }
+                res.data.success
+                    ? (toast.success(res.data.message), getNoticeHandler())
+                    : toast.error(res.data.message);
             })
-            .catch((error) => {
-                toast.dismiss();
-                toast.error(error?.response?.data?.message || "Failed to delete notice");
-            });
+            .catch((err) => toast.error(err?.response?.data?.message || "Failed to delete notice"));
     };
 
     const updateNoticehandler = (formData) => {
-        toast.loading("Updating Notice");
-        const headers = {
-            "Content-Type": "application/json",
-        };
-        axios
-            .put(`/api/v1/updateNotice/${id}`, formData, {
-                headers: headers,
-            })
-            .then((response) => {
+        toast.loading("Updating...");
+        axios.put(`/api/v1/updateNotice/${id}`, formData)
+            .then((res) => {
                 toast.dismiss();
-                if (response.data.success) {
-                    toast.success(response.data.message);
-                    getNoticeHandler();
-                    setOpen(false);
-                    setEdit(false);
-                    reset();
-                } else {
-                    toast.error(response.data.message);
-                }
+                res.data.success
+                    ? (toast.success(res.data.message), getNoticeHandler(), setOpen(false), setEdit(false), reset())
+                    : toast.error(res.data.message);
             })
-            .catch((error) => {
-                toast.dismiss();
-                toast.error(error?.response?.data?.message || "Failed to update notice");
-            });
+            .catch((err) => toast.error(err?.response?.data?.message || "Failed to update notice"));
     };
 
     const setOpenEditSectionHandler = (index) => {
@@ -159,90 +103,74 @@ const Notice = () => {
         setOpen(true);
         const selected = notice[index];
         setId(selected._id);
-        reset({
-            title: selected.title,
-            description: selected.description,
-            link: selected.link,
-            type: selected.type,
-        });
+        reset(selected);
     };
 
     const openHandler = () => {
         setOpen(!open);
         setEdit(false);
-        setData({ title: "", description: "", type: "student", link: "" });
         reset();
     };
 
     return (
-        <div className="w-full mx-auto flex justify-center items-start flex-col my-10">
-            <div className="relative flex justify-between items-center w-full">
+        <div className="w-full max-w-5xl mx-auto flex flex-col my-10 px-4">
+            <div className="relative flex justify-between items-center mb-6">
                 <Heading title="Notices" />
-                {(router.pathname === "/faculty" || router.pathname === "/admin") &&
-                    (open ? (
-                        <button className="absolute right-2 flex justify-center items-center border-2 border-red-500 px-3 py-2 rounded text-red-500"
-                            onClick={openHandler}>
-                            <span className='mr-2'>
-                                <BiArrowBack className='text-red-500' />
-                            </span>
-                            Close
-                        </button>
-                    ) : (
-                        <button className="absolute right-2 flex justify-center items-center border-2 border-red-500 px-3 py-2 rounded text-red-500"
-                            onClick={openHandler}>
-                            Add Notice
-                            <span className="ml-2">
-                                <IoAddOutline className="text-red-500 text-xl" />
-                            </span>
-                        </button>
-                    ))
-                }
+                {(router.pathname === "/faculty" || router.pathname === "/admin") && (
+                    <button
+                        className="flex items-center border-2 border-blue-500 text-blue-500 px-4 py-2 rounded-md hover:bg-blue-50 transition"
+                        onClick={openHandler}
+                    >
+                        {open ? (
+                            <>
+                                <BiArrowBack className="mr-2 text-xl" />
+                                Close
+                            </>
+                        ) : (
+                            <>
+                                Add Notice
+                                <IoAddOutline className="ml-2 text-xl" />
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
 
             {!open && (
-                <div className="mt-8 w-full">
-                    {notice && notice.map((item, index) => (
-                        <div key={item._id} className="border-blue-500 border-2 w-full rounded-md shadow-sm py-4 px-6 mb-4 relative">
+                <div className="space-y-4">
+                    {notice.map((item, index) => (
+                        <div
+                            key={item._id}
+                            className="relative p-5 border-2 border-blue-200 rounded-lg bg-white shadow hover:shadow-md transition group"
+                        >
                             {(router.pathname === "/faculty" || router.pathname === "/admin") && (
-                                <div className="absolute flex justify-center items-center right-4 bottom-3">
-                                    <span className="text-sm bg-blue-500 px-4 py-1 text-white rounded-full">
+                                <div className="absolute right-4 bottom-3 flex items-center space-x-3">
+                                    <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
                                         {item.type}
                                     </span>
-                                    <span className="text-2xl group-hover:text-blue-500 ml-2 cursor-pointer hover:text-red-500"
+                                    <MdDeleteOutline
+                                        className="text-xl text-red-500 cursor-pointer hover:scale-110"
                                         onClick={() => deleteNoticehandler(item._id)}
-                                    >
-                                        <MdDeleteOutline />
-                                    </span>
-                                    <span className="text-2xl group-hover:text-blue-500 ml-2 cursor-pointer hover:text-blue-500"
+                                    />
+                                    <MdEditNote
+                                        className="text-xl text-blue-500 cursor-pointer hover:scale-110"
                                         onClick={() => setOpenEditSectionHandler(index)}
-                                    >
-                                        <MdEditNote />
-                                    </span>
+                                    />
                                 </div>
                             )}
-                            <p className={`text-xl font-medium flex justify-start items-center ${
-                                item.link && "cursor-pointer"
-                                } group`}
+                            <h3
+                                className={`text-lg font-semibold flex items-center ${
+                                    item.link && "cursor-pointer text-blue-700 hover:underline"
+                                }`}
                                 onClick={() => item.link && window.open(item.link)}
                             >
                                 {item.title}
-                                {item.link && (
-                                    <span className="text-2xl group-hover:text-blue-500 ml-1">
-                                        <IoMdLink />
-                                    </span>
-                                )}
-                            </p>
-                            <p className="text-sm absolute top-4 right-4 flex justify-center items-center">
-                                <span>
-                                    <HiOutlineCalendar />
-                                </span>
-                                {item.createdAt.split("T")[0].split("-")[2] +
-                                    "/" +
-                                    item.createdAt.split("T")[0].split("-")[1] +
-                                    "/" +
-                                    item.createdAt.split("T")[0].split("-")[0] +
-                                    " " +
-                                    item.createdAt.split("T")[1].split(".")[0]}
+                                {item.link && <IoMdLink className="ml-1 text-xl" />}
+                            </h3>
+                            <p className="text-sm mt-2 text-gray-700">{item.description}</p>
+                            <p className="text-sm text-gray-500 mt-2 flex items-center">
+                                <HiOutlineCalendar className="mr-1" />
+                                {formatDate(item.createdAt)}
                             </p>
                         </div>
                     ))}
@@ -250,60 +178,67 @@ const Notice = () => {
             )}
 
             {open && (
-                <form className="mt-8 w-full" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="w-[40%] mt-4">
-                        <label htmlFor="title">Notice Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            className="bg-blue-50 py-2 px-4 w-full mt-1"
-                            {...register("title", { required: "Title is required" })}
-                        />
-                        {errors.title && (
-                            <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
-                        )}
-                    </div>
+                <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-blue-300 p-6 rounded-lg w-full max-w-xl mt-6 shadow-md">
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                                Title
+                            </label>
+                            <input
+                                id="title"
+                                type="text"
+                                className="w-full mt-1 px-4 py-2 bg-blue-50 border rounded"
+                                {...register("title", { required: "Title is required" })}
+                            />
+                            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
+                        </div>
 
-                    <div className="w-[40%] mt-4">
-                        <label htmlFor="description">Notice Description</label>
-                        <textarea
-                            id="description"
-                            cols="30"
-                            rows="4"
-                            className="bg-blue-50 py-2 px-4 w-full mt-1 resize-none"
-                            {...register("description")}
-                        ></textarea>
-                    </div>
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                rows={4}
+                                className="w-full mt-1 px-4 py-2 bg-blue-50 border rounded resize-none"
+                                {...register("description")}
+                            />
+                        </div>
 
-                    <div className="w-[40%] mt-4">
-                        <label htmlFor="link">Notice Link (If any else leave blank)</label>
-                        <input
-                            type="text"
-                            id="link"
-                            className="bg-blue-50 py-2 px-4 w-full mt-1"
-                            {...register("link")}
-                        />
-                    </div>
+                        <div>
+                            <label htmlFor="link" className="block text-sm font-medium text-gray-700">
+                                Link (optional)
+                            </label>
+                            <input
+                                id="link"
+                                type="text"
+                                className="w-full mt-1 px-4 py-2 bg-blue-50 border rounded"
+                                {...register("link")}
+                            />
+                        </div>
 
-                    <div className="w-[40%] mt-4">
-                        <label htmlFor="type">Type Of Notice</label>
-                        <select
-                            id="type"
-                            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-[80%] accent-blue-700 mt-4"
-                            {...register("type")}
+                        <div>
+                            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                                Type
+                            </label>
+                            <select
+                                id="type"
+                                className="w-full mt-1 px-4 py-2 bg-blue-50 border rounded"
+                                {...register("type")}
+                            >
+                                <option value="student">Student</option>
+                                <option value="faculty">Faculty</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-600 text-white py-2 mt-4 rounded hover:bg-blue-700 transition"
                         >
-                            <option value="student">Student</option>
-                            <option value="faculty">Faculty</option>
-                            <option value="both">Both</option>
-                        </select>
+                            {edit ? "Update Notice" : "Add Notice"}
+                        </button>
                     </div>
-
-                    <button
-                        type="submit"
-                        className="bg-blue-500 text-white mt-6 px-6 rounded text-lg py-2 hover:bg-blue-600"
-                    >
-                        {edit ? "Update Notice" : "Add Notice"}
-                    </button>
                 </form>
             )}
         </div>

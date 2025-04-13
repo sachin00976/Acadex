@@ -16,7 +16,7 @@ const storage=multer.diskStorage(
                 }
                 else if(req.body?.enrollmentNo) // student
                 {
-
+                    filename = `Student_Profile_${req.body.enrollmentNo}`
                 }
                 else // admin
                 {

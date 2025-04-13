@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { router as adminRoutes } from './src/routes/admin.routes.js';
 import { router as facultyRoutes } from './src/routes/faculty.routes.js';
+import {router as studentRoutes} from './src/routes/student.routes.js'
 import { router as otherbranch } from './src/routes/Other Api/branch.route.js';
 import { router as othermarks } from './src/routes/Other Api/marks.route.js';
 import { router as othermaterial } from './src/routes/Other Api/material.route.js';
@@ -31,5 +32,6 @@ app.use('/api/v1/material', othermaterial);
 app.use('/api/v1/notice', othernotice);
 app.use('/api/v1/subject', othersubject);
 app.use('/api/v1/timetable', othertimetable);
+app.use('/api/v1/student',studentRoutes)
 
 export default app;
