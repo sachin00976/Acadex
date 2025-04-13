@@ -108,7 +108,7 @@ const AddStudent = () => {
         </label>
         <input
           type="text"
-          {...register("middleName", { required: "Middle Name is required" })}
+          {...register("middleName")}
           className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
         />
 
