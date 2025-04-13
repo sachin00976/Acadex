@@ -6,11 +6,11 @@ import { AiOutlineClose } from "react-icons/ai";
 import toast from "react-hot-toast";
 import Heading from "../../components/Heading";
 
-
 const Timetable = () => {
   const [branches, setBranches] = useState([]);
   const [previewUrl, setPreviewUrl] = useState("");
   const [file, setFile] = useState(null);
+  const [fileSizeError, setFileSizeError] = useState(false);
 
   const {
     register,
@@ -22,10 +22,10 @@ const Timetable = () => {
 
   useEffect(() => {
     axios
-      .get(`${baseApiURL()}/branch/getBranch`)
+      .get(`/api/v1/branch/getBranch`)
       .then((response) => {
         if (response.data.success) {
-          setBranches(response.data.branches);
+          setBranches(response.data.data);
         } else {
           toast.error(response.data.message);
         }
@@ -38,9 +38,28 @@ const Timetable = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
+
+    if (selectedFile.size > 2 * 1024 * 1024) {
+      setFileSizeError(true);
+      toast.error("File size should be less than 2MB");
+      return;
+    } else {
+      setFileSizeError(false);
+    }
+
     setFile(selectedFile);
     setValue("timetable", selectedFile);
-    setPreviewUrl(URL.createObjectURL(selectedFile));
+
+    if (selectedFile.type.startsWith("image/")) {
+      setPreviewUrl(URL.createObjectURL(selectedFile));
+    } else {
+      setPreviewUrl("");
+    }
+  };
+
+  const onRemoveImage = () => {
+    setFile(null);
+    setPreviewUrl("");
   };
 
   const onSubmit = async (data) => {
@@ -56,13 +75,10 @@ const Timetable = () => {
 
     toast.loading("Uploading timetable...");
     try {
-      const response = await axios.post(
-        `${baseApiURL()}/timetable/addTimetable`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      const response = await axios.post(`/api/v1/timetable/addTimetable`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       toast.dismiss();
       if (response.data.success) {
         toast.success(response.data.message);
@@ -79,17 +95,15 @@ const Timetable = () => {
   };
 
   return (
-    <div className="w-full mx-auto mt-10 flex justify-center items-start flex-col mb-10">
+    <div className="w-full max-w-3xl mx-auto mt-8 mb-14 px-4">
       <Heading title="Upload Timetable" />
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full flex justify-evenly items-center mt-12"
+        className="bg-white p-6 rounded-lg shadow-md mt-6"
       >
-        <div className="w-1/2 flex flex-col justify-center items-center">
-          <p className="mb-4 text-xl font-medium">Add Timetable</p>
-
+        <div className="flex flex-col items-center gap-4">
           <select
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-[80%] mt-4"
+            className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md bg-gray-50"
             {...register("branch", { required: "Branch is required" })}
           >
             <option value="">-- Select Branch --</option>
@@ -99,12 +113,10 @@ const Timetable = () => {
               </option>
             ))}
           </select>
-          {errors.branch && (
-            <span className="text-red-500 mt-1">{errors.branch.message}</span>
-          )}
+          {errors.branch && <p className="text-red-500 text-sm">{errors.branch.message}</p>}
 
           <select
-            className="px-2 bg-blue-50 py-3 rounded-sm text-base w-[80%] mt-4"
+            className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md bg-gray-50"
             {...register("semester", { required: "Semester is required" })}
           >
             <option value="">-- Select Semester --</option>
@@ -114,61 +126,66 @@ const Timetable = () => {
               </option>
             ))}
           </select>
-          {errors.semester && (
-            <span className="text-red-500 mt-1">
-              {errors.semester.message}
-            </span>
-          )}
+          {errors.semester && <p className="text-red-500 text-sm">{errors.semester.message}</p>}
 
           {!previewUrl && (
             <label
               htmlFor="upload"
-              className="px-2 bg-blue-50 py-3 rounded-sm text-base w-[80%] mt-4 flex justify-center items-center cursor-pointer"
+              className="w-full text-sm flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-blue-100 hover:bg-blue-200 text-blue-700 cursor-pointer"
             >
-              Select Timetable
-              <FiUpload className="ml-2" />
+              <FiUpload className="text-base" />
+              Select Timetable File
             </label>
           )}
 
           <input
             id="upload"
             type="file"
-            accept="image/*"
+            accept=".pdf, .xlsx, .xls, image/*"
             hidden
             onChange={handleFileChange}
           />
+
           {errors.timetable && (
-            <span className="text-red-500 mt-1">
-              {errors.timetable.message}
-            </span>
+            <p className="text-red-500 text-sm">{errors.timetable.message}</p>
           )}
 
-          {previewUrl && (
-            <p
-              className="px-2 border-2 border-blue-500 py-2 rounded text-base w-[80%] mt-4 flex justify-center items-center cursor-pointer"
-              onClick={() => {
-                setFile(null);
-                setPreviewUrl("");
-              }}
+        {file && (
+          <div className="relative w-full flex flex-col items-center gap-2">
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="timetable preview"
+                className="w-full max-w-sm rounded-md border shadow"
+              />
+            ) : (
+              <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-md w-full max-w-sm border shadow">
+                <FiUpload className="text-blue-500" />
+                <span className="text-sm text-gray-800 truncate">{file.name}</span>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={onRemoveImage}
+              className="absolute top-2 right-2 bg-white p-1 rounded-full shadow hover:bg-gray-100"
             >
-              Remove Selected Timetable
-              <AiOutlineClose className="ml-2" />
-            </p>
-          )}
+              <AiOutlineClose className="text-red-600 text-sm" />
+            </button>
+          </div>
+        )}
 
+          <p className="text-xs text-gray-500 -mt-2">
+            * Max file size: 2MB. Accepted formats: .pdf, .xlsx, .xls, images.
+          </p>
           <button
             type="submit"
-            className="bg-blue-500 text-white mt-8 px-4 py-2 rounded-sm"
+            className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-md transition"
           >
-            Add Timetable
+            Upload
           </button>
 
-          {previewUrl && (
-            <img
-              src={previewUrl}
-              alt="timetable preview"
-              className="mt-6 w-[80%] rounded border"
-            />
+          {fileSizeError && (
+            <p className="text-sm text-red-500 mt-2">File size should be less than 2MB</p>
           )}
         </div>
       </form>
