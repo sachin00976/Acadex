@@ -22,13 +22,13 @@ const Profile = () => {
 
     axios
       .post(
-        `/api/v1/admin/auth/login`,
-        { loginid: user.employeeId, password: password.current },
+        `/api/v1/admin/passwordAuth`,
+        { employeeId: user.employeeId, password: password.current },
         { headers }
       )
       .then((response) => {
         if (response.data.success) {
-          changePasswordHandler(response.data.id);
+          changePasswordHandler();
         } else {
           toast.error(response.data.message);
         }
@@ -40,14 +40,14 @@ const Profile = () => {
   };
 
   // if current password is true then change old password with new one.
-  const changePasswordHandler = (id) => {
+  const changePasswordHandler = () => {
     const headers = {
       "Content-Type": "application/json",
     };
     axios
-      .put(
-        `/api/v1/admin/auth/update/${id}`,
-        { loginid: user.employeeId, password: password.new },
+      .patch(
+        `/api/v1/admin/passwordChange`,
+        { employeeId: user.employeeId, newPassword: password.new },
         { headers }
       )
       .then((response) => {
@@ -134,7 +134,7 @@ const Profile = () => {
           <div className="flex-shrink-0">
             <img
               src={
-                user.Profile ||
+                user.profile.url ||
                 "https://tse4.mm.bing.net/th?id=OIP.ELd1EcTycQvs-HNlEcPqpgHaHa&pid=Api&P=0&h=220"
               }
               alt="Admin profile"

@@ -6,7 +6,7 @@ import validator from "validator";
 const adminSchema = new mongoose.Schema(
   {
     employeeId: {
-      type: Number,
+      type: String,
       required: true,
     },
     firstName: {

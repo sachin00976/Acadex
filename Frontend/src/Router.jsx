@@ -25,7 +25,8 @@ const Router = createBrowserRouter(
       <Route path="/faculty" element={<Home1 />} />
       <Route path="/ho" element={<Home />} />
       <Route path="/no" element={<Notice />} />
-    </>
+      <Route path='/addAdmin' element={<AddAdmin/>}/>
+   </>
   )
 )
 

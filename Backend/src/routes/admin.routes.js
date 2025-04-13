@@ -6,7 +6,10 @@ import {
     adminLogin,
     adminLogout,
     deleteAdmin,
-    getDetail
+    getDetail,
+    updateDetail,
+    passwordValidator,
+    passwordChangeHandler
 
  } from '../controller/admin.controller.js'
 
@@ -17,5 +20,8 @@ router.route("/login").post(adminLogin)
 router.route("/logout").post(verifyJWT,adminLogout)
 router.route("/deleteAdmin/:adminId").delete(verifyJWT,deleteAdmin)
 router.route("/getDetail").post(getDetail)
+router.route("/updateProfile").patch(upload.single("profile"),updateDetail);
+router.route('/passwordAuth').post(passwordValidator)
+router.route("/passwordChange").patch(passwordChangeHandler)
 
 export {router}

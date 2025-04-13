@@ -5,7 +5,7 @@ import validator from "validator";
 
 const facultySchema = new mongoose.Schema({
   employeeId: {
-    type: Number,
+    type: String,
     required: true,
     unique: true,
   },
