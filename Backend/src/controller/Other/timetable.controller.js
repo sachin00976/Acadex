@@ -17,7 +17,6 @@ const getTimetable = asyncHandler(async (req, res) => {
     );
 });
 
-
 const addTimetable = asyncHandler(async (req, res) => {
     const { semester, branch } = req.body;
 
@@ -27,15 +26,26 @@ const addTimetable = asyncHandler(async (req, res) => {
 
     const timeTablePath = req.file.path;
     const timeTableFileType = req.file.mimetype;
-    const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+
+    const allowedFormats = [
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel"
+    ];
 
     if (!allowedFormats.includes(timeTableFileType)) {
-        throw new ApiError(400, "Invalid file type. Please upload PNG, JPG, or WebP format.");
+        throw new ApiError(
+            400,
+            "Invalid file type. Please upload PNG, JPG, WebP, PDF, or Excel format."
+        );
     }
 
     const uploadResponse = await uploadOnCloudinary(timeTablePath);
     if (!uploadResponse) {
-        throw new ApiError(500, "Failed to upload image on Cloudinary.");
+        throw new ApiError(500, "Failed to upload file on Cloudinary.");
     }
 
     const timeTableData = {
@@ -68,6 +78,7 @@ const addTimetable = asyncHandler(async (req, res) => {
         new ApiResponse(201, "Timetable Added!")
     );
 });
+
 
 
 const deleteTimetable = asyncHandler(async (req, res) => {
