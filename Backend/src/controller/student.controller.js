@@ -47,7 +47,7 @@ const options = {
       if(!password)
         {
          
-            password=`${firstName}.${enrollmentNo}`;
+            password=`${firstName}${enrollmentNo}`;
             
         }
         if (!enrollmentNo || !firstName || !lastName || !email || !phoneNumber || !gender || !branch ||  !password || !semester) {
@@ -118,9 +118,9 @@ const options = {
       if (!student) {
           throw new ApiError(404, "Invalid email. Please try again!");
       }
-  
+      
       const isPasswordValid = await student.isPasswordCorrect(password);
-  
+      
       if (!isPasswordValid) {
           throw new ApiError(404, "Invalid password. Please try again!");
       }
@@ -129,7 +129,7 @@ const options = {
       delete studentData.password;
       delete studentData.refreshToken;
   
-      const { refreshToken, accessToken } = await generateAccessTokenAndRefreshToken(student._id);
+      const { refreshToken, accessToken } = await genrateAccessTokenAndRefreshToken(student._id);
   
       return res.status(200)
           .cookie("accessToken", accessToken, options)
@@ -176,7 +176,7 @@ const options = {
 });
 
 const getDetail = asyncHandler(async (req, res) => {
-    
+ 
     const { enrollmentNo } = req.body;
 
     if (!enrollmentNo) {
@@ -184,12 +184,12 @@ const getDetail = asyncHandler(async (req, res) => {
     }
 
     const student = await Student.findOne({ enrollmentNo }).select("-password -createdAt -updatedAt -__v");
-
+    
     if (!student) {
         return res.status(200).json(new ApiResponse(200, [], "No student found with the given enrollmentNo."));
     }
-
-    return res.status(200).json(new ApiResponse(200, employee, "Student found successfully."));
+    
+    return res.status(200).json(new ApiResponse(200, student, "Student found successfully."));
 });
 
 

@@ -40,28 +40,32 @@ const Student = () => {
     const headers = {
       "Content-Type": "application/json",
     };
-    axios.post(``,{enrollmentNo:search},{headers})
+    axios.post(`/api/v1/student/getdetail`,{enrollmentNo:search},{headers})
     .then((response)=>{
+      console.log(response);
       toast.dismiss();
       if(response.data.success){
-        if(response.data.user.length===0){
+        if(response.data.data.length===0){
           toast.dismiss();
           toast.error("No Student Found");
         }else{
+          
           toast.success(response.data.message);
+          
           setData({
-            enrollmentNo: response.data.user[0].enrollmentNo,
-            firstName: response.data.user[0].firstName,
-            middleName: response.data.user[0].middleName,
-            lastName: response.data.user[0].lastName,
-            email: response.data.user[0].email,
-            phoneNumber: response.data.user[0].phoneNumber,
-            semester: response.data.user[0].semester,
-            branch: response.data.user[0].branch,
-            gender: response.data.user[0].gender,
-            profile: response.data.user[0].profile,
+            enrollmentNo: response.data.data.enrollmentNo,
+            firstName: response.data.data.firstName,
+            middleName: response.data.data.middleName,
+            lastName: response.data.data.lastName,
+            email: response.data.data.email,
+            phoneNumber: response.data.data.phoneNumber,
+            semester: response.data.data.semester,
+            branch: response.data.data.branch,
+            gender: response.data.data.gender,
+            profile: response.data.data.profile.url,
           });
-          setId(response.data.user[0]._id);
+          
+          setId(response.data.data._id);
         }
       }else{
         toast.dismiss();
@@ -89,7 +93,7 @@ const Student = () => {
               </button>
             </form>
 
-            {!id && (
+            {id && (
               <div className="mx-auto w-full bg-blue-50 mt-10 flex justify-between items-center p-10 rounded-md shadow-md">
                 <div>
                   <p className="text-2xl font-semibold">

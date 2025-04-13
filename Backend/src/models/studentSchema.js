@@ -73,6 +73,7 @@ studentSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+    console.log(this.password);
     this.password = await bcrypt.hash(this.password, saltRounds);
     next();
   } catch (error) {
@@ -81,7 +82,9 @@ studentSchema.pre("save", async function (next) {
 });
 
 studentSchema.methods.isPasswordCorrect = async function (inputPassword) {
+  
   if (!inputPassword || !this.password) return false;
+
   return await bcrypt.compare(inputPassword, this.password);
 };
 
