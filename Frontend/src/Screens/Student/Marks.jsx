@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import Heading from "../../components/Heading";
-import { baseApiURL } from "../../baseUrl";
+// import { baseApiURL } from "../../baseUrl";
 
 const Marks = () => {
   const userData = useSelector((state) => state.userData);
