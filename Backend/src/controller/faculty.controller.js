@@ -45,6 +45,7 @@ const facultyRegister = asyncHandler(async (req, res) => {
     if(!password)
     {
         password=`${firstName}.${employeeId}`;
+        console.log(password)
     }
     if (!employeeId || !firstName || !lastName || !email || !phoneNumber || !gender || !password || !department || !experience || !post) {
         throw new ApiError(400, "All fields are required!");
