@@ -3,7 +3,7 @@ import { createBrowserRouter, createRoutesFromElements, Route } from 'react-rout
 import Login from './components/Login.jsx'
 import AdminHome from './Screens/Admin/Home.jsx';
 import FacultyHome from './Screens/Faculty/Home.jsx';
-import StudentHome from './Screens/Student/Home.jsx';
+// import StudentHome from './Screens/Student/Home.jsx';
 
 
 const Router = createBrowserRouter(
@@ -11,7 +11,7 @@ const Router = createBrowserRouter(
     <>
       <Route path="/" element={<Login />} />
       <Route path="/admin" element={<AdminHome />} />
-      <Route path="/student" element={<StudentHome />} />
+      
       <Route path="/faculty" element={<FacultyHome />} />
 
    </>

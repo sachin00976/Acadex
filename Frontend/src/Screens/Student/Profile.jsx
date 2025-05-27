@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { setUserData } from "../../redux/actions";
-import { baseApiURL } from "../../baseUrl";
+
 import toast from "react-hot-toast";
 const Profile = () => {
   const [showPass, setShowPass] = useState(false);

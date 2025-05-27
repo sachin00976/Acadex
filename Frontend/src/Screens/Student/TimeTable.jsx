@@ -4,7 +4,7 @@ import { FiDownload } from "react-icons/fi";
 import Heading from "../../components/Heading";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-import { baseApiURL } from "../../baseUrl";
+
 const Timetable = () => {
   const [timetable, setTimetable] = useState("");
   const userData = useSelector((state) => state.userData);

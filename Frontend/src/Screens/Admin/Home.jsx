@@ -22,17 +22,17 @@ const Home = () => {
         facultyCount:"",
     });
 
-    useEffect(()=>{
-        if(router.state===null){
-            navigate("/");
-        }
-        setLoad(true);
-    },[navigate,router.state]);
+    // useEffect(()=>{
+    //     if(router.state===null){
+    //         navigate("/");
+    //     }
+    //     setLoad(true);
+    // },[navigate,router.state]);
 
-    useEffect(() => {
-        getStudentCount();
-        getFacultyCount();
-    }, []);
+    // useEffect(() => {
+    //     getStudentCount();
+    //     getFacultyCount();
+    // }, []);
 
     const getStudentCount = ()=>{
         const headers = {
