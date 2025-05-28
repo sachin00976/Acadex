@@ -25,16 +25,16 @@ const chatSchema = mongoose.Schema(
       ref: "Message",
     },
 
-    groupAdmin: {
-      admin: {
-        type: mongoose.Schema.Types.ObjectId,
-        refPath: "groupAdmin.adminModel",
-      },
-      adminModel: {
-        type: String,
-        enum: ["Admin", "Faculty", "Student"],
-      },
+    
+    admin: {
+    type: mongoose.Schema.Types.ObjectId,
+    refPath: "adminModel",
     },
+    adminModel: {
+    type: String,
+    enum: ["Admin", "Faculty", "Student"],
+    },
+    
   },
   { timestamps: true }
 );
