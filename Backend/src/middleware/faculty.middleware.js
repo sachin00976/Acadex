@@ -25,7 +25,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
 
     const faculty = await Faculty.findById(decodedToken.id);
     if (!faculty) {
-      throw new ApiError(401, "Invalid Token - Admin not found");
+      throw new ApiError(401, "Invalid Token - faculty not found");
     }
 
     req.faculty = faculty;

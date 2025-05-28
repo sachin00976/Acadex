@@ -125,7 +125,7 @@ const adminLogout = asyncHandler(async (req, res) => {
     if (!req.admin || !req.admin.id) {
         throw new ApiError(401, "Unauthorized: No user data found in request");
     }
-
+    
     const adminId = req.admin.id;
     const admin = await Admin.findById(adminId);
 
