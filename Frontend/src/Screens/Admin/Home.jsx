@@ -29,10 +29,10 @@ const Home = () => {
         setLoad(true);
     },[navigate,router.state]);
 
-    useEffect(() => {
-        getStudentCount();
-        getFacultyCount();
-    }, []);
+    // useEffect(() => {
+    //     getStudentCount();
+    //     getFacultyCount();
+    // }, []);
 
     const getStudentCount = ()=>{
         const headers = {
