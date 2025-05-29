@@ -54,6 +54,11 @@ const studentSchema = new mongoose.Schema(
       required: true,
       enum: ["Male", "Female", "Other"], 
     },
+    role:{
+    type:String,
+    required:true,
+    default:"student"
+   },
     profile: {
         public_id: { type: String, 
             required:true,
@@ -73,6 +78,7 @@ studentSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {
     const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+    console.log(this.password);
     this.password = await bcrypt.hash(this.password, saltRounds);
     next();
   } catch (error) {
@@ -81,7 +87,9 @@ studentSchema.pre("save", async function (next) {
 });
 
 studentSchema.methods.isPasswordCorrect = async function (inputPassword) {
+  
   if (!inputPassword || !this.password) return false;
+
   return await bcrypt.compare(inputPassword, this.password);
 };
 
@@ -93,6 +101,7 @@ studentSchema.methods.generateAccessToken = async function () {
     {
       id: this._id,
       email: this.email,
+      role:this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }

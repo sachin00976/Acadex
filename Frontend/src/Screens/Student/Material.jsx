@@ -12,7 +12,11 @@ const Material = () => {
   useEffect(() => {
     toast.loading("Loading Subjects");
     axios
+<<<<<<< HEAD
       .get(`/api/v1/subject/getSubject`)
+=======
+      .get(`${baseApiURL()}/subject/getSubject`)
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
       .then((response) => {
         toast.dismiss();
         if (response.data.success) {
@@ -33,7 +37,11 @@ const Material = () => {
     };
     axios
       .post(
+<<<<<<< HEAD
         `/api/v1/material/getMaterial`,
+=======
+        `${baseApiURL()}/material/getMaterial`,
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
         { subject: selected },
         { headers }
       )
@@ -136,4 +144,8 @@ return (
   </div>
 );
 };
+<<<<<<< HEAD
 export default Material
+=======
+export default Material
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831

@@ -7,6 +7,7 @@ import Marks from './Marks';
 import Notice from '../../components/Notice';
 import Material from './Material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 
 const Home = () => {

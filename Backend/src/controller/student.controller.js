@@ -31,6 +31,7 @@ const studentRegister = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Student profile is required!");
     }
 
+<<<<<<< HEAD
     const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
     if (!allowedFormats.includes(studentProfileType)) {
         throw new ApiError(400, "Invalid file type. Please provide a profile in PNG, JPG, or WebP format.");
@@ -53,6 +54,25 @@ const studentRegister = asyncHandler(async (req, res) => {
     });
 
     if (user) {
+=======
+     
+      if(!password)
+        {
+         
+            password=`${firstName}${enrollmentNo}`;
+            
+        }
+        if (!enrollmentNo || !firstName || !lastName || !email || !phoneNumber || !gender || !branch ||  !password || !semester) {
+            throw new ApiError(400, "All fields are required!");
+        }
+      
+        
+      const user = await Student.findOne({
+          $or: [{ email }, { enrollmentNo }]
+      });
+      
+      if (user) {
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
         throw new ApiError(409, "Student with given email or enrollement already exists");
     }
 
@@ -139,9 +159,42 @@ const studentLogout = asyncHandler(async (req, res) => {
     const studentId = req.student._id;
     const student = await Student.findById(studentId);
 
+<<<<<<< HEAD
     if (!student) {
         throw new ApiError(401, "User not found. Please log in again.");
     }
+=======
+  const studentLogin = asyncHandler(async (req, res) => {
+      const { email, password } = req.body;
+  
+      if (!email || !password) {
+          throw new ApiError(404, "Please enter all fields to login");
+      }
+  
+      const student = await Student.findOne({ email }).select("-createdAt -updatedAt -__v");
+  
+      if (!student) {
+          throw new ApiError(404, "Invalid email. Please try again!");
+      }
+      
+      const isPasswordValid = await student.isPasswordCorrect(password);
+      
+      if (!isPasswordValid) {
+          throw new ApiError(404, "Invalid password. Please try again!");
+      }
+  
+      const studentData = student.toObject();
+      delete studentData.password;
+      delete studentData.refreshToken;
+  
+      const { refreshToken, accessToken } = await genrateAccessTokenAndRefreshToken(student._id);
+  
+      return res.status(200)
+          .cookie("accessToken", accessToken, options)
+          .cookie("refreshToken", refreshToken, options)
+          .json(new ApiResponse(200, studentData, "Student logged in successfully"));
+  });
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
 
     student.refreshToken = null;
     await student.save({ validateBeforeSave: false });
@@ -168,6 +221,10 @@ const deleteStudent = asyncHandler(async (req, res) => {
 });
 
 const getDetail = asyncHandler(async (req, res) => {
+<<<<<<< HEAD
+=======
+ 
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
     const { enrollmentNo } = req.body;
 
     if (!enrollmentNo) {
@@ -175,15 +232,20 @@ const getDetail = asyncHandler(async (req, res) => {
     }
 
     const student = await Student.findOne({ enrollmentNo }).select("-password -createdAt -updatedAt -__v");
-
+    
     if (!student) {
         return res.status(200).json(new ApiResponse(200, [], "No student found with the given enrollmentNo."));
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
     return res.status(200).json(new ApiResponse(200, student, "Student found successfully."));
 });
 
 const updateStudent = asyncHandler(async (req, res) => {
+    
     const {
         enrollmentNo,
         firstName,
@@ -208,12 +270,20 @@ const updateStudent = asyncHandler(async (req, res) => {
     ) {
         throw new ApiError(400, "All fields are required!");
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
     const student = await Student.findOne({ enrollmentNo });
     if (!student) {
         throw new ApiError(404, "Invalid enrollementNo");
     }
+<<<<<<< HEAD
 
+=======
+   
+>>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
     const newData = {
         enrollmentNo,
         firstName,

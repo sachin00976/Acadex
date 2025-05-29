@@ -47,6 +47,11 @@ const adminSchema = new mongoose.Schema(
             required:true,
         },
     },
+    role:{
+    type:String,
+    required:true,
+    default:"admin"
+  },
     password: {
         type: String,
         required: true,
@@ -83,6 +88,7 @@ adminSchema.methods.generateAccessToken = async function () {
     {
       id: this._id,
       email: this.email,
+      role:this.role
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }

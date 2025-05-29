@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError.js";
 import { Faculty } from "../models/facultySchema.js";
+import { Admin } from "../models/adminSchema.js";
+import { Student } from "../models/studentSchema.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 
 const verifyJWT = asyncHandler(async (req, res, next) => {
@@ -22,13 +24,27 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     if (!decodedToken?.id) {
       throw new ApiError(401, "Invalid token payload");
     }
-
-    const faculty = await Faculty.findById(decodedToken.id);
-    if (!faculty) {
-      throw new ApiError(401, "Invalid Token - faculty not found");
+    console.log(decodedToken)
+    let user
+    if(decodedToken.role==="admin")
+    {
+        user=await Admin.findById(decodedToken.id)
     }
-
-    req.faculty = faculty;
+    else if(decodedToken.role==="faculty")
+    {
+        user=await Faculty.findById(decodedToken.id)
+    }
+    else
+    {
+        user=await Student.findById(decodedToken.id)
+    }
+    
+    if(!user)
+    {
+        throw new ApiError(400,"Invalid token!")
+    }
+    req.user = user;
+    
     next();
   } catch (error) {
     next(new ApiError(401, error.message || "Unauthorized access"));

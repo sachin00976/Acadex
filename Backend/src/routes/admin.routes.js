@@ -12,7 +12,7 @@ import {
     passwordChangeHandler
 
  } from '../controller/admin.controller.js'
-
+ 
 const router=express.Router();
 
 router.route('/register').post(upload.single("profile"),adminRegister)
