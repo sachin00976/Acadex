@@ -295,59 +295,58 @@ const addToGroup = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, chatRes, "New members added successfully"));
 });
 
-const leaveGroup=asyncHandler(async(req,res)=>{
-    var {chatId,memberId}=req.body;
-    if(memberId && typeof memberId=="string")
-    {
-      memberId=JSON.parse(memberId)
-    }
+const leaveGroup = asyncHandler(async (req, res) => {
+  const { chatId } = req.body;
 
-    if(!chatId || !memberId.user || !memberId.userModel)
-    {
-         throw new ApiError(400, "chatId and user required!");
-    }
+  if (!chatId) {
+    throw new ApiError(400, "chatId is required!");
+  }
 
-    memberId={
-      user: new ObjectId(memberId.user),
-      userModel: memberId.userModel
-    }
+  const memberId = {
+    user: new ObjectId(req.user._id),
+    userModel: req.user.role,
+  };
 
-    let chatRes=await Chat.findById(chatId)
-    if(!chatRes)
-    {
-      throw new ApiError(404, "Chat not found");
-    }
-    if(chatRes.admin.equals(memberId.user))
-    {
-      const randomUser=chatRes.users[0]
-      chatRes=await Chat.findByIdAndUpdate(
-        chatId,
-        {
-          admin:randomUser.user,
-          adminModel:randomUser.user.userModel
-        }
+  let chatRes = await Chat.findById(chatId);
+  if (!chatRes) {
+    throw new ApiError(404, "Chat not found");
+  }
 
-      )
-    }
-    if(chatRes.user.length===0)
-    {
-      await Chat.delete(chatId)
-      return res.status(200).json(200,"","Member left the Group successfully")
-    }
+  const isAdmin = chatRes.admin.equals(memberId.user);
 
-    chatRes=await Chat.findByIdAndUpdate(chatId,
-      {
-        $pull:{users:memberId},
-        new:  true
-      }
-    )
-    if(!chatRes)
-    {
-      throw new ApiError(500,"Error occur while leaving")
-    }
+  
+  chatRes = await Chat.findByIdAndUpdate(
+    chatId,
+    { $pull: { users: memberId } },
+    { new: true }
+  );
 
-    return res.status(200).json(new ApiResponse(200,chatRes,"Member left the Group successfully"))
-})
+  if (!chatRes) {
+    throw new ApiError(500, "Error occurred while leaving");
+  }
+
+
+  if (isAdmin && chatRes.users.length > 0) {
+    const randomUser = chatRes.users[0];
+    await Chat.findByIdAndUpdate(chatId, {
+      admin: randomUser.user,
+      adminModel: randomUser.userModel,
+    });
+  }
+
+  
+  if (chatRes.users.length === 0) {
+    await Chat.findByIdAndDelete(chatId);
+    return res.status(200).json(new ApiResponse(200, null, "Group deleted. Member left the Group successfully."));
+  }
+
+  
+  const updatedChat = await Chat.findById(chatId)
+    
+
+  return res.status(200).json(new ApiResponse(200, updatedChat, "Member left the Group successfully."));
+});
+
 
 
 
@@ -359,5 +358,6 @@ export { accessChat,
 removeFromGroup,
 addToGroup ,
 fetchChat,
+leaveGroup,
 
 };
