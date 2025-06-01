@@ -24,13 +24,13 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     if (!decodedToken?.id) {
       throw new ApiError(401, "Invalid token payload");
     }
-    console.log(decodedToken)
+    
     let user
-    if(decodedToken.role==="admin")
+    if(decodedToken.role==="Admin")
     {
         user=await Admin.findById(decodedToken.id)
     }
-    else if(decodedToken.role==="faculty")
+    else if(decodedToken.role==="Faculty")
     {
         user=await Faculty.findById(decodedToken.id)
     }
