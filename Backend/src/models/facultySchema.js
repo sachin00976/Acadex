@@ -62,7 +62,7 @@ const facultySchema = new mongoose.Schema({
   role:{
     type:String,
     required:true,
-    default:"faculty"
+    default:"Faculty"
   },
   password: {
     type: String,

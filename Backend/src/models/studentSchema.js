@@ -57,7 +57,7 @@ const studentSchema = new mongoose.Schema(
     role:{
     type:String,
     required:true,
-    default:"student"
+    default:"Student"
    },
     profile: {
         public_id: { type: String, 

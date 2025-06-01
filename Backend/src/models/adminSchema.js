@@ -50,7 +50,7 @@ const adminSchema = new mongoose.Schema(
     role:{
     type:String,
     required:true,
-    default:"admin"
+    default:"Admin"
   },
     password: {
         type: String,
