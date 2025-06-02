@@ -11,6 +11,9 @@ import FacultyStudent from './Screens/Faculty/Student.jsx';
 import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
 import Notice from './components/Notice.jsx'
 
+import { ChatBox } from './chat/component/ChatBox.jsx';
+
+
 const Router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -18,6 +21,9 @@ const Router = createBrowserRouter(
       <Route path="/admin" element={<AdminHome />} />
       
       <Route path="/faculty" element={<FacultyHome />} />
+      
+      <Route path='/chat' element={<ChatBox/>}/>
+      
       {/* <Route path="/faculty_marks" element={<FacultyMarks/>} />
       <Route path="/faculty_material" element={<FacultyMaterial/>} />
       <Route path="/faculty_profile" element={<FacultyProfile/>} />
