@@ -7,23 +7,45 @@ import { getOtherUser } from '../chatLogic/getUser.js';
 import { ScrollableChat } from './ScrollableChat.jsx';
 import { GroupSideBar } from './GroupSideBar.jsx';
 import {io} from "socket.io-client"
+import Lottie from "react-lottie"
+import animationData from "../../animations/typing.json"
+
 const ENDPOINT="http://localhost:8000"
 var socket,selectedChatCompare;
+
+
 function SingleChat({fetchAgain,setFetchAgain}) {
   const [message, setMessage] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState(null);
   const [openGroupSidebar, setOpenGroupSidebar] = useState(false);
   const [socketConnected,setSocketConnected]=useState(false)
+  const [istyping,setIsTyping]=useState(false)
+  const [typing,setTyping]=useState(false)
 
   const dispatch = useDispatch();
   const selectedChat = useSelector((state) => state.auth.selectedChat);
   const loggedUser = useSelector((state) => state.auth.user);
+
+
+   const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
   useEffect(()=>{
     socket=io(ENDPOINT)
     socket.emit("setup",loggedUser)
     socket.on("connected",()=>setSocketConnected(true))
+    socket.on("typing",()=>setIsTyping(true))
+    socket.on("stop typing",()=>setIsTyping(false))
   },[]);
+
+
  const fetchMessage = async () => {
     if (!selectedChat) return;
     try {
@@ -59,11 +81,31 @@ function SingleChat({fetchAgain,setFetchAgain}) {
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
+
+    if(!socketConnected) return
+
+    if(!typing){
+      setTyping(true);
+      socket.emit("typing",selectedChat._id)
+    }
+    let lastTpyingTime=new Date().getTime();
+    var timerLength=3000
+    setTimeout(()=>{
+      var timeNow=new Date().getTime();
+      var timeDiff=timeNow-lastTpyingTime;
+      if(timeDiff>= timerLength && typing)
+      {
+        socket.emit("stop typing",selectedChat._id);
+        setTyping(false)
+      }
+    },timerLength)
   };
 
   useEffect(() => {
     fetchMessage();
     selectedChatCompare=selectedChat
+    setIsTyping(false)
+    setNewMessage("")
   }, [selectedChat]);
 
   useEffect(()=>{
@@ -151,6 +193,17 @@ function SingleChat({fetchAgain,setFetchAgain}) {
       </div>
 
       {/* Message Input */}
+      {istyping?(
+              <div>
+                  <Lottie
+                    options={defaultOptions}
+                     //height={50}
+                    width={50}
+                    style={{ marginBottom: 15, marginLeft: 0 }}
+                  />
+                </div>
+              
+      ):(<></>)}
       <div className="flex-shrink-0 p-3 border-t bg-white">
         <input
           type="text"
