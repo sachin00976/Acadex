@@ -127,8 +127,15 @@ const facultyLogin = asyncHandler(async (req, res) => {
     return res.status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json(new ApiResponse(200, facultyData, "Faculty logged in successfully"));
+        .json(new ApiResponse(200, 
+            {
+                ...facultyData,
+                token: accessToken  // added token here
+            }, 
+            "Faculty logged in successfully"
+        ));
 });
+
 const facultyLogout = asyncHandler(async (req, res) => {
     
     if (!req.faculty || !req.faculty.id) {

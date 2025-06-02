@@ -3,7 +3,6 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { router as adminRoutes } from './src/routes/admin.routes.js';
 import { router as facultyRoutes } from './src/routes/faculty.routes.js';
-import {router as studentRoutes} from './src/routes/student.routes.js'
 import { router as otherbranch } from './src/routes/Other Api/branch.route.js';
 import { router as othermarks } from './src/routes/Other Api/marks.route.js';
 import { router as othermaterial } from './src/routes/Other Api/material.route.js';
@@ -13,6 +12,7 @@ import { router as othertimetable } from './src/routes/Other Api/timetable.route
 import {router as commonUser} from './src/routes/commonUser.routes.js'
 import { router as chatRoutes } from './src/routes/chatRoutes.js';
 import {router as messageRoutes} from "./src/routes/messgae.routes.js"
+import { router as studentRoutes } from './src/routes/student.routes.js';
 const app = express();
 
 // Configure CORS

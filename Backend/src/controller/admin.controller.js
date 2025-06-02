@@ -115,11 +115,18 @@ const adminLogin = asyncHandler(async (req, res) => {
 
     const { refreshToken, accessToken } = await genrateAccessTokenAndRefreshToken(admin._id);
 
-    return res.status(200)
+    return res
+        .status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json(new ApiResponse(200, adminData, "Admin logged in successfully"));
+        .json(
+            new ApiResponse(200, {
+                ...adminData,
+                token: accessToken // Include access token here
+            }, "Admin logged in successfully")
+        );
 });
+
 const adminLogout = asyncHandler(async (req, res) => {
     
     if (!req.admin || !req.admin.id) {
