@@ -6,11 +6,7 @@ import Heading from "../../components/Heading";
 // import { baseApiURL } from "../../baseUrl";
 
 const Marks = () => {
-<<<<<<< HEAD
   const userData = useSelector((state) => state.auth.user);
-=======
-  const userData = useSelector((state) => state.userData);
->>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
   const [internal, setInternal] = useState();
   const [external, setExternal] = useState();
 
@@ -20,11 +16,7 @@ const Marks = () => {
     };
     axios
       .post(
-<<<<<<< HEAD
         `/api/v1//marks/getMarks`,
-=======
-        `${baseApiURL()}/marks/getMarks`,
->>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
         { enrollmentNo: userData.enrollmentNo },
         {
           headers: headers,
@@ -91,8 +83,4 @@ const Marks = () => {
     </div>
   );
 };
-<<<<<<< HEAD
 export default Marks
-=======
-export default Marks
->>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831

@@ -1,23 +1,4 @@
-import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom'
-import App from './App.jsx'
-import Login from './components/Login.jsx'
-<<<<<<< HEAD
-import Home from './Screens/Admin/Home.jsx'
-import Home1 from './Screens/Faculty/Home.jsx'
-import StudentHome from './Screens/Student/Home.jsx'
-import { AuthenticatedUser, ProtectedRoute } from './components/ProtectedRoutes.jsx'
-
-
-const Router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/" element={<App />}>
-      <Route index element={<Login/>} />
-      <Route path="faculty" element={<ProtectedRoute><Home1/></ProtectedRoute>} />
-      <Route path="admin" element={<Home />} />
-      <Route path="admin" element={<Home />} />
-      <Route path="student" element={<StudentHome />} />
-    </Route>
-=======
+import { createBrowserRouter,createRoutesFromElements,Route } from 'react-router-dom';
 import AdminHome from './Screens/Admin/Home.jsx';
 import FacultyHome from './Screens/Faculty/Home.jsx';
 import StudentHome from './Screens/Student/Home.jsx';
@@ -27,6 +8,7 @@ import FacultyProfile from './Screens/Faculty/Profile.jsx';
 import FacultyStudent from './Screens/Faculty/Student.jsx';
 import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
 import Notice from './components/Notice.jsx'
+import Login from "./components/Login.jsx"
 
 import { ChatBox } from './chat/component/ChatBox.jsx';
 
@@ -38,7 +20,7 @@ const Router = createBrowserRouter(
       <Route path="/admin" element={<AdminHome />} />
       
       <Route path="/faculty" element={<FacultyHome />} />
-      
+      <Route path="/student" element={<StudentHome />} />
       <Route path='/chat' element={<ChatBox/>}/>
       
       {/* <Route path="/faculty_marks" element={<FacultyMarks/>} />
@@ -48,7 +30,7 @@ const Router = createBrowserRouter(
       <Route path="/faculty_timetable" element={<FacultyTimetable/>} />
       <Route path="/faculty_notice" element={<Notice/>} /> */}
    </>
->>>>>>> e91f0b5b6a564d61fbe61f31bdb0df8d8ebb4831
+
   )
 )
 

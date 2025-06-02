@@ -68,7 +68,7 @@ useEffect(() => {
             return chat.isGroupChat ? (
               <div
                 key={chat._id}
-                className={`flex items-center gap-4 border p-4 rounded-xl shadow-sm mb-4 ${selectedChat?._id===chat._id? "bg-green-400":"bg-white"}  hover:shadow-md transition cursor-pointer`}
+                className={`flex items-center gap-4 border p-4 rounded-xl shadow-sm mb-4 ${selectedChat && selectedChat?._id===chat._id? "bg-green-400":"bg-white"}  hover:shadow-md transition cursor-pointer`}
                 onClick={() => {
                   dispatch(userSelectedChat({ selectedChat: chat }))
                   console.log("myChat",selectedChat)
@@ -86,7 +86,7 @@ useEffect(() => {
             ) : (
               <div
                 key={user?._id}
-                className={`flex items-center gap-4 border p-4 rounded-xl shadow-sm mb-4 ${selectedChat._id===chat._id? "bg-green-400":"bg-white"} hover:shadow-md transition cursor-pointer`}
+                className={`flex items-center gap-4 border p-4 rounded-xl shadow-sm mb-4 ${selectedChat && selectedChat._id===chat._id? "bg-green-400":"bg-white"} hover:shadow-md transition cursor-pointer`}
                 onClick={() => {
                   dispatch(userSelectedChat({ selectedChat: chat }))
                   console.log(selectedChat)
