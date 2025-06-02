@@ -2,11 +2,13 @@ import React from 'react'
 import { FiLogOut } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
-
+import { useDispatch, useSelector } from 'react-redux';
+import { userLoggedOut } from '../features/authSlice.js';
 
 const Navbar = () => {
   const router = useLocation();
   const navigate = useNavigate();
+  const dispatch=useDispatch();
   return (
     <div className="shadow-md px-6 py-4">
       <div className="max-w-6xl flex justify-between items-center mx-auto">
@@ -18,7 +20,10 @@ const Navbar = () => {
             {router.state && router.state.type} Dashboard
         </p>
         <button className="flex justify-center items-center text-red-500 px-3 py-2 font-semibold rounded-sm"
-          onClick={() => navigate("/")}>
+          onClick={() => {
+            navigate("/");
+
+            }}>
               Logout
               <span className='ml-2'>
                 <FiLogOut/>
