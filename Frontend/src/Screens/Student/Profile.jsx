@@ -71,7 +71,7 @@ const Profile = () => {
         <>
           <div className="flex-1">
             <p className="text-3xl font-bold text-gray-800">
-              Hello {data.firstName} {data.middleName} {data.lastName} 👋
+              Hello {data.firstName} {data.middleName?(data.middleName):("")} {data.lastName} 👋
             </p>
 
             <div className="mt-4 space-y-3 text-gray-600 text-lg">

@@ -65,7 +65,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto my-12 p-8 bg-white rounded-xl shadow-lg flex flex-col md:flex-row gap-8">
+    <div className="max-w-6xl mx-auto my-12 p-8 bg-white rounded-xl shadow-lg flex flex-col md:flex-row gap-8">
       {user && (
         <>
           <div className="flex-1">

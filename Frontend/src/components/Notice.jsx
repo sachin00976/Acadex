@@ -135,7 +135,7 @@ const Notice = () => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto flex flex-col my-10 px-4">
+    <div className="w-full max-w-6xl mx-auto flex flex-col my-10 px-4">
       <div className="relative flex justify-between items-center mb-6">
         <Heading title="Notices" />
         {(router.pathname === "/faculty" || router.pathname === "/admin") && (
