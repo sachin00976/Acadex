@@ -94,3 +94,50 @@ export const student_sidebarLinks = [
       }
 
   ];
+
+
+
+  export const faculty_sidebarLinks = [
+    {
+      id: 1,
+      name: "My Profile",
+      path: "/faculty/profile",
+      type: "faculty",
+    },
+    {
+      id: 2,
+      name: "Student Info",
+      path: "/faculty/studentinfo",
+      type: "faculty",
+    },
+    {
+      id: 3,
+      name: "Update Marks",
+      path: "/faculty/uploadmarks",
+      type: "admin",
+    },
+    {
+      id: 4,
+      name: "Time Table",
+      path: "/faculty/timetable",
+      type: "faculty",
+    },
+    {
+      id: 5,
+      name: "Notice",
+      path: "/faculty/notice",
+      type: "faculty",
+    },
+    {
+      id: 6,
+      name: "Material",
+      path: "/faculty/material",
+      type: "faculty",
+    },
+    {
+        id: 7,
+        name: "Chat",
+        path: "/faculty/chat",
+        type: "faculty",
+      },
+  ];

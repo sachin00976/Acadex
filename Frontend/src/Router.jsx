@@ -2,11 +2,7 @@ import { createBrowserRouter,createRoutesFromElements,Route } from 'react-router
 import AdminHome from './Screens/Admin/Home.jsx';
 import FacultyHome from './Screens/Faculty/Home.jsx';
 
-import FacultyMarks from './Screens/Faculty/Marks.jsx';
-import FacultyMaterial from './Screens/Faculty/Material.jsx';
-import FacultyProfile from './Screens/Faculty/Profile.jsx';
-import FacultyStudent from './Screens/Faculty/Student.jsx';
-import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
+
 import Notice from './components/Notice.jsx'
 import Login from "./components/Login.jsx"
 
@@ -27,8 +23,12 @@ import AdminBranch from "./Screens/Admin/Branch.jsx"
 import AdminProfile from "./Screens/Admin/Profile.jsx"
 
 
-
-
+import FacultyDashboard from './Screens/Faculty/FAcultyDashboard.jsx';
+import FacultyMarks from './Screens/Faculty/Marks.jsx';
+import FacultyMaterial from './Screens/Faculty/Material.jsx';
+import FacultyProfile from './Screens/Faculty/Profile.jsx';
+import FacultyStudent from './Screens/Faculty/Student.jsx';
+import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
 
 
 
@@ -38,7 +38,7 @@ const Router = createBrowserRouter(
       <Route path="/" element={<Login />} />
       {/* <Route path="/admin/profile" element={<AdminHome />} /> */}
       
-      <Route path="/faculty/profile" element={<FacultyHome />} />
+      {/* <Route path="/faculty/profile" element={<FacultyHome />} /> */}
       {/* <Route path="/student" element={<StudentHome />} /> */}
       {/* <Route path='/chat' element={<ChatBox/>}/> */}
 
@@ -74,7 +74,15 @@ const Router = createBrowserRouter(
       </Route>
 
 
-
+      <Route element={<FacultyDashboard/>}>
+        <Route path="faculty/profile" element={<FacultyProfile/>}/>
+        <Route path="faculty/uploadmarks" element={<FacultyMarks/>}/>
+        <Route path="faculty/studentinfo" element={<FacultyStudent/>}/>
+        <Route path="faculty/timetable" element={<FacultyTimetable/>}/>
+        <Route path='faculty/notice' element={<Notice/>}/>
+        <Route path='faculty/material' element={<FacultyMaterial/>}/>
+        <Route path='faculty/chat' element={<ChatBox/>}/>
+      </Route>
 
 
 
