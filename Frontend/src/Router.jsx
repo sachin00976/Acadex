@@ -14,13 +14,13 @@ import StudentMaterial from './Screens/Student/Material.jsx'
 import StudentProfile from './Screens/Student/Profile.jsx'
 import StudentTimeTable from './Screens/Student/TimeTable.jsx'
 
-// import AdminDashboard from './Screens/Admin/AdminDashboard.jsx';
-// import AddAdmin from "./Screens/Admin/Admin.jsx"
-// import AddStudent from "./Screens/Admin/Student.jsx"
-// import AddFaculty from "./Screens/Admin/Faculty.jsx"
-// import AdminSubject from "./Screens/Admin/Subject.jsx"
-// import AdminBranch from "./Screens/Admin/Branch.jsx"
-// import AdminProfile from "./Screens/Admin/Profile.jsx"
+import AdminDashboard from './Screens/Admin/AdminDashboard.jsx';
+import AddAdmin from "./Screens/Admin/Admin.jsx"
+import AddStudent from "./Screens/Admin/Student.jsx"
+import AddFaculty from "./Screens/Admin/Faculty.jsx"
+import AdminSubject from "./Screens/Admin/Subject.jsx"
+import AdminBranch from "./Screens/Admin/Branch.jsx"
+import AdminProfile from "./Screens/Admin/Profile.jsx"
 
 
 import FacultyDashboard from './Screens/Faculty/FAcultyDashboard.jsx';
@@ -62,17 +62,17 @@ const Router = createBrowserRouter(
         <Route path='student/notice/:enrollment_no' element={<Notice/>}/>
       </Route>
 
-{/* 
+
       <Route element={<AdminDashboard/>}>
-        <Route path="admin/addstudent" element={<AddStudent/>}/>
-        <Route path="admin/addfaculty" element={<AddFaculty/>}/>
-        <Route path="admin/profile" element={<AdminProfile/>}/>
-        <Route path="admin/branch" element={<AdminBranch/>}/>
-        <Route path='admin/subject' element={<AdminSubject/>}/>
-        <Route path='admin/notice' element={<Notice/>}/>
-        <Route path='admin/addadmin' element={<AddAdmin/>}/>
-        <Route path='admin/chat' element={<ChatBox/>}/>
-      </Route> */}
+        <Route path="admin/addstudent/:id" element={<AddStudent/>}/>
+        <Route path="admin/addfaculty/:id" element={<AddFaculty/>}/>
+        <Route path="admin/profile/:id" element={<AdminProfile/>}/>
+        <Route path="admin/branch/:id" element={<AdminBranch/>}/>
+        <Route path='admin/subject/:id' element={<AdminSubject/>}/>
+        <Route path='admin/notice/:id' element={<Notice/>}/>
+        <Route path='admin/addadmin/:id' element={<AddAdmin/>}/>
+        <Route path='admin/chat/:id' element={<ChatBox/>}/>
+      </Route>
 
 
       <Route element={<FacultyDashboard/>}>
