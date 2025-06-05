@@ -14,21 +14,21 @@ import StudentMaterial from './Screens/Student/Material.jsx'
 import StudentProfile from './Screens/Student/Profile.jsx'
 import StudentTimeTable from './Screens/Student/TimeTable.jsx'
 
-import AdminDashboard from './Screens/Admin/AdminDashboard.jsx';
-import AddAdmin from "./Screens/Admin/Admin.jsx"
-import AddStudent from "./Screens/Admin/Student.jsx"
-import AddFaculty from "./Screens/Admin/Faculty.jsx"
-import AdminSubject from "./Screens/Admin/Subject.jsx"
-import AdminBranch from "./Screens/Admin/Branch.jsx"
-import AdminProfile from "./Screens/Admin/Profile.jsx"
+// import AdminDashboard from './Screens/Admin/AdminDashboard.jsx';
+// import AddAdmin from "./Screens/Admin/Admin.jsx"
+// import AddStudent from "./Screens/Admin/Student.jsx"
+// import AddFaculty from "./Screens/Admin/Faculty.jsx"
+// import AdminSubject from "./Screens/Admin/Subject.jsx"
+// import AdminBranch from "./Screens/Admin/Branch.jsx"
+// import AdminProfile from "./Screens/Admin/Profile.jsx"
 
 
-import FacultyDashboard from './Screens/Faculty/FAcultyDashboard.jsx';
-import FacultyMarks from './Screens/Faculty/Marks.jsx';
-import FacultyMaterial from './Screens/Faculty/Material.jsx';
-import FacultyProfile from './Screens/Faculty/Profile.jsx';
-import FacultyStudent from './Screens/Faculty/Student.jsx';
-import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
+// import FacultyDashboard from './Screens/Faculty/FAcultyDashboard.jsx';
+// import FacultyMarks from './Screens/Faculty/Marks.jsx';
+// import FacultyMaterial from './Screens/Faculty/Material.jsx';
+// import FacultyProfile from './Screens/Faculty/Profile.jsx';
+// import FacultyStudent from './Screens/Faculty/Student.jsx';
+// import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
 
 
 
@@ -52,16 +52,25 @@ const Router = createBrowserRouter(
       <Route path="/faculty_timetable" element={<FacultyTimetable/>} />
       <Route path="/faculty_notice" element={<Notice/>} /> */}
     
+      {/* <Route element={<Dashboard/>}>
+        <Route path="student/marks/" element={<StudentMarks/>}/>
+        <Route path="student/material/" element={<StudentMaterial/>}/>
+        <Route path="student/profile/" element={<StudentProfile/>}/>
+        <Route path="student/timetable/" element={<StudentTimeTable/>}/>
+        <Route path='student/chat/' element={<ChatBox/>}/>
+        <Route path='student/notice/' element={<Notice/>}/>
+      </Route> */}
+
       <Route element={<Dashboard/>}>
-        <Route path="student/marks" element={<StudentMarks/>}/>
-        <Route path="student/material" element={<StudentMaterial/>}/>
-        <Route path="student/profile" element={<StudentProfile/>}/>
-        <Route path="student/timetable" element={<StudentTimeTable/>}/>
-        <Route path='student/chat' element={<ChatBox/>}/>
-        <Route path='student/notice' element={<Notice/>}/>
+        <Route path="student/marks/:enrollment_no" element={<StudentMarks/>}/>
+        <Route path="student/material/:enrollment_no" element={<StudentMaterial/>}/>
+        <Route path="student/profile/:enrollment_no" element={<StudentProfile/>}/>
+        <Route path="student/timetable/:enrollment_no" element={<StudentTimeTable/>}/>
+        <Route path='student/chat/:enrollment_no' element={<ChatBox/>}/>
+        <Route path='student/notice/:enrollment_no' element={<Notice/>}/>
       </Route>
 
-
+{/* 
       <Route element={<AdminDashboard/>}>
         <Route path="admin/addstudent" element={<AddStudent/>}/>
         <Route path="admin/addfaculty" element={<AddFaculty/>}/>
@@ -82,7 +91,7 @@ const Router = createBrowserRouter(
         <Route path='faculty/notice' element={<Notice/>}/>
         <Route path='faculty/material' element={<FacultyMaterial/>}/>
         <Route path='faculty/chat' element={<ChatBox/>}/>
-      </Route>
+      </Route> */}
 
 
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { TbLogin2 } from "react-icons/tb";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { userLoggedIn } from "../features/authSlice.js"; 
 
 import toast, { Toaster } from "react-hot-toast";
@@ -13,14 +13,23 @@ const Login = () => {
     const [selected, setSelected] = useState("Student");
     const { register, handleSubmit } = useForm();
     const dispatch = useDispatch();
-
+    const user = useSelector((state) => state.auth.user);
+    const role = useSelector((state) => state.auth.role);
+    // console.log("user: ",user);
+    
+    const uniqueId =
+    role === "student"
+      ? user.enrollmentNo
+      : role === "faculty" || role === "admin"
+      ? user.employeeId
+      : null;
     const onSubmit = (data) => {
         if (data.email !== "" && data.password !== "") {
             axios.post(`/api/v1/${selected.toLowerCase()}/login`, data, {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                withCredentials: true,  // Important for cookies
+                withCredentials: true,  
             }).then((response) => {
                 console.log(response)
                 const { data: userData, token, loginid } = response.data;
@@ -38,7 +47,7 @@ const Login = () => {
                 localStorage.setItem("token", token);
                 localStorage.setItem("role", selected.toLowerCase());
 
-                navigate(`/${selected.toLowerCase()}/profile`, {
+                navigate(`/${selected.toLowerCase()}/profile/${uniqueId}`, {
                     state: { type: selected, loginid },
                 });
             }).catch((error) => {

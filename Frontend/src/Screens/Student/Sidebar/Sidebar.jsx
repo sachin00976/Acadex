@@ -1,6 +1,6 @@
 import React from 'react'
-import { student_sidebarLinks } from '../../../data/dashboard_link'
-
+// import { student_sidebarLinks } from '../../../data/dashboard_link'
+import Student_link from '../../../data/Sudent_link'
 import { useDispatch,useSelector } from 'react-redux'
 import SidebarLink from './SidebarLink'
 import { useNavigate } from 'react-router-dom'
@@ -15,7 +15,7 @@ const Sidebar = () => {
     const pathSegments = location.pathname.split("/");
     //console.log(pathSegments);
     const userRole = pathSegments[1]; 
-
+    const student_sidebarLinks = Student_link();
 
     
   return (
