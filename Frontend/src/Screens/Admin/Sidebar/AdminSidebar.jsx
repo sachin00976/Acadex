@@ -28,7 +28,7 @@ const AdminSidebar = () => {
                     // console.log("link.type:", link.type, "| userRole:", userRole);
                   if(link.type!=userRole) return null;
                   return (
-                    <AdminSidebarLink link={link}/>
+                    <AdminSidebarLink key={link.id} link={link}/>
                   )
                 })
               }

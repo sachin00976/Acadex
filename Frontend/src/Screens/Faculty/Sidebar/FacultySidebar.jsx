@@ -28,7 +28,7 @@ const FacultySidebar = () => {
                     // console.log("link.type:", link.type, "| userRole:", userRole);
                   if(link.type!=userRole) return null;
                   return (
-                    <FacultySidebarLink link={link}/>
+                    <FacultySidebarLink key={link.id} link={link}/>
                   )
                 })
               }

@@ -28,7 +28,7 @@ const Sidebar = () => {
                     // console.log("link.type:", link.type, "| userRole:", userRole);
                   if(link.type!=userRole) return null;
                   return (
-                    <SidebarLink link={link}/>
+                    <SidebarLink key={link.id} link={link}/>
                   )
                 })
               }

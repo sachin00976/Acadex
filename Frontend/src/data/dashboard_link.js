@@ -114,7 +114,7 @@ export const student_sidebarLinks = [
       id: 3,
       name: "Update Marks",
       path: "/faculty/uploadmarks",
-      type: "admin",
+      type: "faculty",
     },
     {
       id: 4,
