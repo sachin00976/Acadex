@@ -15,50 +15,56 @@ const Login = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
     const role = useSelector((state) => state.auth.role);
-    // console.log("user: ",user);
+    console.log("userfac,,,,",user);
+    console.log("role,,",role);
     
-    const uniqueId =
-    role === "student"
-      ? user.enrollmentNo
-      : role === "faculty" || role === "admin"
-      ? user.employeeId
-      : null;
     const onSubmit = (data) => {
         if (data.email !== "" && data.password !== "") {
-            axios.post(`/api/v1/${selected.toLowerCase()}/login`, data, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                withCredentials: true,  
-            }).then((response) => {
-                console.log(response)
-                const { data: userData, token, loginid } = response.data;
-
-                if (!response.data.data.token) {
-                    toast.error("Token not provided by server");
-                    return;
-                }
-
-                // Dispatch user info with token to Redux
-                dispatch(userLoggedIn({ user: response.data.data, role: selected.toLowerCase(), token:response.data.data.token }));
-
-                // Store user info and token in localStorage
-                localStorage.setItem("user", JSON.stringify(userData));
-                localStorage.setItem("token", token);
-                localStorage.setItem("role", selected.toLowerCase());
-
-                navigate(`/${selected.toLowerCase()}/profile/${uniqueId}`, {
-                    state: { type: selected, loginid },
-                });
-            }).catch((error) => {
-                toast.dismiss();
-                console.error(error);
-                toast.error(error.response?.data?.message || "Login failed");
+          axios
+            .post(`/api/v1/${selected.toLowerCase()}/login`, data, {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              withCredentials: true,
+            })
+            .then((response) => {
+              const { data: userData, token, loginid } = response.data;
+      
+              if (!userData.token) {
+                toast.error("Token not provided by server");
+                return;
+              }
+      
+              // Get uniqueId directly from userData
+              const role = selected.toLowerCase();
+              const uniqueId =
+                role === "student"
+                  ? userData.enrollmentNo
+                  : role === "faculty" || role === "admin"
+                  ? userData.employeeId
+                  : null;
+      
+              // Store user info and token in Redux and localStorage
+              dispatch(userLoggedIn({ user: userData, role, token: userData.token }));
+              localStorage.setItem("user", JSON.stringify(userData));
+              localStorage.setItem("token", token);
+              localStorage.setItem("role", role);
+      
+              // Navigate using fresh uniqueId
+              navigate(`/${role}/profile/${uniqueId}`, {
+                state: { type: selected, loginid },
+              });
+            })
+            .catch((error) => {
+              toast.dismiss();
+              console.error(error);
+              toast.error(error.response?.data?.message || "Login failed");
             });
         } else {
-            toast.error("Please fill all fields");
+          toast.error("Please fill all fields");
         }
-    };
+      };
+      
     
     return (
         <div className="bg-white h-[100vh] w-full flex justify-between items-center">

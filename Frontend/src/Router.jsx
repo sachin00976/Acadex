@@ -23,12 +23,12 @@ import StudentTimeTable from './Screens/Student/TimeTable.jsx'
 // import AdminProfile from "./Screens/Admin/Profile.jsx"
 
 
-// import FacultyDashboard from './Screens/Faculty/FAcultyDashboard.jsx';
-// import FacultyMarks from './Screens/Faculty/Marks.jsx';
-// import FacultyMaterial from './Screens/Faculty/Material.jsx';
-// import FacultyProfile from './Screens/Faculty/Profile.jsx';
-// import FacultyStudent from './Screens/Faculty/Student.jsx';
-// import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
+import FacultyDashboard from './Screens/Faculty/FAcultyDashboard.jsx';
+import FacultyMarks from './Screens/Faculty/Marks.jsx';
+import FacultyMaterial from './Screens/Faculty/Material.jsx';
+import FacultyProfile from './Screens/Faculty/Profile.jsx';
+import FacultyStudent from './Screens/Faculty/Student.jsx';
+import FacultyTimetable from './Screens/Faculty/Timetable.jsx';
 
 
 
@@ -52,15 +52,7 @@ const Router = createBrowserRouter(
       <Route path="/faculty_timetable" element={<FacultyTimetable/>} />
       <Route path="/faculty_notice" element={<Notice/>} /> */}
     
-      {/* <Route element={<Dashboard/>}>
-        <Route path="student/marks/" element={<StudentMarks/>}/>
-        <Route path="student/material/" element={<StudentMaterial/>}/>
-        <Route path="student/profile/" element={<StudentProfile/>}/>
-        <Route path="student/timetable/" element={<StudentTimeTable/>}/>
-        <Route path='student/chat/' element={<ChatBox/>}/>
-        <Route path='student/notice/' element={<Notice/>}/>
-      </Route> */}
-
+      
       <Route element={<Dashboard/>}>
         <Route path="student/marks/:enrollment_no" element={<StudentMarks/>}/>
         <Route path="student/material/:enrollment_no" element={<StudentMaterial/>}/>
@@ -80,18 +72,18 @@ const Router = createBrowserRouter(
         <Route path='admin/notice' element={<Notice/>}/>
         <Route path='admin/addadmin' element={<AddAdmin/>}/>
         <Route path='admin/chat' element={<ChatBox/>}/>
-      </Route>
+      </Route> */}
 
 
       <Route element={<FacultyDashboard/>}>
-        <Route path="faculty/profile" element={<FacultyProfile/>}/>
-        <Route path="faculty/uploadmarks" element={<FacultyMarks/>}/>
-        <Route path="faculty/studentinfo" element={<FacultyStudent/>}/>
-        <Route path="faculty/timetable" element={<FacultyTimetable/>}/>
-        <Route path='faculty/notice' element={<Notice/>}/>
-        <Route path='faculty/material' element={<FacultyMaterial/>}/>
-        <Route path='faculty/chat' element={<ChatBox/>}/>
-      </Route> */}
+        <Route path="faculty/profile/:id" element={<FacultyProfile/>}/>
+        <Route path="faculty/uploadmarks/:id" element={<FacultyMarks/>}/>
+        <Route path="faculty/studentinfo/:id" element={<FacultyStudent/>}/>
+        <Route path="faculty/timetable/:id" element={<FacultyTimetable/>}/>
+        <Route path='faculty/notice/:id' element={<Notice/>}/>
+        <Route path='faculty/material/:id' element={<FacultyMaterial/>}/>
+        <Route path='faculty/chat/:id' element={<ChatBox/>}/>
+      </Route>
 
 
 

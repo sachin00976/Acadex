@@ -17,7 +17,7 @@ const Navbar = () => {
 
 
   const route = router.state?.type?.toLowerCase();
-  console.log(route);
+ // console.log(route);
 
   const handleLogout = () => {
     // Dispatch the logout action to clear state
