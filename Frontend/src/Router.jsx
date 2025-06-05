@@ -13,6 +13,7 @@ import Login from "./components/Login.jsx"
 import { ChatBox } from './chat/component/ChatBox.jsx';
 
 
+
 const Router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -22,6 +23,7 @@ const Router = createBrowserRouter(
       <Route path="/faculty" element={<FacultyHome />} />
       <Route path="/student" element={<StudentHome />} />
       <Route path='/chat' element={<ChatBox/>}/>
+      
       
       {/* <Route path="/faculty_marks" element={<FacultyMarks/>} />
       <Route path="/faculty_material" element={<FacultyMaterial/>} />

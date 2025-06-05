@@ -19,6 +19,7 @@ function SingleChat({fetchAgain,setFetchAgain}) {
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState(null);
   const [openGroupSidebar, setOpenGroupSidebar] = useState(false);
+  
   const [socketConnected,setSocketConnected]=useState(false)
   const [istyping,setIsTyping]=useState(false)
   const [typing,setTyping]=useState(false)
@@ -180,7 +181,7 @@ function SingleChat({fetchAgain,setFetchAgain}) {
 
         {/* Group Sidebar */}
         {!chatPartner && (
-          <div className={`flex-shrink-0 h-full bg-white border-l transition-all duration-300 overflow-y-auto ${openGroupSidebar ? 'w-3/5' : 'w-0'}`}>
+          <div className={`flex-shrink-0 h-full bg-white border-l transition-all duration-300  ${openGroupSidebar ? 'w-3/5' : 'w-0'}`}>
             {openGroupSidebar && (
               <GroupSideBar
                 setOpenGroupSidebar={setOpenGroupSidebar}

@@ -7,7 +7,7 @@ import { getOtherUser } from '../chatLogic/getUser.js';
 import SearchSideBar from './searchSideBar.jsx';
 import { useCallback } from 'react';
 import debounce from 'lodash.debounce';
-
+import { CreateGroup } from './CreateGroup.jsx';
 function MyChat({fetchAgain,setFetchAgain}) {
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.auth.chats);
@@ -15,6 +15,7 @@ function MyChat({fetchAgain,setFetchAgain}) {
   const [loading, setLoading] = useState(false);
   const loggedUser = useSelector((state) => state.auth.user);
   const [searchBarOpen, setSearchBarOpen] = useState(false);
+  const [openCreateGroup,setOpenCreateGroup]=useState(false);
   
 
   const fetchChats = async () => {
@@ -53,6 +54,12 @@ useEffect(() => {
             Search User
           </button>
           <h3 className="text-2xl font-semibold text-center flex-1">My Chats</h3>
+          <button 
+            onClick={() => setOpenCreateGroup(!openCreateGroup)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          >
+            Create Group
+          </button>
         </div>
 
         {loading ? (
@@ -75,7 +82,7 @@ useEffect(() => {
                 }}
               >
                 <img
-                  src={chat?.chatPic?.url|| '/default-group.png'}
+                  src={chat?.profile?.url|| '/default-group.png'}
                   alt={chat.chatName}
                   className="w-16 h-16 object-cover rounded-full border border-gray-300"
                 />
@@ -111,6 +118,10 @@ useEffect(() => {
       {/* Search Sidebar */}
       <div className={`absolute top-0 right-0 h-full w-[100%] bg-white shadow-lg transition-all duration-300 transform ${searchBarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <SearchSideBar  setFetchAgain={setFetchAgain} searchBarOpen={searchBarOpen} setSearchBarOpen={setSearchBarOpen} />
+      </div>
+      {/* create Group */}
+      <div>
+        {openCreateGroup && <CreateGroup setOpenCreateGroup={setOpenCreateGroup}/>}
       </div>
     </div>
   );
