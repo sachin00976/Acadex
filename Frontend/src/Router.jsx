@@ -13,18 +13,30 @@ import Login from "./components/Login.jsx"
 import { ChatBox } from './chat/component/ChatBox.jsx';
 
 import Dashboard from './Screens/Student/Dashboard.jsx';
-import StudentHome from './Screens/Student/Home.jsx'
 import StudentMarks from './Screens/Student/Marks.jsx'
 import StudentMaterial from './Screens/Student/Material.jsx'
 import StudentProfile from './Screens/Student/Profile.jsx'
 import StudentTimeTable from './Screens/Student/TimeTable.jsx'
+
+import AdminDashboard from './Screens/Admin/AdminDashboard.jsx';
+import AddAdmin from "./Screens/Admin/Admin.jsx"
+import AddStudent from "./Screens/Admin/Student.jsx"
+import AddFaculty from "./Screens/Admin/Faculty.jsx"
+import AdminSubject from "./Screens/Admin/Subject.jsx"
+import AdminBranch from "./Screens/Admin/Branch.jsx"
+import AdminProfile from "./Screens/Admin/Profile.jsx"
+
+
+
+
+
 
 
 const Router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<Login />} />
-      <Route path="/admin/profile" element={<AdminHome />} />
+      {/* <Route path="/admin/profile" element={<AdminHome />} /> */}
       
       <Route path="/faculty/profile" element={<FacultyHome />} />
       {/* <Route path="/student" element={<StudentHome />} /> */}
@@ -39,7 +51,7 @@ const Router = createBrowserRouter(
       <Route path="/faculty_student" element={<FacultyStudent/>} />
       <Route path="/faculty_timetable" element={<FacultyTimetable/>} />
       <Route path="/faculty_notice" element={<Notice/>} /> */}
-
+    
       <Route element={<Dashboard/>}>
         <Route path="student/marks" element={<StudentMarks/>}/>
         <Route path="student/material" element={<StudentMaterial/>}/>
@@ -48,6 +60,24 @@ const Router = createBrowserRouter(
         <Route path='student/chat' element={<ChatBox/>}/>
         <Route path='student/notice' element={<Notice/>}/>
       </Route>
+
+
+      <Route element={<AdminDashboard/>}>
+        <Route path="admin/addstudent" element={<AddStudent/>}/>
+        <Route path="admin/addfaculty" element={<AddFaculty/>}/>
+        <Route path="admin/profile" element={<AdminProfile/>}/>
+        <Route path="admin/branch" element={<AdminBranch/>}/>
+        <Route path='admin/subject' element={<AdminSubject/>}/>
+        <Route path='admin/notice' element={<Notice/>}/>
+        <Route path='admin/addadmin' element={<AddAdmin/>}/>
+        <Route path='admin/chat' element={<ChatBox/>}/>
+      </Route>
+
+
+
+
+
+
    </>
 
   )

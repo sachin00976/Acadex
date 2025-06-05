@@ -40,3 +40,57 @@ export const student_sidebarLinks = [
     }
 
   ];
+
+
+
+  export const admin_sidebarLinks = [
+    {
+      id: 1,
+      name: "My Profile",
+      path: "/admin/profile",
+      type: "admin",
+    },
+    {
+      id: 2,
+      name: "Student",
+      path: "/admin/addstudent",
+      type: "admin",
+    },
+    {
+      id: 3,
+      name: "Faculty",
+      path: "/admin/addfaculty",
+      type: "admin",
+    },
+    {
+      id: 4,
+      name: "Branch",
+      path: "/admin/branch",
+      type: "admin",
+    },
+    {
+      id: 5,
+      name: "Notice",
+      path: "/admin/notice",
+      type: "admin",
+    },
+    {
+      id: 6,
+      name: "Chat",
+      path: "/admin/chat",
+      type: "admin",
+    },
+    {
+        id: 7,
+        name: "Subject",
+        path: "/admin/subject",
+        type: "admin",
+      },
+      {
+        id: 8,
+        name: "Admin",
+        path: "/admin/addadmin",
+        type: "admin",
+      }
+
+  ];

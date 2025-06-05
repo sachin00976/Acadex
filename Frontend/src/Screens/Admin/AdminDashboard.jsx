@@ -1,15 +1,15 @@
 import React from 'react'
 import {Outlet} from "react-router-dom"
-import Sidebar from './Sidebar/Sidebar'
+import AdminSidebar from './Sidebar/AdminSidebar'
 import Navbar from '../../components/Navbar'
 
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   return (
     <>
     <Navbar/>
     <div className='relative flex bg-richblack-400'>
-      <Sidebar/>
+      <AdminSidebar/>
         <div className=' flex-1 overflow-auto bg-richblack-900'>
             <div className='py-10'>
                 <Outlet/>
@@ -20,4 +20,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default AdminDashboard

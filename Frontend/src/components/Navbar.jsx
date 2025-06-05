@@ -37,7 +37,7 @@ const Navbar = () => {
           <span className='mr-2'>
             <RxDashboard />
           </span>
-          {router.state && router.state.type} {userRole} Dashboard
+          {userRole}  Dashboard
         </p>
 
         <button
