@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Chat } from "../models/chatSchema.js";
 import { ObjectId } from "mongodb";
+import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const accessChat = asyncHandler(async (req, res) => {
   const { userId, role } = req.body;
@@ -95,40 +96,38 @@ const fetchChat = asyncHandler(async (req, res) => {
 
 
 const createGroupChat = asyncHandler(async (req, res) => {
-  let { users, name } = req.body;
-
-  if (!users || !name) {
-    throw new ApiError(400, "Group members and name are required!");
+  let {  name } = req.body;
+  
+  const filePath=req.file?.path;
+  const fileType=req.file?.mimetype;
+  if(!filePath || !name)
+  {
+    throw new ApiError(400,"Group profile and name is required")
   }
-
- 
-  if (typeof users === "string") {
-    users = JSON.parse(users);
+  const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+  if(!allowedFormats.includes(fileType))
+  {
+    throw new ApiError(400,"Invalid file type!")
   }
-
-  if (!Array.isArray(users) || users.length < 2) {
-    throw new ApiError(400, "More than 2 users needed to form a group");
-  }
-
- 
-  users = users.map(u => ({
-    user: typeof u.user === "string" ? new ObjectId(u.user) : u.user,
-    userModel: u.userModel,
-  }));
-
+  
+  const users=[];
   const currentUser = {
     user: new ObjectId(req.user._id), 
     userModel: req.user.role,
   };
 
   users.push(currentUser);
-
+  const uploadResponse=await uploadOnCloudinary(filePath);
   const createdGroup = await Chat.create({
     chatName: name,
     users: users,
     isGroupChat: true,
     admin: currentUser.user,
     adminModel: currentUser.userModel,
+    profile: {
+            public_id: uploadResponse.public_id,
+            url: uploadResponse.secure_url,
+        }
   });
 
   const groupChatRes = await Chat.findById(createdGroup._id)
