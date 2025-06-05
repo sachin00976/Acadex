@@ -6,17 +6,6 @@ import Navbar from '../../components/Navbar'
 
 
 const Dashboard = () => {
-    // const {loading: authLoading} = useSelector((state)=>state.auth);
-    // const {loading: profileLoading} = useSelector((state)=>state.profile)
-
-    // if(profileLoading || authLoading) {
-    //     return (
-    //         <div className='mt-10'>
-    //             Loading...
-    //         </div>
-    //     )
-    // }
-
   return (
     <>
     <Navbar/>

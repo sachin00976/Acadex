@@ -24,9 +24,9 @@ const Router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<Login />} />
-      <Route path="/admin" element={<AdminHome />} />
+      <Route path="/admin/profile" element={<AdminHome />} />
       
-      <Route path="/faculty" element={<FacultyHome />} />
+      <Route path="/faculty/profile" element={<FacultyHome />} />
       {/* <Route path="/student" element={<StudentHome />} /> */}
       {/* <Route path='/chat' element={<ChatBox/>}/> */}
 
@@ -41,7 +41,6 @@ const Router = createBrowserRouter(
       <Route path="/faculty_notice" element={<Notice/>} /> */}
 
       <Route element={<Dashboard/>}>
-        {/* <Route path="student/home" element={<StudentHome/>}/> */}
         <Route path="student/marks" element={<StudentMarks/>}/>
         <Route path="student/material" element={<StudentMaterial/>}/>
         <Route path="student/profile" element={<StudentProfile/>}/>
