@@ -38,7 +38,7 @@ const Login = () => {
                 localStorage.setItem("token", token);
                 localStorage.setItem("role", selected.toLowerCase());
 
-                navigate(`/${selected.toLowerCase()}`, {
+                navigate(`/${selected.toLowerCase()}/profile`, {
                     state: { type: selected, loginid },
                 });
             }).catch((error) => {

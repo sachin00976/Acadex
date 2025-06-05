@@ -10,6 +10,12 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const location = useLocation();
+  const pathSegments = location.pathname.split("/");
+      //console.log(pathSegments);
+  const userRole = pathSegments[1].charAt(0).toUpperCase() + pathSegments[1].slice(1);
+
+
   const route = router.state?.type?.toLowerCase();
   console.log(route);
 
@@ -31,7 +37,7 @@ const Navbar = () => {
           <span className='mr-2'>
             <RxDashboard />
           </span>
-          {router.state && router.state.type} Dashboard
+          {router.state && router.state.type} {userRole} Dashboard
         </p>
 
         <button
