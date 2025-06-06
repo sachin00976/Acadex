@@ -13,6 +13,10 @@ import {router as commonUser} from './src/routes/commonUser.routes.js'
 import { router as chatRoutes } from './src/routes/chatRoutes.js';
 import {router as messageRoutes} from "./src/routes/messgae.routes.js"
 import { router as studentRoutes } from './src/routes/student.routes.js';
+
+
+
+
 const app = express();
 
 // Configure CORS
@@ -21,7 +25,7 @@ app.use(cors({
     credentials: true,
     methods: ["GET", "PUT", "DELETE", "POST", "PATCH"]
 }));
-
+app.use('/media', express.static('public/media'));
 // Middleware for cookies and JSON parsing
 app.use(cookieParser());
 app.use(express.json({ limit: "16kb" }));
@@ -31,7 +35,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/faculty', facultyRoutes);
 app.use('/api/v1/branch', otherbranch);
 app.use('/api/v1/marks', othermarks);
-app.use('/api/v1/material', othermaterial);
+ app.use('/api/v1/material', othermaterial);
 app.use('/api/v1/notice', othernotice);
 app.use('/api/v1/subject', othersubject);
 app.use('/api/v1/timetable', othertimetable);
@@ -39,6 +43,7 @@ app.use('/api/v1/student',studentRoutes)
 app.use('/api/v1/search',commonUser)
 app.use("/api/v1/chat",chatRoutes)
 app.use("/api/v1/message",messageRoutes)
+
 
 
 export default app;
