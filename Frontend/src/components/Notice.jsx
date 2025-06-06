@@ -77,12 +77,16 @@ const Notice = () => {
       .post(`/api/v1/notice/addNotice`, formData)
       .then((res) => {
         toast.dismiss();
-        res.data.success
-          ? (toast.success(res.data.message),
-            getNoticeHandler(),
-            setOpen(false),
-            reset())
-          : toast.error(res.data.message);
+        if (res.data.success) {
+          toast.success(res.data.message);
+          getNoticeHandler();
+          setOpen(false);
+          reset();
+          setEdit(false);
+          setId("");
+        } else {
+          toast.error(res.data.message);
+        }
       })
       .catch((err) =>
         toast.error(err?.response?.data?.message || "Failed to add notice")
@@ -110,13 +114,16 @@ const Notice = () => {
       .put(`/api/v1/notice/updateNotice/${id}`, formData)
       .then((res) => {
         toast.dismiss();
-        res.data.success
-          ? (toast.success(res.data.message),
-            getNoticeHandler(),
-            setOpen(false),
-            setEdit(false),
-            reset())
-          : toast.error(res.data.message);
+        if (res.data.success) {
+          toast.success(res.data.message);
+          getNoticeHandler();
+          setOpen(false);
+          setEdit(false);
+          reset();
+          setId("");
+        } else {
+          toast.error(res.data.message);
+        }
       })
       .catch((err) =>
         toast.error(err?.response?.data?.message || "Failed to update notice")
@@ -132,9 +139,21 @@ const Notice = () => {
   };
 
   const openHandler = () => {
+    if (open && edit) {
+      setEdit(false);
+      setId("");
+    }
+
+    if (!open) {
+      reset({
+        title: "",
+        description: "",
+        link: "",
+        type: "student",
+      });
+    }
+
     setOpen(!open);
-    setEdit(false);
-    reset();
   };
 
   return (
