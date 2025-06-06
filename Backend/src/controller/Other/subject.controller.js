@@ -5,6 +5,7 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/AsyncHandler.js";
 
 const getSubject = asyncHandler(async (req, res) => {
+    //console.log("Subject....")
     const subject = await Subject.find();
 
     if (!subject || subject.length === 0) {

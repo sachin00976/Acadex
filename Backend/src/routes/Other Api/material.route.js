@@ -6,7 +6,7 @@ const router=express.Router();
 router.route("/getMaterial").post(getMaterial)
 router.route("/addMaterial").post(upload.single("material"),addMaterial)
 router.route("/deleteMaterial/:id").delete(deleteMaterial)
-router.route("/updateMaterial/:id").put(updateMaterial)
+router.route("/updateMaterial/:id").post(updateMaterial)
 
 
 export {router}

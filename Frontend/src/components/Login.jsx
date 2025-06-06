@@ -15,8 +15,8 @@ const Login = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
     const role = useSelector((state) => state.auth.role);
-    console.log("userfac,,,,",user);
-    console.log("role,,",role);
+    // console.log("userfac,,,,",user);
+    // console.log("role,,",role);
     
     const onSubmit = (data) => {
         if (data.email !== "" && data.password !== "") {

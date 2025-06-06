@@ -39,6 +39,9 @@ const Notice = () => {
     },
   });
 
+  const isAdminOrFaculty =
+    router.pathname.startsWith("/admin") || router.pathname.startsWith("/faculty");
+
   const onSubmit = (formData) => {
     edit ? updateNoticehandler(formData) : addNoticehandler(formData);
   };
@@ -104,7 +107,7 @@ const Notice = () => {
   const updateNoticehandler = (formData) => {
     toast.loading("Updating...");
     axios
-      .put(`/api/v1/updateNotice/${id}`, formData)
+      .put(`/api/v1/notice/updateNotice/${id}`, formData)
       .then((res) => {
         toast.dismiss();
         res.data.success
@@ -138,7 +141,7 @@ const Notice = () => {
     <div className="w-full max-w-6xl mx-auto flex flex-col my-10 px-4">
       <div className="relative flex justify-between items-center mb-6">
         <Heading title="Notices" />
-        {(router.pathname === "/faculty" || router.pathname === "/admin") && (
+        {isAdminOrFaculty && (
           <button
             className="flex items-center border-2 border-blue-500 text-blue-500 px-4 py-2 rounded-md hover:bg-blue-50 transition"
             onClick={openHandler}
@@ -163,21 +166,18 @@ const Notice = () => {
           {notice
             .filter((item) => {
               if (userData?.enrollmentNo) {
-                // Student sees notices with type "both" or "student"
                 return item.type === "both" || item.type === "student";
               } else if (userData?.employeeId) {
-                // Faculty/Admin sees all notices
                 return true;
               }
-              return false; // No user type
+              return false;
             })
             .map((item, index) => (
               <div
                 key={item._id}
                 className="relative p-5 border-2 border-blue-200 rounded-lg bg-white shadow hover:shadow-md transition group"
               >
-                {(router.pathname === "/faculty" ||
-                  router.pathname === "/admin") && (
+                {isAdminOrFaculty && (
                   <div className="absolute right-4 bottom-3 flex items-center space-x-3">
                     <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
                       {item.type}

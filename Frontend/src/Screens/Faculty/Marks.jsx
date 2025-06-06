@@ -35,7 +35,7 @@ const Marks = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white px-6 py-10 transition-all duration-300">
+    <div className="min-h-screen  px-6 py-10 transition-all duration-300">
       <div className="max-w-6xl mx-auto">
         {/* Header with Close Button */}
         <div className="relative flex justify-between items-center mb-8">
