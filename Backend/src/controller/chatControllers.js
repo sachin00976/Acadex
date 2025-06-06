@@ -143,39 +143,66 @@ const createGroupChat = asyncHandler(async (req, res) => {
   );
 });
 
-const renameGroup=asyncHandler(async (req,res)=>{
+const editGroup = asyncHandler(async (req, res) => {
+  const { chatId } = req.params;
+ 
 
-  const {chatId,chatName}=req.body
-  if(!chatId || !chatName)
-  {
-     throw new ApiError("chatId and new name required!")
+  if (!chatId) {
+    throw new ApiError("chatId required!");
   }
-  var chatRes=await Chat.findById(chatId);
-  
-  if(!chatRes.admin.equals(req.user._id))
-  {
-    throw new ApiError(404,"Only admin can modify group name!")
+
+  const { name } = req.body;
+
+  if (!name) {
+    throw new ApiError("Group Name is required");
   }
-   chatRes=await Chat.findByIdAndUpdate(
-    chatId,
-    {
-      chatName:chatName
-    },
-    {
-      new:true
+
+  let chatRes = await Chat.findById(chatId);
+
+  if (!chatRes) {
+    throw new ApiError("Chat not found!");
+  }
+
+  if (!chatRes.admin.equals(req.user._id)) {
+    throw new ApiError(403, "Only admin can modify group name!");
+  }
+
+  const update = {
+    chatName: name,
+  };
+
+  if (req.file) {
+    const filepath = req.file.path;
+    const fileType = req.file?.mimetype;
+    const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+
+    if (!allowedFormats.includes(fileType)) {
+      throw new ApiError(400, "Invalid file type!");
     }
-  )
-  .populate("users.user","-password -refreshToken")
-  .populate("admin","-password -refreshToken")
 
-  if(!chatRes)
-  {
-    throw new ApiError("Chat not found!")
+    if (chatRes.profile?.public_id) {
+      await deleteOnCloudinary(chatRes.profile.public_id);
+    }
+
+    const uploadResponse = await uploadOnCloudinary(filepath); // ✅ FIXED
+
+    update.profile = {
+      public_id: uploadResponse.public_id,
+      url: uploadResponse.secure_url,
+    };
   }
-  return res.status(200).json(
-    new ApiResponse(200,chatRes,"name updated successfully")
-  )
-})
+
+  chatRes = await Chat.findByIdAndUpdate(chatId, update, {
+    new: true,
+  })
+    .populate("users.user", "-password -refreshToken")
+    .populate("admin", "-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, chatRes, "Group updated successfully"));
+});
+
 
 const removeFromGroup = asyncHandler(async (req, res) => {
   var { chatId, memberToRemove } = req.body;
@@ -353,10 +380,10 @@ const leaveGroup = asyncHandler(async (req, res) => {
 
 export { accessChat,
   createGroupChat,
-  renameGroup,
-removeFromGroup,
+editGroup,
 addToGroup ,
 fetchChat,
 leaveGroup,
+removeFromGroup
 
 };
