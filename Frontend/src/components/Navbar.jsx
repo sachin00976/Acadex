@@ -2,16 +2,22 @@ import React from 'react';
 import { FiLogOut } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
-import { useDispatch } from 'react-redux';
-import { userLoggedOut } from '../features/authSlice.js'; // Adjust import path if needed
+import { useDispatch, useSelector } from 'react-redux';
+import { userLoggedOut } from '../features/authSlice.js';
 
 const Navbar = () => {
   const router = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const location = useLocation();
+  const pathSegments = location.pathname.split("/");
+      //console.log(pathSegments);
+  const userRole = pathSegments[1].charAt(0).toUpperCase() + pathSegments[1].slice(1);
+
+
   const route = router.state?.type?.toLowerCase();
-  console.log(route);
+ // console.log(route);
 
   const handleLogout = () => {
     // Dispatch the logout action to clear state
@@ -31,7 +37,7 @@ const Navbar = () => {
           <span className='mr-2'>
             <RxDashboard />
           </span>
-          {router.state && router.state.type} Dashboard
+          {userRole}  Dashboard
         </p>
 
         <button

@@ -9,6 +9,9 @@ import { router as othermaterial } from './src/routes/Other Api/material.route.j
 import { router as othernotice } from './src/routes/Other Api/notice.route.js';
 import { router as othersubject } from './src/routes/Other Api/subject.route.js';
 import { router as othertimetable } from './src/routes/Other Api/timetable.route.js';
+import {router as commonUser} from './src/routes/commonUser.routes.js'
+import { router as chatRoutes } from './src/routes/chatRoutes.js';
+import {router as messageRoutes} from "./src/routes/messgae.routes.js"
 import { router as studentRoutes } from './src/routes/student.routes.js';
 const app = express();
 
@@ -32,6 +35,10 @@ app.use('/api/v1/material', othermaterial);
 app.use('/api/v1/notice', othernotice);
 app.use('/api/v1/subject', othersubject);
 app.use('/api/v1/timetable', othertimetable);
-app.use('/api/v1/student', studentRoutes);
+app.use('/api/v1/student',studentRoutes)
+app.use('/api/v1/search',commonUser)
+app.use("/api/v1/chat",chatRoutes)
+app.use("/api/v1/message",messageRoutes)
+
 
 export default app;

@@ -81,33 +81,40 @@ const Subjects = () => {
   };
 
   return (
-    <div className="w-full mx-auto mt-10 flex justify-center items-start flex-col mb-10">
-      <div className="flex justify-between items-center w-full">
-        <Heading title="Add Subject" />
-        <div className="flex justify-end items-center w-full">
+    <div className="max-w-6xl w-full mx-auto mt-10 mb-10 flex flex-col items-center">
+      <div className="flex justify-between items-center w-full mb-8">
+        <Heading title="Manage Subjects" />
+        <div className="flex space-x-6">
           <button
             className={`${
-              selected === "add" && "border-b-2 "
-            }border-blue-500 px-4 py-2 text-black rounded-sm mr-6`}
+              selected === "add"
+                ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
+                : "text-gray-700 hover:text-blue-500"
+            } px-4 py-2 rounded-sm transition-colors duration-200`}
             onClick={() => setSelected("add")}
           >
             Add Subject
           </button>
           <button
             className={`${
-              selected === "view" && "border-b-2 "
-            }border-blue-500 px-4 py-2 text-black rounded-sm`}
+              selected === "view"
+                ? "border-b-2 border-blue-500 text-blue-600 font-semibold"
+                : "text-gray-700 hover:text-blue-500"
+            } px-4 py-2 rounded-sm transition-colors duration-200`}
             onClick={() => setSelected("view")}
           >
-            View Subject
+            View Subjects
           </button>
         </div>
       </div>
 
       {selected === "add" && (
-        <div className="flex flex-col justify-center items-center w-full mt-8">
-          <div className="w-[40%] mb-4">
-            <label htmlFor="code" className="leading-7 text-sm">
+        <div className="w-full max-w-lg bg-white rounded-lg shadow-md p-8">
+          <div className="mb-6">
+            <label
+              htmlFor="code"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Enter Subject Code
             </label>
             <input
@@ -115,23 +122,28 @@ const Subjects = () => {
               id="code"
               value={data.code}
               onChange={(e) => setData({ ...data, code: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              placeholder="e.g. 101"
             />
           </div>
-          <div className="w-[40%]">
-            <label htmlFor="name" className="leading-7 text-sm ">
+          <div className="mb-6">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Enter Subject Name
             </label>
             <input
-              type="name"
+              type="text"
               id="name"
               value={data.name}
               onChange={(e) => setData({ ...data, name: e.target.value })}
-              className="w-full bg-blue-50 rounded border focus:border-dark-green focus:bg-secondary-light focus:ring-2 focus:ring-light-green text-base outline-none py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              placeholder="e.g. Mathematics"
             />
           </div>
           <button
-            className="mt-6 bg-blue-500 px-6 py-3 text-white"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition-colors"
             onClick={addSubjectHandler}
           >
             Add Subject
@@ -140,30 +152,31 @@ const Subjects = () => {
       )}
 
       {selected === "view" && (
-        <div className="mt-8 w-full">
+        <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6">
           {subject && subject.length === 0 ? (
-            <p className="text-gray-600 text-lg font-medium">No subject found</p>
+            <p className="text-gray-600 text-center text-lg font-medium">
+              No subjects found.
+            </p>
           ) : (
-            <ul>
+            <ul className="space-y-4">
               {subject &&
-                subject.map((item) => {
-                  return (
-                    <li
-                      key={item.code}
-                      className="bg-blue-100 py-3 px-6 mb-3 flex justify-between items-center w-[70%]"
+                subject.map((item) => (
+                  <li
+                    key={item.code}
+                    className="flex justify-between items-center bg-blue-50 rounded-md px-6 py-3 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <span className="text-gray-800 font-medium">
+                      {item.code} - {item.name}
+                    </span>
+                    <button
+                      className="text-red-600 hover:text-red-800 text-2xl"
+                      onClick={() => deleteSubjectHandler(item._id)}
+                      aria-label={`Delete subject ${item.name}`}
                     >
-                      <div>
-                        {item.code} - {item.name}
-                      </div>
-                      <button
-                        className="text-2xl hover:text-red-500"
-                        onClick={() => deleteSubjectHandler(item._id)}
-                      >
-                        <MdOutlineDelete />
-                      </button>
-                    </li>
-                  );
-                })}
+                      <MdOutlineDelete />
+                    </button>
+                  </li>
+                ))}
             </ul>
           )}
         </div>

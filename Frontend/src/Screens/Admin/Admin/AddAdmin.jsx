@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -8,6 +8,7 @@ const AddAdmin = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef(null);
 
   const {
     register,
@@ -43,6 +44,8 @@ const AddAdmin = () => {
       if (response.data.success) {
         toast.success(response.data.message || "Admin added successfully");
         resetForm();
+        // Optional: focus first name input after reset
+        document.querySelector('input[name="firstName"]')?.focus();
       } else {
         toast.error(response.data.message || "Something went wrong");
       }
@@ -58,18 +61,20 @@ const AddAdmin = () => {
     reset();
     setPreviewImage(null);
     setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    
+
     if (!file) {
       setPreviewImage(null);
       setSelectedFile(null);
       return;
     }
 
-    // Validate file type and size (2MB max)
     if (!file.type.startsWith("image/")) {
       toast.error("Please select a valid image file (JPEG, PNG, etc.)");
       return;
@@ -91,8 +96,9 @@ const AddAdmin = () => {
   const removeImage = () => {
     setPreviewImage(null);
     setSelectedFile(null);
-    // Reset file input
-    document.getElementById("file").value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
   };
 
   return (
@@ -106,6 +112,7 @@ const AddAdmin = () => {
           First Name <span className="text-red-500">*</span>
         </label>
         <input
+          name="firstName"
           type="text"
           placeholder="Enter first name"
           {...register("firstName", { required: "First Name is required" })}
@@ -207,12 +214,12 @@ const AddAdmin = () => {
         <input
           type="password"
           placeholder="Enter password"
-          {...register("password", { 
+          {...register("password", {
             required: "Password is required",
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters"
-            }
+              message: "Password must be at least 6 characters",
+            },
           })}
           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none"
         />
@@ -243,67 +250,54 @@ const AddAdmin = () => {
       {/* File Upload */}
       <div className="w-full md:w-[45%]">
         <label className="block mb-1 text-sm font-medium text-gray-700">
-          Upload Profile <span className="text-red-500">*</span>
-        </label>
-        <label
-          htmlFor="file"
-          className="cursor-pointer flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-dashed rounded-lg px-4 py-3 text-blue-500"
-        >
-          <FiUpload /> {selectedFile ? "Change Image" : "Upload Image"}
+          Profile Image <span className="text-red-500">*</span>
         </label>
         <input
+          ref={fileInputRef}
           hidden
           type="file"
           id="file"
           accept="image/*"
           onChange={handleFileChange}
         />
-        {!previewImage && (
-          <p className="text-gray-500 text-xs mt-1">Max 2MB (JPEG, PNG)</p>
-        )}
+        <label
+          htmlFor="file"
+          aria-label={selectedFile ? "Change profile image" : "Upload profile image"}
+          className="flex items-center justify-center cursor-pointer border border-dashed border-gray-400 rounded-lg p-4 hover:border-blue-500 transition-colors"
+        >
+          {previewImage ? (
+            <div className="relative">
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-20 h-20 object-cover rounded-full"
+              />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute top-0 right-0 bg-white rounded-full p-1 hover:bg-red-500 hover:text-white transition-colors"
+                aria-label="Remove image"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center text-gray-500">
+              <FiUpload size={28} />
+              <span className="text-xs mt-1">Upload Image</span>
+            </div>
+          )}
+        </label>
       </div>
 
-      {/* Preview Image */}
-      {previewImage && (
-        <div className="w-full flex flex-col justify-center items-center mt-4">
-          <div className="relative">
-            <img
-              src={previewImage}
-              alt="Profile Preview"
-              className="h-36 w-36 object-cover rounded-full border-2 border-blue-400"
-            />
-            <button
-              type="button"
-              onClick={removeImage}
-              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-            >
-              <FiX size={16} />
-            </button>
-          </div>
-          <p className="text-green-600 text-sm mt-2">Image selected</p>
-        </div>
-      )}
-
       {/* Submit Button */}
-      <div className="w-full flex justify-center mt-6">
+      <div className="w-full mt-4">
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`bg-blue-600 hover:bg-blue-700 transition-all text-white px-8 py-3 rounded-xl font-semibold flex items-center gap-2 ${
-            isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-          }`}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-60"
         >
-          {isSubmitting ? (
-            <>
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Processing...
-            </>
-          ) : (
-            "Add New Admin"
-          )}
+          {isSubmitting ? "Adding..." : "Add Admin"}
         </button>
       </div>
     </form>

@@ -67,108 +67,99 @@ const AddStudent = () => {
     formData.append("profile", file);
 
     axios
-    .post("/api/v1/student/register", formData, { headers })
-    .then((response) => {
-      toast.dismiss();
-      if (response.data.success) {
-        toast.success(response.data.message || "Student added successfully");
-        setFile(null);
-        setPreviewImage("");
-        reset();
-      } else {
-        toast.error(response.data.message || "Something went wrong");
-      }
-    })
-    .catch((error) => {
-      toast.dismiss();
-      toast.error(error?.response?.data?.message || "Server error occurred");
-    });
+      .post("/api/v1/student/register", formData, { headers })
+      .then((response) => {
+        toast.dismiss();
+        if (response.data.success) {
+          toast.success(response.data.message || "Student added successfully");
+          setFile(null);
+          setPreviewImage("");
+          reset();
+        } else {
+          toast.error(response.data.message || "Something went wrong");
+        }
+      })
+      .catch((error) => {
+        toast.dismiss();
+        toast.error(error?.response?.data?.message || "Server error occurred");
+      });
   };
 
   return (
     <form
       onSubmit={handleSubmit(addStudentProfile)}
-      className="w-[70%] flex justify-center items-center flex-wrap gap-6 mx-auto mt-10"
+      className="max-w-4xl mx-auto mt-10 p-8 bg-white rounded-3xl shadow-lg shadow-gray-300 flex flex-wrap gap-8 justify-center"
     >
-      <div className="w-[40%]">
-        <label htmlFor="firstName" className="leading-7 text-sm">
-          Enter First Name
-        </label>
-        <input
-          type="text"
-          {...register("firstName", { required: "First Name is required" })}
-          className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
-        />
-        {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
-      </div>
+      {/* Input Field Template */}
+      {[
+        {
+          label: "Enter First Name",
+          name: "firstName",
+          type: "text",
+          required: "First Name is required",
+        },
+        {
+          label: "Enter Middle Name",
+          name: "middleName",
+          type: "text",
+          required: false,
+        },
+        {
+          label: "Enter Last Name",
+          name: "lastName",
+          type: "text",
+          required: "Last Name is required",
+        },
+        {
+          label: "Enter Enrollment No",
+          name: "enrollmentNo",
+          type: "number",
+          required: "Enrollment No is required",
+        },
+        {
+          label: "Enter Email Address",
+          name: "email",
+          type: "email",
+          required: "Email is required",
+        },
+        {
+          label: "Enter Phone Number",
+          name: "phoneNumber",
+          type: "number",
+          required: "Phone Number is required",
+        },
+      ].map(({ label, name, type, required }) => (
+        <div key={name} className="w-[45%]">
+          <label
+            htmlFor={name}
+            className="block mb-1 font-semibold text-gray-700 text-sm"
+          >
+            {label}
+          </label>
+          <input
+            id={name}
+            type={type}
+            {...register(name, required ? { required } : {})}
+            className={`w-full bg-blue-50 rounded-lg border border-gray-300 py-2 px-4 text-gray-800 outline-none shadow-sm focus:ring-2 focus:ring-blue-500 transition`}
+          />
+          {errors[name] && (
+            <p className="text-red-500 text-xs mt-1">{errors[name].message}</p>
+          )}
+        </div>
+      ))}
 
-      <div className="w-[40%]">
-        <label htmlFor="middleName" className="leading-7 text-sm">
-          Enter Middle Name
-        </label>
-        <input
-          type="text"
-          {...register("middleName")}
-          className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
-        />
-
-      </div>
-
-      <div className="w-[40%]">
-        <label htmlFor="lastName" className="leading-7 text-sm">
-          Enter Last Name
-        </label>
-        <input
-          type="text"
-          {...register("lastName", { required: "Last Name is required" })}
-          className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
-        />
-        {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label htmlFor="enrollmentNo" className="leading-7 text-sm">
-          Enter Enrollment No
-        </label>
-        <input
-          type="number"
-          {...register("enrollmentNo", { required: "Enrollment No is required" })}
-          className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
-        />
-        {errors.enrollmentNo && <p className="text-red-500 text-sm">{errors.enrollmentNo.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label htmlFor="email" className="leading-7 text-sm">
-          Enter Email Address
-        </label>
-        <input
-          type="email"
-          {...register("email", { required: "Email is required" })}
-          className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
-        />
-        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label htmlFor="phoneNumber" className="leading-7 text-sm">
-          Enter Phone Number
-        </label>
-        <input
-          type="number"
-          {...register("phoneNumber", { required: "Phone Number is required" })}
-          className="w-full bg-blue-50 rounded border py-1 px-3 outline-none"
-        />
-        {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>}
-      </div>
-
-      <div className="w-[40%]">
-        <label htmlFor="semester" className="leading-7 text-sm">
+      {/* Semester */}
+      <div className="w-[45%]">
+        <label
+          htmlFor="semester"
+          className="block mb-1 font-semibold text-gray-700 text-sm"
+        >
           Select Semester
         </label>
         <select
+          id="semester"
           {...register("semester", { required: "Semester is required" })}
-          className="w-full bg-blue-50 rounded border py-3 px-2"
+          className="w-full bg-blue-50 rounded-lg border border-gray-300 py-2 px-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
         >
           <option value="">-- Select --</option>
           {[...Array(8)].map((_, i) => (
@@ -177,16 +168,23 @@ const AddStudent = () => {
             </option>
           ))}
         </select>
-        {errors.semester && <p className="text-red-500 text-sm">{errors.semester.message}</p>}
+        {errors.semester && (
+          <p className="text-red-500 text-xs mt-1">{errors.semester.message}</p>
+        )}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="branch" className="leading-7 text-sm">
+      {/* Branch */}
+      <div className="w-[45%]">
+        <label
+          htmlFor="branch"
+          className="block mb-1 font-semibold text-gray-700 text-sm"
+        >
           Select Branch
         </label>
         <select
+          id="branch"
           {...register("branch", { required: "Branch is required" })}
-          className="w-full bg-blue-50 rounded border py-3 px-2"
+          className="w-full bg-blue-50 rounded-lg border border-gray-300 py-2 px-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
         >
           <option value="">-- Select --</option>
           {branch?.map((b) => (
@@ -195,47 +193,73 @@ const AddStudent = () => {
             </option>
           ))}
         </select>
-        {errors.branch && <p className="text-red-500 text-sm">{errors.branch.message}</p>}
+        {errors.branch && (
+          <p className="text-red-500 text-xs mt-1">{errors.branch.message}</p>
+        )}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="gender" className="leading-7 text-sm">
+      {/* Gender */}
+      <div className="w-[45%]">
+        <label
+          htmlFor="gender"
+          className="block mb-1 font-semibold text-gray-700 text-sm"
+        >
           Select Gender
         </label>
         <select
+          id="gender"
           {...register("gender", { required: "Gender is required" })}
-          className="w-full bg-blue-50 rounded border py-3 px-2"
+          className="w-full bg-blue-50 rounded-lg border border-gray-300 py-2 px-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
         >
           <option value="">-- Select --</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </select>
-        {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
+        {errors.gender && (
+          <p className="text-red-500 text-xs mt-1">{errors.gender.message}</p>
+        )}
       </div>
 
-      <div className="w-[40%]">
-        <label htmlFor="file" className="leading-7 text-sm">
+      {/* File Upload */}
+      <div className="w-[45%]">
+        <label
+          htmlFor="file"
+          className="block mb-1 font-semibold text-gray-700 text-sm"
+        >
           Select Profile
         </label>
         <label
           htmlFor="file"
-          className="px-2 bg-blue-50 py-3 rounded-sm text-base w-full flex justify-center items-center cursor-pointer"
+          className="flex justify-center items-center gap-2 w-full px-4 py-3 bg-blue-50 border border-gray-300 rounded-lg text-blue-600 cursor-pointer hover:bg-blue-100 transition-shadow shadow-sm"
         >
           Upload
-          <span className="ml-2">
-            <FiUpload />
-          </span>
+          <FiUpload className="text-lg" />
         </label>
-        <input type="file" hidden id="file" accept="image/*" onChange={handleFileChange} />
+        <input
+          type="file"
+          hidden
+          id="file"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
       </div>
 
+      {/* Preview Image */}
       {previewImage && (
-        <div className="w-full flex justify-center items-center">
-          <img src={previewImage} alt="student" className="h-36" />
+        <div className="w-full flex justify-center">
+          <img
+            src={previewImage}
+            alt="student"
+            className="h-36 rounded-lg shadow-md border border-gray-200"
+          />
         </div>
       )}
 
-      <button type="submit" className="bg-blue-500 px-6 py-3 rounded-sm mb-6 text-white">
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition"
+      >
         Add New Student
       </button>
     </form>

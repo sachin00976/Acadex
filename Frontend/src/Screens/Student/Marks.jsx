@@ -9,7 +9,7 @@ const Marks = () => {
   const userData = useSelector((state) => state.auth.user);
   const [internal, setInternal] = useState();
   const [external, setExternal] = useState();
-
+  // console.log(userData.enrollmentNo);
   useEffect(() => {
     const headers = {
       "Content-Type": "application/json",
@@ -23,9 +23,10 @@ const Marks = () => {
         }
       )
       .then((response) => {
-        if (response.data.length !== 0) {
-          setInternal(response.data.Mark[0].internal);
-          setExternal(response.data.Mark[0].external);
+        console.log(response.data)
+        if (response.data.data.length !== 0) {
+          setInternal(response.data.data[0].internal);
+          setExternal(response.data.data[0].external);
         }
       })
       .catch((error) => {
@@ -34,7 +35,7 @@ const Marks = () => {
       });
   }, [userData.enrollmentNo]);
   return (
-    <div className="w-full mx-auto mt-10 flex justify-center items-start flex-col mb-10">
+    <div className="w-full max-w-6xl mx-auto mt-10 flex justify-center items-start flex-col mb-10">
       <Heading title={`Marks of Semester ${userData.semester}`} />
       <div className="mt-14 w-full flex gap-20">
         {internal && (

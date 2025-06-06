@@ -5,6 +5,7 @@ import { asyncHandler } from "../../utils/AsyncHandler.js";
 import mongoose from "mongoose";
 
 const getMaterial = asyncHandler(async (req, res) => {
+    // console.log("cat")
     const material = await Material.find(req.body);
 
     if (!material || material.length === 0) {

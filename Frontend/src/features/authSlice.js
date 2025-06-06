@@ -10,6 +10,8 @@ const initialState = {
   role: storedRole || null,
   token: storedToken || null,
   isAuthenticated: !!storedToken,
+  selectedChat:null,
+  chats:null
 };
 
 const authSlice = createSlice({
@@ -32,14 +34,29 @@ const authSlice = createSlice({
       state.role = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.selectedChat=null;
+      state.chats=null
 
       localStorage.removeItem("user");
       localStorage.removeItem("role");
       localStorage.removeItem("token");
     },
+    userSelectedChat:(state,action)=>{
+      state.selectedChat=action.payload.selectedChat
+    },
+    userChat:(state,action)=>{
+      state.chats=action.payload.chats
+    },
+    updateUserChat: (state, action) => {
+  const newChat = action.payload.chat;
+  state.chats = state.chats.map((chat) =>
+    chat._id === newChat._id ? newChat : chat
+  );
+  }
+
   },
 });
 
-export const { userLoggedIn, userLoggedOut } = authSlice.actions;
+export const { userLoggedIn, userLoggedOut,userChat,userSelectedChat,updateUserChat } = authSlice.actions;
 
 export default authSlice.reducer;

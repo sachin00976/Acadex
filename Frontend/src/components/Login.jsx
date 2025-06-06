@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { TbLogin2 } from "react-icons/tb";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { userLoggedIn } from "../features/authSlice.js"; 
 
 import toast, { Toaster } from "react-hot-toast";
@@ -13,50 +13,61 @@ const Login = () => {
     const [selected, setSelected] = useState("Student");
     const { register, handleSubmit } = useForm();
     const dispatch = useDispatch();
-
+    const user = useSelector((state) => state.auth.user);
+    const role = useSelector((state) => state.auth.role);
+    console.log("userfac,,,,",user);
+    console.log("role,,",role);
+    
     const onSubmit = (data) => {
         if (data.email !== "" && data.password !== "") {
-            axios.post(`/api/v1/${selected.toLowerCase()}/login`, data, {
+            axios
+            .post(`/api/v1/${selected.toLowerCase()}/login`, data, {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                withCredentials: true,  // Important for cookies
-            }).then((response) => {
-                console.log(response)
+                withCredentials: true,
+            })
+            .then((response) => {
                 const { data: userData, token, loginid } = response.data;
 
-                if (!response.data.data.token) {
-                    toast.error("Token not provided by server");
+                if (!userData.token) {
+                    toast.error("Token not provided by server", { position: "top-center" });
                     return;
                 }
 
-                // Dispatch user info with token to Redux
-                dispatch(userLoggedIn({ user: response.data.data, role: selected.toLowerCase(), token:response.data.data.token }));
+                const role = selected.toLowerCase();
+                const uniqueId =
+                    role === "student"
+                    ? userData.enrollmentNo
+                    : role === "faculty" || role === "admin"
+                    ? userData.employeeId
+                    : null;
 
-                // Store user info and token in localStorage
+                dispatch(userLoggedIn({ user: userData, role, token: userData.token }));
                 localStorage.setItem("user", JSON.stringify(userData));
                 localStorage.setItem("token", token);
-                localStorage.setItem("role", selected.toLowerCase());
+                localStorage.setItem("role", role);
 
-                navigate(`/${selected.toLowerCase()}`, {
+                navigate(`/${role}/profile/${uniqueId}`, {
                     state: { type: selected, loginid },
                 });
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 toast.dismiss();
                 console.error(error);
-                toast.error(error.response?.data?.message || "Login failed");
+                toast.error(error.response?.data?.message || "Login failed", { position: "top-center" });
             });
         } else {
-            toast.error("Please fill all fields");
+            toast.error("Please fill all fields", { position: "top-center" });
         }
     };
     
     return (
         <div className="bg-white h-[100vh] w-full flex justify-between items-center">
             <img 
-              src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-              alt="" 
-              className='w-[60%] h-[100vh] object-cover' 
+                src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                alt="" 
+                className='w-[60%] h-[100vh] object-cover' 
             />
 
             <div className='w-[40%] flex justify-center items-start flex-col pl-8'>
@@ -115,7 +126,8 @@ const Login = () => {
                     </button>
                 ))}
             </div>
-            <Toaster position="bottom-center" />
+
+            <Toaster position="top-center" reverseOrder={false} />
         </div>
     );
 };

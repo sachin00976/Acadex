@@ -7,7 +7,7 @@ const Admin = () => {
   const [selected, setSelected] = useState("add");
 
   return (
-    <div className="w-full mx-auto mt-10 flex justify-center items-start flex-col mb-10">
+    <div className="max-w-6xl w-full mx-auto mt-10 flex justify-center items-start flex-col mb-10">
       <div className="flex justify-between items-center w-full">
         <Heading title="Admin Details" />
         <div className="flex justify-end items-center w-full">

@@ -4,7 +4,14 @@ const chatSchema = mongoose.Schema(
   {
     chatName: { type: String, trim: true },
     isGroupChat: { type: Boolean, default: false },
-
+    profile: {
+    public_id: { type: String, 
+        required:true,
+    },
+    url: { type: String, 
+        required:true,
+    },
+  },
     users: [
       {
         user: {
