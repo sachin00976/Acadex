@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import {Message} from "../models/messageSchema.js"
 import { ObjectId } from "mongodb";
 import { populate } from "dotenv";
+import { Chat } from "../models/chatSchema.js";
 
 const allMessage=asyncHandler(async(req,res)=>{
     const chatId=req.params.chatId
@@ -41,6 +42,12 @@ const sendMessage=asyncHandler(async(req,res)=>{
         }
     })
     .sort({createdAt:-1})
+    await Chat.findByIdAndUpdate(
+        chatId,
+        {
+            latestMessage:message._id
+        }
+    )
 
     return res.status(200).json(
         new ApiResponse(200,message,"message send successfully")
