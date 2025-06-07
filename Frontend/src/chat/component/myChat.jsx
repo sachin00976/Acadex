@@ -86,9 +86,11 @@ useEffect(() => {
                   alt={chat.chatName}
                   className="w-16 h-16 object-cover rounded-full border border-gray-300"
                 />
-                <div className="flex flex-col">
-                  <p className="font-semibold text-lg text-gray-800">{chat.chatName}</p>
-                </div>
+             <div className="flex flex-col px-2 py-1  rounded-lg transition duration-200">
+            <p className="font-semibold text-base text-gray-900 truncate">{chat.chatName}</p>
+            <p className="text-sm  text-gray-600 truncate italic max-w-xs">{chat.latestMessage ? chat.latestMessage.content : ""}</p>
+          </div>
+
               </div>
             ) : (
               <div
@@ -108,6 +110,7 @@ useEffect(() => {
                   <p className="font-semibold text-lg text-gray-800">
                     {user?.firstName} {user?.lastName}
                   </p>
+                  <p className="text-sm  text-gray-600 truncate italic max-w-xs">{`${chat.latestMessage?(chat.latestMessage.content):("")}`}</p>
                 </div>
               </div>
             );
