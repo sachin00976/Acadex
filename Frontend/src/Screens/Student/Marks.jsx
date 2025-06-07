@@ -9,7 +9,7 @@ const Marks = () => {
   const userData = useSelector((state) => state.auth.user);
   const [internal, setInternal] = useState();
   const [external, setExternal] = useState();
-
+  // console.log(userData.enrollmentNo);
   useEffect(() => {
     const headers = {
       "Content-Type": "application/json",
@@ -23,9 +23,10 @@ const Marks = () => {
         }
       )
       .then((response) => {
-        if (response.data.length !== 0) {
-          setInternal(response.data.Mark[0].internal);
-          setExternal(response.data.Mark[0].external);
+        console.log(response.data)
+        if (response.data.data.length !== 0) {
+          setInternal(response.data.data[0].internal);
+          setExternal(response.data.data[0].external);
         }
       })
       .catch((error) => {

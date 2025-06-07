@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { userSelectedChat } from '../../features/authSlice.js';
+import { userSelectedChat,updateUserChat } from '../../features/authSlice.js';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import AddGroupMember from './AddGroupMember.jsx';
@@ -47,10 +47,10 @@ function GroupSideBar({ setOpenGroupSidebar,setFetchAgain,setMessage }) {
         },
       };
       const response = await axios('/api/v1/chat/removeMemeber', config);
-      console.log(selectedChat)
-      await dispatch(userSelectedChat({ selectedChat: response.data.data }));
+      dispatch(userSelectedChat({ selectedChat: response.data.data }));
+      dispatch(updateUserChat({chat:response.data.data}))
       toast.success('Member removed successfully');
-      setFetchAgain((prev)=>!prev)
+      
 
     } catch (error) {
       console.error('Error while removing member:', error.message);

@@ -57,7 +57,11 @@ const Profile = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen   py-12 px-4">
+=======
+    <div className="min-h-screen bg-white py-12 px-4">
+>>>>>>> 7ba56b8bca8169498c88a0255c9e1c38a13f779c
       <div className="max-w-5xl mx-auto p-10 bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row gap-10 transition-all duration-300">
         {data && (
           <>

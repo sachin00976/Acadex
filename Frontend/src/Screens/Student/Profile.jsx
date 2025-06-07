@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 
 const Profile = () => {
   const data = useSelector((state) => state.auth.user);
-//   console.log(data.enrollmentNo);
   const router = useLocation();
   const [showPass, setShowPass] = useState(false);
   const [password, setPassword] = useState({
@@ -22,7 +21,6 @@ const Profile = () => {
       return;
     }
 
-    // Verify current password
     axios
       .post(
         `/api/v1/student/passwordAuth`,
@@ -31,7 +29,6 @@ const Profile = () => {
       )
       .then((response) => {
         if (response.data.success) {
-          // Update password if verified
           axios
             .patch(
               `/api/v1/student/update-password`,
@@ -66,42 +63,37 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto my-12 p-8 bg-white rounded-xl shadow-lg flex flex-col md:flex-row gap-8">
+    <div className="max-w-5xl mx-auto my-12 px-6 py-10 bg-white rounded-2xl shadow-xl flex flex-col md:flex-row gap-10 transition-all duration-300">
       {data && (
         <>
-          <div className="flex-1">
-            <p className="text-3xl font-bold text-gray-800">
-              Hello {data.firstName} {data.middleName?(data.middleName):("")} {data.lastName} 👋
+          <div className="flex-1 text-gray-800">
+            <p className="text-4xl font-bold mb-4 text-blue-800">
+              Hello {data.firstName} {data.middleName ? data.middleName : ""} {data.lastName} 👋
             </p>
 
-            <div className="mt-4 space-y-3 text-gray-600 text-lg">
+            <div className="space-y-4 text-lg text-gray-700">
               <p>
-                <span className="font-medium text-gray-700">Enrollment No:</span>{" "}
-                {data.enrollmentNo}
+                <span className="font-semibold text-gray-800">Enrollment No:</span> {data.enrollmentNo}
               </p>
               <p>
-                <span className="font-medium text-gray-700">Branch:</span>{" "}
-                {data.branch}
+                <span className="font-semibold text-gray-800">Branch:</span> {data.branch}
               </p>
               <p>
-                <span className="font-medium text-gray-700">Semester:</span>{" "}
-                {data.semester}
+                <span className="font-semibold text-gray-800">Semester:</span> {data.semester}
               </p>
               <p>
-                <span className="font-medium text-gray-700">Phone Number:</span>{" "}
-                +91 {data.phoneNumber}
+                <span className="font-semibold text-gray-800">Phone Number:</span> +91 {data.phoneNumber}
               </p>
               <p>
-                <span className="font-medium text-gray-700">Email Address:</span>{" "}
-                {data.email}
+                <span className="font-semibold text-gray-800">Email Address:</span> {data.email}
               </p>
             </div>
 
             <button
-              className={`mt-6 px-4 py-2 rounded transition-all duration-200 font-medium ${
+              className={`mt-8 px-6 py-3 rounded-full shadow-md font-semibold transition-all duration-200 ${
                 showPass
                   ? "bg-red-100 text-red-600 hover:bg-red-200"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600"
               }`}
               onClick={() => setShowPass(!showPass)}
             >
@@ -110,7 +102,7 @@ const Profile = () => {
 
             {showPass && (
               <form
-                className="mt-6 border-t pt-6 border-blue-400 flex flex-col gap-4"
+                className="mt-6 border-t pt-6 border-blue-300 flex flex-col gap-5"
                 onSubmit={handlePasswordChange}
               >
                 <input
@@ -120,7 +112,7 @@ const Profile = () => {
                     setPassword({ ...password, current: e.target.value })
                   }
                   placeholder="Current Password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-6 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                   required
                 />
                 <input
@@ -130,11 +122,11 @@ const Profile = () => {
                     setPassword({ ...password, new: e.target.value })
                   }
                   placeholder="New Password"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-6 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                   required
                 />
                 <button
-                  className="self-start px-5 py-2 mt-2 bg-green-600 text-white rounded hover:bg-green-700 transition-all"
+                  className="self-start px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all shadow-md"
                   type="submit"
                 >
                   Change Password
@@ -149,8 +141,8 @@ const Profile = () => {
                 data.profile?.url ||
                 "https://tse4.mm.bing.net/th?id=OIP.ELd1EcTycQvs-HNlEcPqpgHaHa&pid=Api&P=0&h=220"
               }
-              alt="faculty profile"
-              className="h-52 w-52 rounded-xl object-cover shadow-md border-4 border-white"
+              alt="student profile"
+              className="h-52 w-52 rounded-2xl object-cover shadow-lg border-4 border-white"
             />
           </div>
         </>

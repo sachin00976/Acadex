@@ -9,6 +9,7 @@ import { GroupSideBar } from './GroupSideBar.jsx';
 import {io} from "socket.io-client"
 import Lottie from "react-lottie"
 import animationData from "../../animations/typing.json"
+import { EditGroup } from './EditGroup.jsx';
 
 const ENDPOINT="http://localhost:8000"
 var socket,selectedChatCompare;
@@ -19,6 +20,7 @@ function SingleChat({fetchAgain,setFetchAgain}) {
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState(null);
   const [openGroupSidebar, setOpenGroupSidebar] = useState(false);
+  const [openEditGroup,setOpenEditGroup]=useState(false)
   
   const [socketConnected,setSocketConnected]=useState(false)
   const [istyping,setIsTyping]=useState(false)
@@ -153,16 +155,27 @@ function SingleChat({fetchAgain,setFetchAgain}) {
             ? `${chatPartner.firstName} ${chatPartner.middleName ?? ""} ${chatPartner.lastName}`
             : selectedChat.chatName}
         </h2>
+        
         {!chatPartner && (
-          <button 
-            onClick={() => setOpenGroupSidebar((prev) => !prev)}
-            className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-            </svg>
-          </button>
-        )}
+      <div className="flex items-center space-x-2">
+        <button
+          onClick={() => setOpenEditGroup(true)}
+          className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </button>
+        <button 
+          onClick={() => setOpenGroupSidebar((prev) => !prev)}
+          className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
+        </button>
+      </div>
+    )}
       </div>
 
       {/* Chat Content */}
@@ -214,6 +227,10 @@ function SingleChat({fetchAgain,setFetchAgain}) {
           onKeyDown={sendMessage}
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
+      </div>
+      {/* edit Group */}
+      <div>
+        {openEditGroup && <EditGroup setOpenEditGroup={setOpenEditGroup}/>}
       </div>
     </div>
   )

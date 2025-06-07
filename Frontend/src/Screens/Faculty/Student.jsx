@@ -43,7 +43,7 @@ const Student = () => {
     };
 
     axios
-      .post(`/api/v1/student/getdetail`, { enrollmentNo: search }, { headers })
+      .post(`/api/v1/student/getdetails`, { enrollmentNo: search }, { headers })
       .then((response) => {
         toast.dismiss();
         if (response.data.success) {

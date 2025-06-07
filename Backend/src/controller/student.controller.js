@@ -181,6 +181,20 @@ const getDetail = asyncHandler(async (req, res) => {
     }
     return res.status(200).json(new ApiResponse(200, student, "Student found successfully."));
 });
+const getDetails = asyncHandler(async (req, res) => {
+    const { enrollmentNo } = req.body;
+
+    if (!enrollmentNo) {
+        throw new ApiError(400, "enrollmentNo is required.");
+    }
+
+    const student = await Student.findOne({ enrollmentNo }).select("-password -createdAt -updatedAt -__v");
+    
+    if (!student) {
+        return res.status(200).json(new ApiResponse(200, [], "No student found with the given enrollmentNo."));
+    }
+    return res.status(200).json(new ApiResponse(200, student, "Student found successfully."));
+});
 
 const updateStudent = asyncHandler(async (req, res) => {
     
@@ -266,31 +280,21 @@ const updateStudent = asyncHandler(async (req, res) => {
 });
 
 const getAllStudents = asyncHandler(async (req, res) => {
-    const { search = "", page = 1, limit = 10, branch, semester } = req.query;
+    const { branch, semester } = req.body;
 
-    const query = {
-        $or: [
-            { firstName: { $regex: search, $options: "i" } },
-            { lastName: { $regex: search, $options: "i" } },
-            { enrollmentNo: { $regex: search, $options: "i" } },
-        ]
-    };
+    if (!branch || !semester) {
+        throw new ApiError(400, "Branch and semester are required");
+    }
 
-    if (branch) query.branch = branch;
-    if (semester) query.semester = semester;
+    const students = await Student.find({ branch, semester }).select("enrollmentNo");
 
-    const total = await Student.countDocuments(query);
-    const students = await Student.find(query)
-        .skip((page - 1) * limit)
-        .limit(Number(limit))
-        .select("-password -__v -createdAt -updatedAt");
+    if (!students || students.length === 0) {
+        throw new ApiError(404, "No students found for the specified branch and semester");
+    }
 
-    return res.status(200).json(new ApiResponse(200, {
-        students,
-        total,
-        currentPage: Number(page),
-        totalPages: Math.ceil(total / limit)
-    }, "Students fetched successfully"));
+    return res.status(200).json(
+        new ApiResponse(200, students, "Student enrollment numbers fetched successfully")
+    );
 });
 
 const getStudentById = asyncHandler(async (req, res) => {
@@ -392,6 +396,7 @@ export {
     studentLogout,
     deleteStudent,
     getDetail,
+    getDetails,
     updateStudent,
     getAllStudents,
     getStudentById,

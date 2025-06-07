@@ -13,31 +13,70 @@ const Marks = () => {
     examType: ''
   });
 
-  const branch = [{ name: "CSE" }, { name: "ECE" }, { name: "Mech" }];
+  const branch = [
+    { name: "Computer Science" },
+    { name: "Biotechnology" },
+    { name: "Mechenical" },
+    { name: "Electronic and Communication" },
+    { name: "Electrical Engineering" }
+  ];
+
   const subject = [{ name: "OS" }, { name: "AI" }, { name: "chemical" }];
 
-  const loadStudentDetails = () => {
-    const mockStudents = [
-      { enrollmentNo: 'CSE001' },
-      { enrollmentNo: 'CSE002' },
-      { enrollmentNo: 'CSE003' }
-    ];
-    setStudentData(mockStudents);
+  const loadStudentDetails = async () => {
+    if (!selected.branch || !selected.semester) {
+      toast.error("Please select branch and semester.");
+      return;
+    }
+
+    try {
+      const res = await axios.post('/api/v1/student/all', {
+        branch: selected.branch,
+        semester: Number(selected.semester)
+      });
+
+      setStudentData(res.data.data);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to fetch students");
+    }
   };
 
-  const submitMarksHandler = () => {
-    const marks = studentData.map(student => {
+  const submitMarksHandler = async () => {
+    if (!selected.branch || !selected.semester || !selected.subject || !selected.examType) {
+      toast.error("Please select all dropdown options.");
+      return;
+    }
+
+    const requests = studentData.map(student => {
       const value = document.getElementById(`${student.enrollmentNo}marks`).value;
-      return { enrollmentNo: student.enrollmentNo, marks: value };
+
+      const payload = {
+        enrollmentNo: student.enrollmentNo,
+        [selected.examType]: {
+          [selected.subject]: Number(value)
+        }
+      };
+
+      return axios.post('/api/v1/marks/addMarks', payload);
     });
-    console.log('Submitting:', marks);
-    toast.success('Marks uploaded successfully!');
+
+    try {
+      await Promise.all(requests);
+      toast.success("Marks uploaded successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Upload failed.");
+    }
   };
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen  px-6 py-10 transition-all duration-300">
+=======
+    <div className="min-h-screen bg-white px-6 py-10 transition-all duration-300">
+>>>>>>> 7ba56b8bca8169498c88a0255c9e1c38a13f779c
       <div className="max-w-6xl mx-auto">
-        {/* Header with Close Button */}
         <div className="relative flex justify-between items-center mb-8">
           <Heading title={`Upload Marks`} />
           {studentData.length > 0 && (
@@ -51,15 +90,13 @@ const Marks = () => {
           )}
         </div>
 
-        {/* Conditional UI */}
         <div className="transition-opacity duration-500 ease-in-out">
           {studentData.length === 0 ? (
             <>
-              {/* Dropdown Section */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 bg-white p-6 rounded-xl shadow-xl border border-blue-100 animate-fade-in">
                 {[
                   { id: 'branch', label: 'Branch', options: branch.map(b => b.name) },
-                  { id: 'semester', label: 'Semester', options: Array.from({ length: 8 }, (_, i) => `${i + 1} Semester`) },
+                  { id: 'semester', label: 'Semester', options: Array.from({ length: 8 }, (_, i) => i + 1) },
                   { id: 'subject', label: 'Subject', options: subject.map(s => s.name) },
                   { id: 'examType', label: 'Exam Type', options: ['internal', 'external'] }
                 ].map(({ id, label, options }) => (
@@ -73,14 +110,15 @@ const Marks = () => {
                     >
                       <option value="">-- Select --</option>
                       {options.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
+                        <option key={opt} value={opt}>
+                          {id === 'semester' ? `${opt} Semester` : opt}
+                        </option>
                       ))}
                     </select>
                   </div>
                 ))}
               </div>
 
-              {/* Load Button */}
               <div className="mt-8 text-center">
                 <button
                   onClick={loadStudentDetails}
@@ -92,11 +130,10 @@ const Marks = () => {
             </>
           ) : (
             <div className="animate-fade-in">
-              {/* Student Entry Section */}
               <p className="text-lg mt-6 mb-4 font-semibold text-gray-700">
                 Upload <span className="text-blue-600 capitalize">{selected.examType}</span> marks for{" "}
                 <span className="text-blue-600">{selected.branch}</span> -{" "}
-                <span className="text-blue-600">{selected.semester}</span> -{" "}
+                <span className="text-blue-600">{selected.semester} Semester</span> -{" "}
                 {selected.subject}
               </p>
 
@@ -117,7 +154,6 @@ const Marks = () => {
                 ))}
               </div>
 
-              {/* Submit Button */}
               <div className="mt-10 text-center">
                 <button
                   onClick={submitMarksHandler}

@@ -2,7 +2,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { userSelectedChat } from "../../features/authSlice.js";
+import { userSelectedChat,updateUserChat } from "../../features/authSlice.js";
 import { useState } from "react";
 
 function AddGroupMember({ setOpenAddMember,setFetchAgain }) {
@@ -36,7 +36,7 @@ function AddGroupMember({ setOpenAddMember,setFetchAgain }) {
             }
             const response=await axios("/api/v1/chat/addMember",config)
           dispatch(userSelectedChat({selectedChat:response.data.data}));
-          setFetchAgain((prev)=>!prev)
+          dispatch(updateUserChat({chat:response.data.data}))
            console.log("add member:",selectedChat)
             toast.success("member added successfully")
             

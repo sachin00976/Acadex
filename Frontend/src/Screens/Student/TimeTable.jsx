@@ -4,11 +4,10 @@ import { FiDownload } from "react-icons/fi";
 import Heading from "../../components/Heading";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-// import { baseApiURL } from "../../baseUrl";
+
 const Timetable = () => {
   const [timetable, setTimetable] = useState("");
   const userData = useSelector((state) => state.auth.user);
-  //   console.log(userData)
 
   useEffect(() => {
     const getTimetable = () => {
@@ -24,15 +23,14 @@ const Timetable = () => {
           }
         )
         .then((response) => {
-        //   console.log(response.data.data);
-          const allTimetables = response.data.data; // assuming API returns { data: [...] }
+          const allTimetables = response.data.data;
           const matched = allTimetables
             .filter(
               (item) =>
                 item.semester === userData.semester &&
                 item.branch === userData.branch
             )
-            .at(-1); // get the last matching one
+            .at(-1);
 
           if (matched) {
             setTimetable(matched.link);
@@ -45,36 +43,37 @@ const Timetable = () => {
     };
     userData && getTimetable();
   }, [userData, userData.branch, userData.semester]);
-//   console.log(timetable)
+
   return (
-    <div className="w-full max-w-6xl mx-auto mt-10 flex justify-center items-start flex-col mb-10">
-      <div className="flex justify-between items-center w-full">
+    <div className="w-full max-w-6xl mx-auto mt-10 px-6 mb-16">
+      <div className="flex justify-between items-center w-full flex-wrap gap-4">
         <Heading title={`Timetable of Semester ${userData.semester}`} />
         {timetable && (
-          <p
-            className="flex justify-center items-center text-lg font-medium cursor-pointer hover:text-red-500 hover:scale-110 ease-linear transition-all duration-200 hover:duration-200 hover:ease-linear hover:transition-all"
-            onClick={() =>
-              window.open(timetable.url)
-            }
+          <button
+            onClick={() => window.open(timetable.url)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-md"
           >
+            <FiDownload className="text-lg" />
             Download
-            <span className="ml-2">
-              <FiDownload />
-            </span>
-          </p>
+          </button>
         )}
       </div>
-      {timetable && (
-        <img
-          className="mt-8 rounded-lg shadow-md w-[70%] mx-auto"
-          src={timetable?.url}
-          alt="timetable"
-        />
-      )}
-      {!timetable && (
-        <p className="mt-10">No Timetable Available At The Moment!</p>
-      )}
+
+      {timetable ? (
+  <div className="mt-10 mx-auto w-full max-w-3xl bg-white shadow-xl rounded-xl p-4">
+    <img
+      className="rounded-lg w-full object-contain"
+      src={timetable?.url}
+      alt="timetable"
+    />
+  </div>
+) : (
+  <p className="mt-12 text-gray-600 text-lg font-medium text-center">
+    No Timetable Available At The Moment!
+  </p>
+)}
     </div>
   );
 };
+
 export default Timetable;
