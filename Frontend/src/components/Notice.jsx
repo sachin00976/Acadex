@@ -77,16 +77,12 @@ const Notice = () => {
       .post(`/api/v1/notice/addNotice`, formData)
       .then((res) => {
         toast.dismiss();
-        if (res.data.success) {
-          toast.success(res.data.message);
-          getNoticeHandler();
-          setOpen(false);
-          reset();
-          setEdit(false);
-          setId("");
-        } else {
-          toast.error(res.data.message);
-        }
+        res.data.success
+          ? (toast.success(res.data.message),
+            getNoticeHandler(),
+            setOpen(false),
+            reset())
+          : toast.error(res.data.message);
       })
       .catch((err) =>
         toast.error(err?.response?.data?.message || "Failed to add notice")
@@ -114,16 +110,13 @@ const Notice = () => {
       .put(`/api/v1/notice/updateNotice/${id}`, formData)
       .then((res) => {
         toast.dismiss();
-        if (res.data.success) {
-          toast.success(res.data.message);
-          getNoticeHandler();
-          setOpen(false);
-          setEdit(false);
-          reset();
-          setId("");
-        } else {
-          toast.error(res.data.message);
-        }
+        res.data.success
+          ? (toast.success(res.data.message),
+            getNoticeHandler(),
+            setOpen(false),
+            setEdit(false),
+            reset())
+          : toast.error(res.data.message);
       })
       .catch((err) =>
         toast.error(err?.response?.data?.message || "Failed to update notice")
@@ -139,21 +132,9 @@ const Notice = () => {
   };
 
   const openHandler = () => {
-    if (open && edit) {
-      setEdit(false);
-      setId("");
-    }
-
-    if (!open) {
-      reset({
-        title: "",
-        description: "",
-        link: "",
-        type: "student",
-      });
-    }
-
     setOpen(!open);
+    setEdit(false);
+    reset();
   };
 
   return (
@@ -181,7 +162,7 @@ const Notice = () => {
       </div>
 
       {!open && (
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+        <div className="space-y-4">
           {notice
             .filter((item) => {
               if (userData?.enrollmentNo) {
@@ -194,38 +175,37 @@ const Notice = () => {
             .map((item, index) => (
               <div
                 key={item._id}
-                className="relative bg-white shadow-md border border-gray-200 rounded-xl p-8 group transition hover:shadow-lg max-w-3xl w-full mx-auto"
+                className="relative p-5 border-2 border-blue-200 rounded-lg bg-white shadow hover:shadow-md transition group"
               >
-                {(router.pathname === "/faculty" ||
-                  router.pathname === "/admin") && (
+                {isAdminOrFaculty && (
                   <div className="absolute right-4 bottom-3 flex items-center space-x-3">
                     <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
                       {item.type}
                     </span>
                     <MdDeleteOutline
-                      className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
+                      className="text-xl text-red-500 cursor-pointer hover:scale-110"
                       onClick={() => deleteNoticehandler(item._id)}
                     />
                     <MdEditNote
-                      className="text-xl text-blue-500 cursor-pointer hover:scale-110 transition"
+                      className="text-xl text-blue-500 cursor-pointer hover:scale-110"
                       onClick={() => setOpenEditSectionHandler(index)}
                     />
                   </div>
                 )}
-                <div
-                  onClick={() => item.link && window.open(item.link)}
-                  className={`text-lg font-semibold mb-1 flex items-center ${
-                    item.link ? "text-blue-700 cursor-pointer hover:underline" : ""
+                <h3
+                  className={`text-lg font-semibold flex items-center ${
+                    item.link && "cursor-pointer text-blue-700 hover:underline"
                   }`}
+                  onClick={() => item.link && window.open(item.link)}
                 >
                   {item.title}
                   {item.link && <IoMdLink className="ml-1 text-xl" />}
-                </div>
-                <p className="text-gray-700 text-sm mb-2">{item.description}</p>
-                <div className="text-gray-500 text-sm flex items-center">
+                </h3>
+                <p className="text-sm mt-2 text-gray-700">{item.description}</p>
+                <p className="text-sm text-gray-500 mt-2 flex items-center">
                   <HiOutlineCalendar className="mr-1" />
                   {formatDate(item.createdAt)}
-                </div>
+                </p>
               </div>
             ))}
         </div>
@@ -238,7 +218,10 @@ const Notice = () => {
         >
           <div className="space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Title
               </label>
               <input
@@ -248,12 +231,17 @@ const Notice = () => {
                 {...register("title", { required: "Title is required" })}
               />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.title.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Description
               </label>
               <textarea
@@ -265,7 +253,10 @@ const Notice = () => {
             </div>
 
             <div>
-              <label htmlFor="link" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="link"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Link (optional)
               </label>
               <input
@@ -277,7 +268,10 @@ const Notice = () => {
             </div>
 
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Type
               </label>
               <select
