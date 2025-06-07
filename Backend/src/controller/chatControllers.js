@@ -206,7 +206,7 @@ const editGroup = asyncHandler(async (req, res) => {
 
 const removeFromGroup = asyncHandler(async (req, res) => {
   var { chatId, memberToRemove } = req.body;
-
+  console.log(memberToRemove)
   if(memberToRemove && typeof memberToRemove==="string")
   {
     memberToRemove=JSON.parse(memberToRemove)
@@ -235,7 +235,14 @@ const removeFromGroup = asyncHandler(async (req, res) => {
     { new: true }
   )
     .populate("users.user", "-password -refreshToken")
-    .populate("admin", "-password -refreshToken");
+    .populate("admin", "-password -refreshToken")
+    .populate({
+      path: "latestMessage",
+      populate: {
+        path: "sender",
+        select: "-password -refreshToken",
+      },
+    });
 
   return res
     .status(200)
@@ -300,7 +307,15 @@ const addToGroup = asyncHandler(async (req, res) => {
   if (filteredUsersToAdd.length === 0) {
     chatRes = await Chat.findById(chatId)
       .populate("users.user", "-password -refreshToken")
-      .populate("admin", "-password -refreshToken");
+      .populate("admin", "-password -refreshToken")
+      .populate({
+      path: "latestMessage",
+      populate: {
+        path: "sender",
+        select: "-password -refreshToken",
+      },
+    });
+    
 
     return res
       .status(200)
@@ -314,8 +329,15 @@ const addToGroup = asyncHandler(async (req, res) => {
     { new: true }
   )
     .populate("users.user", "-password -refreshToken")
-    .populate("admin", "-password -refreshToken");
-
+    .populate("admin", "-password -refreshToken")
+    .populate({
+      path: "latestMessage",
+      populate: {
+        path: "sender",
+        select: "-password -refreshToken",
+      },
+    });
+  
   return res
     .status(200)
     .json(new ApiResponse(200, chatRes, "New members added successfully"));
