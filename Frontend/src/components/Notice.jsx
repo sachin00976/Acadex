@@ -162,7 +162,7 @@ const Notice = () => {
       </div>
 
       {!open && (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
           {notice
             .filter((item) => {
               if (userData?.enrollmentNo) {
@@ -175,37 +175,37 @@ const Notice = () => {
             .map((item, index) => (
               <div
                 key={item._id}
-                className="relative p-5 border-2 border-blue-200 rounded-lg bg-white shadow hover:shadow-md transition group"
+                className="relative bg-white shadow-md border border-gray-200 rounded-xl p-8 group transition hover:shadow-lg max-w-3xl w-full mx-auto"
               >
                 {isAdminOrFaculty && (
-                  <div className="absolute right-4 bottom-3 flex items-center space-x-3">
-                    <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
+                  <div className="absolute top-3 right-4 flex items-center space-x-3">
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full uppercase tracking-wide font-semibold">
                       {item.type}
                     </span>
                     <MdDeleteOutline
-                      className="text-xl text-red-500 cursor-pointer hover:scale-110"
+                      className="text-xl text-red-500 cursor-pointer hover:scale-110 transition"
                       onClick={() => deleteNoticehandler(item._id)}
                     />
                     <MdEditNote
-                      className="text-xl text-blue-500 cursor-pointer hover:scale-110"
+                      className="text-xl text-blue-500 cursor-pointer hover:scale-110 transition"
                       onClick={() => setOpenEditSectionHandler(index)}
                     />
                   </div>
                 )}
-                <h3
-                  className={`text-lg font-semibold flex items-center ${
-                    item.link && "cursor-pointer text-blue-700 hover:underline"
-                  }`}
+                <div
                   onClick={() => item.link && window.open(item.link)}
+                  className={`text-lg font-semibold mb-1 flex items-center ${
+                    item.link ? "text-blue-700 cursor-pointer hover:underline" : ""
+                  }`}
                 >
                   {item.title}
                   {item.link && <IoMdLink className="ml-1 text-xl" />}
-                </h3>
-                <p className="text-sm mt-2 text-gray-700">{item.description}</p>
-                <p className="text-sm text-gray-500 mt-2 flex items-center">
+                </div>
+                <p className="text-gray-700 text-sm mb-2">{item.description}</p>
+                <div className="text-gray-500 text-sm flex items-center">
                   <HiOutlineCalendar className="mr-1" />
                   {formatDate(item.createdAt)}
-                </p>
+                </div>
               </div>
             ))}
         </div>
@@ -218,10 +218,7 @@ const Notice = () => {
         >
           <div className="space-y-4">
             <div>
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                 Title
               </label>
               <input
@@ -231,17 +228,12 @@ const Notice = () => {
                 {...register("title", { required: "Title is required" })}
               />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.title.message}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
               )}
             </div>
 
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                 Description
               </label>
               <textarea
@@ -253,10 +245,7 @@ const Notice = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="link"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="link" className="block text-sm font-medium text-gray-700">
                 Link (optional)
               </label>
               <input
@@ -268,10 +257,7 @@ const Notice = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="type"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700">
                 Type
               </label>
               <select
