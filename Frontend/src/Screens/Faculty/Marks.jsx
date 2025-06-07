@@ -71,11 +71,7 @@ const Marks = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen  px-6 py-10 transition-all duration-300">
-=======
     <div className="min-h-screen bg-white px-6 py-10 transition-all duration-300">
->>>>>>> 7ba56b8bca8169498c88a0255c9e1c38a13f779c
       <div className="max-w-6xl mx-auto">
         <div className="relative flex justify-between items-center mb-8">
           <Heading title={`Upload Marks`} />

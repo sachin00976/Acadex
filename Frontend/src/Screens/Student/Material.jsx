@@ -141,8 +141,4 @@ const Material = () => {
     </div>
   );
 };
-<<<<<<< HEAD
 export default Material;
-=======
-export default Material
->>>>>>> 7ba56b8bca8169498c88a0255c9e1c38a13f779c
