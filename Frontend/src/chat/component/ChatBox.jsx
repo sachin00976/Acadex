@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MyChat from './myChat.jsx';
 import SingleChat from './SingleChat.jsx';
-import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 function ChatBox() {
-  const [fetchAgain,setFetchAgain]=useState(false)
+  const [fetchAgain, setFetchAgain] = useState(false);
+  const selectedChat = useSelector((state) => state.auth.selectedChat);
+
   return (
     <div className="flex h-screen bg-gray-100 p-4 gap-4">
-      {/* MyChat - 40% width */}
-      <div className="w-2/5 h-full overflow-hidden p-2 bg-white rounded-xl shadow">
-        <MyChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
+      
+      <div
+        className={`
+          h-full overflow-hidden p-2 bg-white rounded-xl shadow
+          ${selectedChat ? 'hidden md:block w-2/5' : 'block w-full md:w-2/5'}
+        `}
+      >
+        <MyChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
       </div>
 
-      {/* SingleChat - 60% width */}
-      <div className="w-3/5 h-full overflow-hidden p-2 bg-white rounded-xl shadow">
-        <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}/>
+      {/* SingleChat */}
+      <div
+        className={`
+          h-full overflow-hidden p-2 bg-white rounded-xl shadow
+          ${selectedChat ? 'block w-full md:w-3/5' : 'hidden md:block w-3/5'}
+        `}
+      >
+        <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
       </div>
     </div>
   );
