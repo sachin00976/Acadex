@@ -65,7 +65,7 @@ function ScrollableChat({ messages,setMessage }) {
                   <span className="text-sm block">{msg.content}</span>
                 </div>
 
-                {/* Delete button - visible only on hover if not deleted */}
+                
                 {!isDeleted && msg.sender._id===user._id && (
                   <button
                 onClick={() => deleteHandler(msg._id)}
