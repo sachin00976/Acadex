@@ -11,7 +11,11 @@ const accessChat = asyncHandler(async (req, res) => {
   if (!userId || !role) {
     throw new ApiError(404, "UserId or role is missing!");
   }
-  
+
+  if (!ObjectId.isValid(userId)) {
+    throw new ApiError(400, "Invalid userId");
+  }
+
   const currentUser = {
     user: new ObjectId(req.user._id),
     userModel: req.user.role,
@@ -25,11 +29,11 @@ const accessChat = asyncHandler(async (req, res) => {
   let chatRes = await Chat.findOne({
     isGroupChat: false,
     $and: [
-      { users: { $elemMatch: currentUser } },
-      { users: { $elemMatch: otherUser } },
+      { users: { $elemMatch: { user: currentUser.user, userModel: currentUser.userModel } } },
+      { users: { $elemMatch: { user: otherUser.user, userModel: otherUser.userModel } } },
     ],
   })
-    .populate("users.user", "-password")
+    .populate("users.user", "-password -refreshToken")
     .populate({
       path: "latestMessage",
       populate: {
@@ -37,16 +41,17 @@ const accessChat = asyncHandler(async (req, res) => {
         select: "-password -refreshToken",
       },
     });
-
+    
   if (!chatRes) {
+   
     const chatData = {
       chatName: "sender",
       isGroupChat: false,
       users: [currentUser, otherUser],
     };
-
+    
     const createdChat = await Chat.create(chatData);
-
+    
     chatRes = await Chat.findById(createdChat._id)
       .populate("users.user", "-password -refreshToken")
       .populate({
@@ -57,13 +62,14 @@ const accessChat = asyncHandler(async (req, res) => {
         },
       });
   }
-
+  
   if (!chatRes) {
     throw new ApiError(500, "Internal server error occurred while fetching chat!");
   }
 
   return res.status(200).json(new ApiResponse(200, chatRes, "Chat fetched successfully"));
 });
+
 
 const fetchChat = asyncHandler(async (req, res) => {
   const userId = new ObjectId(req.user._id);
