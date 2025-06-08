@@ -18,7 +18,7 @@ const allMessage=asyncHandler(async(req,res)=>{
     
 })
 
-const sendMessage=asyncHandler(async(req,res)=>{
+const sendMessage=asyncHandler(async (req,res)=>{
     const {content,chatId}=req.body;
 
     if(!content || !chatId)
@@ -57,4 +57,28 @@ const sendMessage=asyncHandler(async(req,res)=>{
 
 })
 
-export {allMessage,sendMessage}
+const deleteMessage = asyncHandler(async (req, res) => {
+  const messageId = req.body.messageId;
+  
+  if (!messageId) {
+    throw new ApiError(400, "Message ID is required");
+  }
+
+  const messageRes = await Message.findById(messageId);
+  if (!messageRes) {
+    throw new ApiError(404, "No message was found");
+  }
+
+  if (!messageRes.sender._id.equals(req.user._id)) {
+    throw new ApiError(403, "Only the sender can delete the message");
+  }
+
+  await Message.findByIdAndDelete(messageId);
+
+  return res.status(200).json(
+    new ApiResponse(200, {}, "Message was deleted successfully")
+  );
+});
+
+
+export {allMessage,sendMessage,deleteMessage}
