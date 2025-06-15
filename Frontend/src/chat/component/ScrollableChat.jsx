@@ -1,5 +1,5 @@
 import { isSameUserMessage } from "../chatLogic/IsSameUser.js";
-import { IsLoggedInUser } from "../chatLogic/isLoggedInUser.js";
+import { IsLoggedInUser } from "../chatLogic/IsLoggedInUser.js";
 import { useSelector } from "react-redux";
 import ScrollableFeed from "react-scrollable-feed";
 

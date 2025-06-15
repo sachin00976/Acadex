@@ -115,7 +115,10 @@ function SingleChat({fetchAgain,setFetchAgain}) {
     socket.on("message recieved",(newMessage)=>{
       if(!selectedChatCompare || (selectedChatCompare._id!==newMessage.chat._id))
         {
-          // give notification
+          if (!notification.includes(newMessageRecieved)) {
+          setNotification([newMessageRecieved, ...notification]);
+          setFetchAgain(!fetchAgain);
+        }
         }
         else
         {
