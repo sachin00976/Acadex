@@ -232,7 +232,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
           <input
             type="text"
             placeholder="Type a message and hit Enter"
-            value={newMessage}
+            value={newMessage || ""}
             onChange={typingHandler}
             onKeyDown={sendMessage}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
