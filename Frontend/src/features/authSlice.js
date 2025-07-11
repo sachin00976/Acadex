@@ -63,8 +63,10 @@ const authSlice = createSlice({
       state.notifications = [];
       state.unreadCount = 0;
     },
+    
     markAllRead: (state) => {
       state.notifications = state.notifications.map(n => ({ ...n, isRead: true }));
+      state.notifications = [];
       state.unreadCount = 0;
     }
 

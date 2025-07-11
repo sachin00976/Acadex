@@ -47,7 +47,7 @@ const Navbar = () => {
             className="relative cursor-pointer"
             onClick={() => {
               setShowDropdown(!showDropdown);
-              dispatch(markAllRead());
+              if(showDropdown) dispatch(markAllRead());
             }}
           >
             <FiBell className="text-gray-700 text-xl" />
@@ -58,7 +58,7 @@ const Navbar = () => {
             )}
           </div>
           {showDropdown && (
-            <div className="absolute top-10 right-0 bg-white shadow-lg rounded-md w-64 p-2">
+            <div className="absolute top-10 right-0 bg-white shadow-lg rounded-md w-64 p-2 z-50">
               {notifications.length === 0 ? (
                 <p className="text-gray-500 text-sm">No new notifications</p>
               ) : (

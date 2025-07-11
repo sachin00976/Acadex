@@ -115,6 +115,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     setNewMessage("")
   }, [selectedChat]);
 
+  
   useEffect(() => {
     socket.on("message recieved", (newMessage) => {
       if (!selectedChatCompare || (selectedChatCompare._id !== newMessage.chat._id)) {
