@@ -44,7 +44,14 @@ A comprehensive MERN stack-based **College Management System** that helps manage
 - **Authentication:** JWT (JSON Web Tokens)
 
 
+## 🧑‍🤝‍🧑 Team Members
 
+| Name                  | Roll Number |
+|-----------------------|-------------|
+| Anvesh Kumar          | 20233077    |
+| Sachin Patel          | 20233237    |
+| Sahil Singh           | 20233240    |
+| Saurabh kumar         | 20233255    |
 
 
 
