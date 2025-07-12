@@ -10,7 +10,8 @@ function GroupSideBar({ setOpenGroupSidebar,setFetchAgain,setMessage }) {
   const dispatch = useDispatch();
   const selectedChat = useSelector((state) => state.auth.selectedChat);
   const [openAddMember, setOpenAddMember] = useState(false);
-  const loggedUser=useSelector((state)=>state.auth.user)
+  const loggedUser=useSelector((state)=>state.auth.user);
+  
   
 
   const leaveHandler=async()=>{
@@ -67,13 +68,19 @@ function GroupSideBar({ setOpenGroupSidebar,setFetchAgain,setMessage }) {
       <div className="w-full h-full border-r border-gray-200 bg-gray-50 p-6 min-h-screen relative overflow-y-auto">
 
         {/* Slide-over to add member */}
-        <div
+        {
+          (selectedChat?.admin?._id===loggedUser._id?(
+          <div
           className={`absolute top-0 right-0 h-full w-full  bg-white shadow-lg z-50 transition-transform duration-300 transform ${
             openAddMember ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
           <AddGroupMember setOpenAddMember={setOpenAddMember} setFetchAgain={setFetchAgain} />
         </div>
+        ):(
+          null
+        ))
+        }
 
         {/* Header */}
         <div className="flex justify-between items-center mb-8">

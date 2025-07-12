@@ -198,7 +198,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
               </div>
             ) : (
               <div className="h-full">
-                <ScrollableChat messages={message} loggedUser={loggedUser} />
+                <ScrollableChat messages={message} setMessage={setMessage} />
               </div>
             )}
           </div>

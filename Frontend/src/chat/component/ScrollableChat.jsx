@@ -17,7 +17,8 @@ function ScrollableChat({ messages,setMessage }) {
           messageId:msgId
         }
       }
-      await axios.delete("/api/v1/message/deleteMessage",config)
+      const res=await axios.delete("/api/v1/message/deleteMessage",config)
+      console.log("deleted res:",res)
       const updatedMessages = messages.map((msg) =>
       msg._id === msgId ? { ...msg, content: "deleted" } : msg
       );
