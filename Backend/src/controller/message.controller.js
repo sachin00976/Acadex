@@ -75,7 +75,7 @@ const sendMessage=asyncHandler(async (req,res)=>{
 
 const deleteMessage = asyncHandler(async (req, res) => {
   const messageId = req.body.messageId;
-  
+  //console.log("msgid:",messageId)
   if (!messageId) {
     throw new ApiError(400, "Message ID is required");
   }
