@@ -11,7 +11,9 @@ const initialState = {
   token: storedToken || null,
   isAuthenticated: !!storedToken,
   selectedChat:null,
-  chats:null
+  chats:null,
+  notifications: [],
+  unreadCount: 0
 };
 
 const authSlice = createSlice({
@@ -52,11 +54,25 @@ const authSlice = createSlice({
   state.chats = state.chats.map((chat) =>
     chat._id === newChat._id ? newChat : chat
   );
-  }
+  },
+  addNotification: (state, action) => {
+      state.notifications.unshift(action.payload);
+      state.unreadCount += 1;
+    },
+    clearNotifications: (state) => {
+      state.notifications = [];
+      state.unreadCount = 0;
+    },
+    
+    markAllRead: (state) => {
+      state.notifications = state.notifications.map(n => ({ ...n, isRead: true }));
+      state.notifications = [];
+      state.unreadCount = 0;
+    }
 
   },
 });
 
-export const { userLoggedIn, userLoggedOut,userChat,userSelectedChat,updateUserChat } = authSlice.actions;
+export const { userLoggedIn, userLoggedOut,userChat,userSelectedChat,updateUserChat,addNotification,clearNotifications,markAllRead} = authSlice.actions;
 
 export default authSlice.reducer;

@@ -6,32 +6,33 @@ import { userSelectedChat } from '../../features/authSlice.js';
 import { getOtherUser } from '../chatLogic/getUser.js';
 import { ScrollableChat } from './ScrollableChat.jsx';
 import { GroupSideBar } from './GroupSideBar.jsx';
-import {io} from "socket.io-client"
+import { io } from "socket.io-client"
 import Lottie from "react-lottie"
 import animationData from "../../animations/typing.json"
 import { EditGroup } from './EditGroup.jsx';
+import { addNotification } from '../../features/authSlice.js';
 
-const ENDPOINT="http://localhost:8000"
-var socket,selectedChatCompare;
+const ENDPOINT = "http://localhost:8000"
+var socket, selectedChatCompare;
 
 
-function SingleChat({fetchAgain,setFetchAgain}) {
+function SingleChat({ fetchAgain, setFetchAgain }) {
   const [message, setMessage] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState(null);
   const [openGroupSidebar, setOpenGroupSidebar] = useState(false);
-  const [openEditGroup,setOpenEditGroup]=useState(false)
-  
-  const [socketConnected,setSocketConnected]=useState(false)
-  const [istyping,setIsTyping]=useState(false)
-  const [typing,setTyping]=useState(false)
+  const [openEditGroup, setOpenEditGroup] = useState(false)
+
+  const [socketConnected, setSocketConnected] = useState(false)
+  const [istyping, setIsTyping] = useState(false)
+  const [typing, setTyping] = useState(false)
 
   const dispatch = useDispatch();
   const selectedChat = useSelector((state) => state.auth.selectedChat);
   const loggedUser = useSelector((state) => state.auth.user);
 
 
-   const defaultOptions = {
+  const defaultOptions = {
     loop: true,
     autoplay: true,
     animationData: animationData,
@@ -40,22 +41,26 @@ function SingleChat({fetchAgain,setFetchAgain}) {
     },
   };
 
-  useEffect(()=>{
-    socket=io(ENDPOINT)
-    socket.emit("setup",loggedUser)
-    socket.on("connected",()=>setSocketConnected(true))
-    socket.on("typing",()=>setIsTyping(true))
-    socket.on("stop typing",()=>setIsTyping(false))
-  },[]);
+  useEffect(() => {
+    socket = io(ENDPOINT)
+    socket.emit("setup", loggedUser)
+    socket.on("connected", () => setSocketConnected(true))
+    socket.on("typing", () => setIsTyping(true))
+    socket.on("stop typing", () => setIsTyping(false))
+    socket.on("notification received", (notif) => {
+      dispatch(addNotification(notif));
+      toast.success(`🔔 New message from ${notif.senderName}`);
+    });
+  }, []);
 
 
- const fetchMessage = async () => {
+  const fetchMessage = async () => {
     if (!selectedChat) return;
     try {
       setLoading(true);
       const response = await axios.get(`/api/v1/message/allMessage/${selectedChat._id}`);
       setMessage(response.data.data);
-      socket.emit("join chat",selectedChat._id)
+      socket.emit("join chat", selectedChat._id)
     } catch (error) {
       console.error('Error while fetching message:', error.message);
       toast.error("Failed to load messages");
@@ -71,9 +76,9 @@ function SingleChat({fetchAgain,setFetchAgain}) {
         chatId: selectedChat._id,
         content: newMessage
       });
-      socket.emit("newMessage",response.data.data)
+      socket.emit("newMessage", response.data.data)
       setMessage([...message, response.data.data]);
-      
+
     } catch (error) {
       console.error('Error while sending message:', error.message);
       toast.error("Failed to send message");
@@ -85,42 +90,48 @@ function SingleChat({fetchAgain,setFetchAgain}) {
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
-    if(!socketConnected) return
+    if (!socketConnected) return
 
-    if(!typing){
+    if (!typing) {
       setTyping(true);
-      socket.emit("typing",selectedChat._id)
+      socket.emit("typing", selectedChat._id)
     }
-    let lastTpyingTime=new Date().getTime();
-    var timerLength=3000
-    setTimeout(()=>{
-      var timeNow=new Date().getTime();
-      var timeDiff=timeNow-lastTpyingTime;
-      if(timeDiff>= timerLength && typing)
-      {
-        socket.emit("stop typing",selectedChat._id);
+    let lastTpyingTime = new Date().getTime();
+    var timerLength = 3000
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDiff = timeNow - lastTpyingTime;
+      if (timeDiff >= timerLength && typing) {
+        socket.emit("stop typing", selectedChat._id);
         setTyping(false)
       }
-    },timerLength)
+    }, timerLength)
   };
 
   useEffect(() => {
     fetchMessage();
-    selectedChatCompare=selectedChat
+    selectedChatCompare = selectedChat
     setIsTyping(false)
     setNewMessage("")
   }, [selectedChat]);
 
-  useEffect(()=>{
-    socket.on("message recieved",(newMessage)=>{
-      if(!selectedChatCompare || (selectedChatCompare._id!==newMessage.chat._id))
-        {
-          // give notification
-        }
-        else
-        {
-          setMessage([...message,newMessage])
-        } 
+  
+  useEffect(() => {
+    socket.on("message recieved", (newMessage) => {
+      if (!selectedChatCompare || (selectedChatCompare._id !== newMessage.chat._id)) {
+        dispatch(addNotification({
+          chatId: newMessage.chat._id,
+          senderName: `${newMessage.sender.firstName} ${newMessage.sender.lastName}`,
+          messagePreview: newMessage.content,
+          isGroupChat: newMessage.chat.isGroupChat,
+          chatName: newMessage.chat.chatName
+        }));
+        toast.success(`🔔 New message from ${newMessage.sender.firstName}`);
+
+      }
+      else {
+        setMessage([...message, newMessage])
+      }
     })
   })
 
@@ -137,104 +148,104 @@ function SingleChat({fetchAgain,setFetchAgain}) {
     : null;
 
   return (
-  !selectedChat ? (
-    <div className="flex items-center justify-center h-full w-full bg-white rounded-lg shadow-md text-gray-500 text-xl">
-      No chat selected
-    </div>
-  ) : (
-    <div className="relative flex flex-col h-full w-full bg-white rounded-lg shadow-md overflow-hidden">
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b bg-gray-100">
-        <button className="md:hidden text-gray-600" onClick={() => dispatch(userSelectedChat(""))}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 truncate">
-          {chatPartner
-            ? `${chatPartner.firstName} ${chatPartner.middleName ?? ""} ${chatPartner.lastName}`
-            : selectedChat.chatName}
-        </h2>
-        
-        {!chatPartner && (
-      <div className="flex items-center space-x-2">
-        <button
-          onClick={() => setOpenEditGroup(true)}
-          className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
-        <button 
-          onClick={() => setOpenGroupSidebar((prev) => !prev)}
-          className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-          </svg>
-        </button>
+    !selectedChat ? (
+      <div className="flex items-center justify-center h-full w-full bg-white rounded-lg shadow-md text-gray-500 text-xl">
+        No chat selected
       </div>
-    )}
-      </div>
+    ) : (
+      <div className="relative flex flex-col h-full w-full bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b bg-gray-100">
+          <button className="md:hidden text-gray-600" onClick={() => dispatch(userSelectedChat(""))}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 className="text-lg md:text-xl font-bold text-gray-800 truncate">
+            {chatPartner
+              ? `${chatPartner.firstName} ${chatPartner.middleName ?? ""} ${chatPartner.lastName}`
+              : selectedChat.chatName}
+          </h2>
 
-      {/* Chat Content */}
-      <div className="flex flex-1 min-h-0">
-        <div className={`flex-1 overflow-hidden transition-all duration-300 ${openGroupSidebar ? 'w-3/5' : 'w-full'}`}>
-          {loading ? (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gray-500">Loading messages...</p>
-            </div>
-          ) : (
-            <div className="h-full">
-              <ScrollableChat messages={message} loggedUser={loggedUser} />
+          {!chatPartner && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setOpenEditGroup(true)}
+                className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setOpenGroupSidebar((prev) => !prev)}
+                className="p-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                </svg>
+              </button>
             </div>
           )}
         </div>
 
-        {/* Group Sidebar */}
-        {!chatPartner && (
-          <div className={`flex-shrink-0 h-full bg-white border-l transition-all duration-300  ${openGroupSidebar ? 'w-3/5' : 'w-0'}`}>
-            {openGroupSidebar && (
-              <GroupSideBar
-                setOpenGroupSidebar={setOpenGroupSidebar}
-                setFetchAgain={setFetchAgain}
-                setMessage={setMessage}
-              />
+        {/* Chat Content */}
+        <div className="flex flex-1 min-h-0">
+          <div className={`flex-1 overflow-hidden transition-all duration-300 ${openGroupSidebar ? 'w-3/5' : 'w-full'}`}>
+            {loading ? (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-gray-500">Loading messages...</p>
+              </div>
+            ) : (
+              <div className="h-full">
+                <ScrollableChat messages={message} setMessage={setMessage} />
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Message Input */}
-      {istyping?(
-              <div>
-                  <Lottie
-                    options={defaultOptions}
-                     //height={50}
-                    width={50}
-                    style={{ marginBottom: 15, marginLeft: 0 }}
-                  />
-                </div>
-              
-      ):(<></>)}
-      <div className="flex-shrink-0 p-3 border-t bg-white">
-        <input
-          type="text"
-          placeholder="Type a message and hit Enter"
-          value={newMessage}
-          onChange={typingHandler}
-          onKeyDown={sendMessage}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+          {/* Group Sidebar */}
+          {!chatPartner && (
+            <div className={`flex-shrink-0 h-full bg-white border-l transition-all duration-300  ${openGroupSidebar ? 'w-3/5' : 'w-0'}`}>
+              {openGroupSidebar && (
+                <GroupSideBar
+                  setOpenGroupSidebar={setOpenGroupSidebar}
+                  setFetchAgain={setFetchAgain}
+                  setMessage={setMessage}
+                />
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Message Input */}
+        {istyping ? (
+          <div>
+            <Lottie
+              options={defaultOptions}
+              //height={50}
+              width={50}
+              style={{ marginBottom: 15, marginLeft: 0 }}
+            />
+          </div>
+
+        ) : (<></>)}
+        <div className="flex-shrink-0 p-3 border-t bg-white">
+          <input
+            type="text"
+            placeholder="Type a message and hit Enter"
+            value={newMessage || ""}
+            onChange={typingHandler}
+            onKeyDown={sendMessage}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+        {/* edit Group */}
+        <div>
+          {openEditGroup && <EditGroup setOpenEditGroup={setOpenEditGroup} />}
+        </div>
       </div>
-      {/* edit Group */}
-      <div>
-        {openEditGroup && <EditGroup setOpenEditGroup={setOpenEditGroup}/>}
-      </div>
-    </div>
-  )
-);
+    )
+  );
 
 }
 
