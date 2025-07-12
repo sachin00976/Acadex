@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import Heading from '../../components/Heading';
@@ -13,15 +13,37 @@ const Marks = () => {
     examType: ''
   });
 
-  const branch = [
-    { name: "Computer Science" },
-    { name: "Biotechnology" },
-    { name: "Mechenical" },
-    { name: "Electronic and Communication" },
-    { name: "Electrical Engineering" }
-  ];
+  const [branches, setBranches] = useState([]);
+  // const [loading, setLoading] = useState(true);
 
-  const subject = [{ name: "OS" }, { name: "AI" }, { name: "chemical" }];
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const res = await axios.get("/api/v1/branch/getBranch");
+        setBranches(res?.data.data ||[]);
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+
+    fetchBranches();
+  }, []);
+  const [subjects, setSubjects] = useState([]);
+  // const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchsubjects = async () => {
+      try {
+        const res = await axios.get("/api/v1/subject/getSubject");
+        setSubjects(res.data.data || []);
+      } catch (error) {
+        console.error("Error fetching subjects:", error);
+      }
+    };
+
+    fetchsubjects();
+  }, []);
 
   const loadStudentDetails = async () => {
     if (!selected.branch || !selected.semester) {
@@ -91,9 +113,9 @@ const Marks = () => {
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 bg-white p-6 rounded-xl shadow-xl border border-blue-100 animate-fade-in">
                 {[
-                  { id: 'branch', label: 'Branch', options: branch.map(b => b.name) },
+                  { id: 'branch', label: 'Branch', options: branches.map((branch) => branch.name) },
                   { id: 'semester', label: 'Semester', options: Array.from({ length: 8 }, (_, i) => i + 1) },
-                  { id: 'subject', label: 'Subject', options: subject.map(s => s.name) },
+                  { id: 'subject', label: 'Subject', options: subjects.map((subject) => subject.name) },
                   { id: 'examType', label: 'Exam Type', options: ['internal', 'external'] }
                 ].map(({ id, label, options }) => (
                   <div key={id}>
