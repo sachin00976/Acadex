@@ -5,7 +5,7 @@ import { Message } from "../models/messageSchema.js"
 import { ObjectId } from "mongodb";
 import { populate } from "dotenv";
 import { Chat } from "../models/chatSchema.js";
-import Notification from "../models/notificationSchema.js";
+import { createNotification } from "./notification.controller.js";
 
 const allMessage = asyncHandler(async (req, res) => {
     const chatId = req.params.chatId
@@ -42,28 +42,15 @@ const sendMessage=asyncHandler(async (req,res)=>{
             }
         })
         .sort({ createdAt: -1 })
-    const recipients = message.chat.users.filter(
-        (u) => u.user._id.toString() !== req.user._id.toString()
-    );
 
-    await Promise.all(
-        recipients.map((r) =>
-            Notification.create({
-                sender: req.user._id,
-                senderModel: req.user.role,
-                recipient: r.user._id,
-                recipientModel: r.userModel,
-                chat: message.chat._id,
-                message: message._id
-            })
-        )
-    );
     await Chat.findByIdAndUpdate(
         chatId,
         {
             latestMessage: message._id
         }
     )
+
+    await createNotification(chatId, message, req.user);
 
     return res.status(200).json(
         new ApiResponse(200, message, "message send successfully")
