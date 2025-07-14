@@ -13,8 +13,7 @@ import {router as commonUser} from './src/routes/commonUser.routes.js'
 import { router as chatRoutes } from './src/routes/chatRoutes.js';
 import {router as messageRoutes} from "./src/routes/messgae.routes.js"
 import { router as studentRoutes } from './src/routes/student.routes.js';
-
-
+import { router as notificationRoutes } from './src/routes/notification.routes.js';
 
 
 const app = express();
@@ -43,7 +42,7 @@ app.use('/api/v1/student',studentRoutes)
 app.use('/api/v1/search',commonUser)
 app.use("/api/v1/chat",chatRoutes)
 app.use("/api/v1/message",messageRoutes)
-
+app.use("/api/v1/notifications", notificationRoutes);
 
 
 export default app;
