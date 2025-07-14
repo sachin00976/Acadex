@@ -1,7 +1,12 @@
+export const getOtherUser = (chat, loggedUser) => {
+  // Find the user object in the array that doesn't belong to the logged-in user
+  const otherUserWrapper = chat.users.find(u => u.user._id !== loggedUser._id);
+  
+  // For debugging, correctly log the first name
+  if (otherUserWrapper) {
+      console.log("Other user's name:", otherUserWrapper.user.firstName);
+  }
 
-const getOtherUser=(chat,user)=>{
-    const chatUsers=chat.users
-    if(chatUsers[0].user._id===user._id) return chatUsers[1]
-    else return chatUsers[0]
-}
-export {getOtherUser}
+  // Return the nested user object directly
+  return otherUserWrapper?.user;
+};

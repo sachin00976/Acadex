@@ -70,7 +70,7 @@ useEffect(() => {
           </div>
         ) : (
           chats.map((chat) => {
-            const user = getOtherUser(chat, loggedUser)?.user;
+            const user = getOtherUser(chat, loggedUser);
 
             return chat.isGroupChat ? (
               <div

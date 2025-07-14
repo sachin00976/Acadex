@@ -13,7 +13,6 @@ const initialState = {
   selectedChat:null,
   chats:null,
   notifications: [],
-  unreadCount: 0
 };
 
 const authSlice = createSlice({
@@ -55,24 +54,22 @@ const authSlice = createSlice({
     chat._id === newChat._id ? newChat : chat
   );
   },
+  setNotifications: (state, action) => {
+      state.notifications = action.payload;
+    },
   addNotification: (state, action) => {
-      state.notifications.unshift(action.payload);
-      state.unreadCount += 1;
+      const newNotification = action.payload;
+      // Prevent duplicates and ensure the new notification is at the front
+      const isAlreadyNotified = state.notifications.some(
+        (notif) => notif.message?._id === newNotification.message?._id // Compare by message ID to prevent duplicates
+      );
+      if (!isAlreadyNotified) {
+        state.notifications = [newNotification, ...state.notifications];
+      }
     },
-    clearNotifications: (state) => {
-      state.notifications = [];
-      state.unreadCount = 0;
-    },
-    
-    markAllRead: (state) => {
-      state.notifications = state.notifications.map(n => ({ ...n, isRead: true }));
-      state.notifications = [];
-      state.unreadCount = 0;
-    }
-
   },
 });
 
-export const { userLoggedIn, userLoggedOut,userChat,userSelectedChat,updateUserChat,addNotification,clearNotifications,markAllRead} = authSlice.actions;
+export const { userLoggedIn, userLoggedOut,userChat,userSelectedChat,updateUserChat,setNotifications,addNotification,} = authSlice.actions;
 
 export default authSlice.reducer;
