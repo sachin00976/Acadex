@@ -88,7 +88,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     // Fetch messages for the selected chat
     useEffect(() => {
         const fetchMessages = async () => {
-            if (!selectedChat) return;
+            if (!selectedChat || selectedChat===null) return;
             setLoading(true);
             try {
                 const { data } = await axios.get(`/api/v1/message/allMessage/${selectedChat._id}`);
@@ -172,7 +172,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
         }, timerLength);
     };
 
-    if (!selectedChat) {
+    if (!selectedChat || selectedChat===null) {
         return (
             <div className="flex items-center justify-center h-full text-center">
                 <p className="text-2xl md:text-3xl font-semibold text-gray-600">Click on a user to start chatting</p>

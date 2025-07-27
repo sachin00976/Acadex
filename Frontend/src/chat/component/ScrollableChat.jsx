@@ -34,7 +34,7 @@ function ScrollableChat({ messages,setMessage }) {
   return (
     <div className="h-full p-4 bg-gray-50 rounded-xl shadow-inner space-y-3">
       <ScrollableFeed className="h-full px-4 space-y-3">
-        {messages.map((msg, i) => {
+        {messages && messages.map((msg, i) => {
           const isUser = IsLoggedInUser(msg, user);
           const isDeleted = msg.content === "deleted";
 

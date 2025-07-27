@@ -103,7 +103,7 @@ const fetchChat = asyncHandler(async (req, res) => {
 
 const createGroupChat = asyncHandler(async (req, res) => {
   let {  name } = req.body;
-  
+  console.log("group chat called")
   const filePath=req.file?.path;
   const fileType=req.file?.mimetype;
   if(!filePath || !name)

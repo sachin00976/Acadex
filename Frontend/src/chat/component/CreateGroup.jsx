@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -7,50 +7,66 @@ import { useSelector, useDispatch } from 'react-redux';
 import { userSelectedChat, userChat } from '../../features/authSlice.js';
 
 function CreateGroup({ setOpenCreateGroup }) {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm();
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false); 
-  const imageInputRef = useRef(null); 
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const chats = useSelector((state) => state.auth.chats);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
+  const imageFile = watch('image');
+
+  useEffect(() => {
+    if (imageFile && imageFile.length > 0 && imageFile[0] instanceof File) {
+      const file = imageFile[0];
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      setPreview(null);
     }
-  };
+  }, [imageFile]);
 
   const onClose = () => {
     setOpenCreateGroup(false);
   };
 
   const createGroupHandler = async (data) => {
+    if (!data.name) {
+      toast.error('Group name is required.');
+      return;
+    }
+    if (!data.image || data.image.length === 0) {
+      toast.error('Image is required to create a group.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('name', data.name);
     formData.append('image', data.image[0]);
 
     try {
-      setLoading(true); 
-      const response = await axios.post('/api/v1/chat/createGroup', formData);
-      dispatch(userSelectedChat({ selectedChat: response.data.data }));
+      setLoading(true);
+      const response = await axios.post('/api/v1/chat/createGroup', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+       dispatch(userSelectedChat({ selectedChat: response.data.data }));
       dispatch(userChat({ chats: [response.data.data, ...chats] }));
 
       toast.success('Group created successfully');
       onClose();
       reset();
-      setPreview(null);
-      if (imageInputRef.current) {
-        imageInputRef.current.value = null;
-      }
 
     } catch (error) {
-      console.error('Failed to create Group', error.message);
-      toast.error('Failed to create Group');
+      console.error('Failed to create Group', error);
+      toast.error(error.response?.data?.message || 'Failed to create Group');
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -67,7 +83,6 @@ function CreateGroup({ setOpenCreateGroup }) {
         <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Create New Group</h2>
 
         <form onSubmit={handleSubmit(createGroupHandler)} className="space-y-4">
-          {/* Group Name */}
           <div>
             <label className="block font-medium text-gray-700">Group Name</label>
             <input
@@ -80,17 +95,14 @@ function CreateGroup({ setOpenCreateGroup }) {
             {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
           </div>
 
-          {/* Group Image */}
           <div>
             <label className="block font-medium text-gray-700">Upload Group Profile</label>
             <input
-              {...register('image', { required: 'Image is required' })}
               type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              ref={imageInputRef} // <-- 🔧 Add ref
+              {...register('image', { required: 'Image is required' })}
               className="w-full mt-1 border border-gray-300 rounded-md p-2"
               disabled={loading}
+              accept="image/*"
             />
             {errors.image && <p className="text-red-500 text-sm">{errors.image.message}</p>}
             {preview && (
@@ -98,10 +110,7 @@ function CreateGroup({ setOpenCreateGroup }) {
                 <button
                   type="button"
                   onClick={() => {
-                    setPreview(null);
-                    if (imageInputRef.current) {
-                      imageInputRef.current.value = null; 
-                    }
+                    setValue('image', null);
                   }}
                   className="absolute top-0 right-0 bg-black rounded-3xl p-1 text-red-500 hover:bg-red-100"
                   disabled={loading}
@@ -117,7 +126,6 @@ function CreateGroup({ setOpenCreateGroup }) {
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
